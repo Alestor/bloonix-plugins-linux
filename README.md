@@ -1,0 +1,27 @@
+# Bloonix Plugins Linux
+
+## Plugins
+
+    check-bonding
+    check-cpustat
+    check-diskusage
+    check-iflink
+    check-ifstat
+    check-iostat
+    check-linux-updates
+    check-loadavg
+    check-mdadm
+    check-memstat
+    check-mtr
+    check-netstat
+    check-netstat-port
+    check-nfs3
+    check-nfs4
+    check-nfs4-client
+    check-open-files
+    check-pgswstat
+    check-ping
+    check-procstat
+    check-service
+    check-smart-health
+    check-sockstat
