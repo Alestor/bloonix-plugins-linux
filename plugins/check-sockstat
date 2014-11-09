@@ -1,0 +1,105 @@
+#!/usr/bin/perl
+
+=head1 NAME
+
+check-sockstat - Plugin to check socket usage.
+
+=head1 SYNOPSIS
+
+    check-sockstat [ OPTIONS ]
+
+    check-sockstat --help
+
+=head1 REPORTING BUGS
+
+Please report all bugs to <support(at)bloonix.de>.
+
+=head1 AUTHOR
+
+Jonny Schulz <support(at)bloonix.de>.
+
+=head1 POWERED BY
+
+     _    __ _____ _____ __  __ __ __   __
+    | |__|  |     |     |  \|  |__|\  \/  /
+    |  . |  |  |  |  |  |      |  | >    <
+    |____|__|_____|_____|__|\__|__|/__/\__\
+
+=head1 COPYRIGHT
+
+Copyright (C) 2009-2014 by Jonny Schulz. All rights reserved.
+
+=cut
+
+use strict;
+use warnings;
+use Bloonix::Plugin;
+
+# --------------------------------------------------
+# Plugin options
+# --------------------------------------------------
+
+my $plugin = Bloonix::Plugin->new(version => "0.6");
+
+$plugin->has_threshold(
+    keys => [qw(sockets tcp udp raw ipfrag)]
+);
+
+$plugin->example(
+    description => [
+        "An example to check the number of tcp sockets that are in use and trigger",
+        "",
+        "- a warning status if more than or equal 1000 tcp sockets are in use",
+        "- or a critical status if more than or equal 2000 tcp sockets are in use"
+    ],
+    arguments => [
+        warning => "tcp:ge:1000",
+        critical => "tcp:ge:2000"
+    ]
+);
+
+# --------------------------------------------------
+# Parse options
+# --------------------------------------------------
+
+my $opt = $plugin->parse_options;
+
+# --------------------------------------------------
+# Load sock statistics
+# --------------------------------------------------
+
+my %stat = ();
+
+open my $fh, "<", "/proc/net/sockstat"
+    or die "cannot open /proc/net/sockstat - $!";
+
+while (my $line = <$fh>) {
+    if ($line =~ /sockets: used (\d+)/) {
+        $stat{sockets} = $1;
+    } elsif ($line =~ /TCP: inuse (\d+)/) {
+        $stat{tcp} = $1;
+    } elsif ($line =~ /UDP: inuse (\d+)/) {
+        $stat{udp} = $1;
+    } elsif ($line =~ /RAW: inuse (\d+)/) {
+        $stat{raw} = $1;
+    } elsif ($line =~ /FRAG: inuse (\d+)/) {
+        $stat{ipfrag} = $1;
+    }
+}
+
+close($fh);
+
+# --------------------------------------------------
+# Check warning and critical
+# --------------------------------------------------
+
+my $result = $plugin->check_thresholds(
+    stats => \%stat,
+    upshot_keys => [qw(sockets tcp udp raw ipfrag)]
+);
+
+$plugin->exit(
+    status => $result->{status},
+    message => $result->{upshot},
+    stats => \%stat
+);

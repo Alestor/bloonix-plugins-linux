@@ -1,0 +1,121 @@
+bloonix-plugins-linux (0.23) released at 2014-11-08
+
+    * Fixed typo in check-ping description (20ms -> 2000ms).
+
+bloonix-plugins-linux (0.22) released at 2014-11-05
+
+    * Implemented a timeout for check-smart-health and
+      check-linux-updates.
+    * Added zypper to check-linux-updates.
+
+bloonix-plugins-linux (0.21) released at 2014-11-04
+
+    * Fixed check-linux-updates. Intercept errors from apt.
+
+bloonix-plugins-linux (0.20) released at 2014-11-03
+
+    * Updated the license information.
+
+bloonix-plugins-linux (0.19) released at 2014-08-25
+
+    * Fixed the ping check parser.
+    * An mtr result is added if the extern checks fails.
+    * Licence added and old releases deleted.
+
+bloonix-plugins-linux (0.18) released at 2014-05-12
+
+    * Added check-mtr.
+    * Added check-linux-updates.
+
+bloonix-plugins-linux (0.17) released at 2014-04-23
+
+    * Added check-smart-health.
+
+bloonix-plugins-linux (0.16) released at 2014-04-12
+
+    * Fixed units in check-memstat.
+    * Renamed check-filestat to check-open-files.
+    * Fixed units from kilobytes to bytes for plugin memstats.
+    * Added field "quest" to check-cpustat.
+
+bloonix-plugins-linux (0.15) released at 2014-03-23
+
+    * Complete rewrite of all plugins.
+
+bloonix-plugins-linux (0.14) released at 2013-09-13
+
+    * Changed the exit code of all checks from 0 to 3
+      if --help or --version is requested.
+    * Added new check check-mdadm.
+
+bloonix-plugins-linux (0.13) released at 2013-05-14
+
+    * The statistics of all plugins is now printed in JSON format.
+
+bloonix-plugins-linux (0.12) released at 2013-02-23
+
+    * Fixed check-ifstat - the initial statistics
+      are always marked as corrupt.
+
+bloonix-plugins-linux (0.11) released at 2012-10-11
+
+    * Fixed check-bonding - now active-active setups
+      are parsed correclty.
+
+bloonix-plugins-linux (0.10) released at 2012-03-26
+
+    * Added plugin check-netstat-port.
+    * Added NFS plugins check-nfs3, check-nfs4, and
+      check-nfs4-client.
+
+bloonix-plugins-linux (0.9) released at 2012-03-23
+
+    * Fixed the undefined bug in check-bonding.
+    * Added a lot of new statistics to check-netstat.
+    * Added plugin check-iflink.
+
+bloonix-plugins-linux (0.8) released at 2012-03-14
+
+    * Fixed a bug in check-procstat. If the script runs
+      the first time or the yaml file does not exists
+      then $init->{time} was undef.
+    * Improved check-cpustat, check-ifstat, check-iostat,
+      check-netstat, check-pgswstat, check-procstat.
+      If the YAML data are broken then the temporary
+      file will be overwritten.
+
+bloonix-plugins-linux (0.7) released at 2011-11-29
+
+    * Updated the plugin-* files.
+    * Added key memrealfree to check-memstat.
+
+bloonix-plugins-linux (0.6) released at 2011-08-31
+
+    * Added check-bonding.
+
+bloonix-plugins-linux (0.5) released at 2011-07-11
+
+    * Added ipv6 to the parameter list in usage().
+    * Fixed type commited -> committed in check-memstats.
+
+bloonix-plugins-linux (0.4) released at 2011-07-01
+
+    * Renamed environment variable YAML_FILE_BASEDIR to
+      PLUGIN_LIBDIR.
+    * Kicked unused option o_stat.
+
+bloonix-plugins-linux (0.3) released at 2010-12-27
+
+    * Fixed a bug in check-netstat at line 154 and
+      renamed recv_udp_pcks to sent_udp_pcks.
+    * Renamed all plugin files from *.plugin to plugin-*.
+    * check-ping can now used to ping ipv6 addresses
+
+bloonix-plugins-linux (0.2) released at 2010-11-17
+
+    * Kicked option --stat from all plugins, because
+      statistics will be printed by default on stdout.
+
+bloonix-plugins-linux (0.1) released at 2010-08-02
+
+    * Initial release.

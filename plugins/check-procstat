@@ -1,0 +1,160 @@
+#!/usr/bin/perl
+
+=head1 NAME
+
+check-procstat - Plugin to check process statistics.
+
+=head1 SYNOPSIS
+
+    check-procstat [ OPTIONS ]
+
+    check-procstat --help
+
+=head1 REPORTING BUGS
+
+Please report all bugs to <support(at)bloonix.de>.
+
+=head1 AUTHOR
+
+Jonny Schulz <support(at)bloonix.de>.
+
+=head1 POWERED BY
+
+     _    __ _____ _____ __  __ __ __   __
+    | |__|  |     |     |  \|  |__|\  \/  /
+    |  . |  |  |  |  |  |      |  | >    <
+    |____|__|_____|_____|__|\__|__|/__/\__\
+
+=head1 COPYRIGHT
+
+Copyright (C) 2009-2014 by Jonny Schulz. All rights reserved.
+
+=cut
+
+use strict;
+use warnings;
+use Bloonix::Plugin;
+
+# --------------------------------------------------
+# Plugin options
+# --------------------------------------------------
+
+my $plugin = Bloonix::Plugin->new(version => "0.8");
+
+$plugin->has_threshold(
+    keys => [qw(new runqueue count blocked running)]
+);
+
+$plugin->example(
+    description => [
+        "A simple example",
+        "",
+        "- warning if runqueue is equal or higher than 20",
+        "- critical if runqueue is equal or higher than 40",
+        "- warning if new is equal or higher than 100",
+        "- critical if new is equal or higher than 200"
+    ],
+    arguments => [
+        warning => "runqueue:20",
+        critical => "runqueue:40",
+        warning => "new:100",
+        critical => "new:200"
+    ]
+);
+
+# --------------------------------------------------
+# Parse options
+# --------------------------------------------------
+
+my $opt = $plugin->parse_options;
+
+# --------------------------------------------------
+# load() function to load proess statistics
+# --------------------------------------------------
+
+sub load {
+    my %stat = ();
+
+    open my $fh, "<", "/proc/stat"
+        or die "cannot open /proc/stat - $!";
+
+    while (my $line = <$fh>) {
+        if ($line =~ /^processes\s+(\d+)/) {
+            $stat{new} = $1;
+        } elsif ($line =~ /^procs_(blocked|running)\s+(\d+)/) {
+            $stat{$1} = $2;
+        }
+    }
+
+    close($fh);
+    return \%stat;
+}
+
+
+# --------------------------------------------------
+# Load initial statistics
+# --------------------------------------------------
+
+my $init = $plugin->load_json;
+my $time = undef;
+
+if (defined $init) {
+    $time = delete $init->{time};
+} else {
+    $init = &load;
+    $time = time;
+    sleep 1;
+}
+
+# --------------------------------------------------
+# Load current statistics
+# --------------------------------------------------
+
+my $stat  = &load;
+my $ntime = time;
+my $delta = $ntime - $time;
+
+open my $fhl, '<', "/proc/loadavg"
+    or die "cannot open /proc/loadavg - $!";
+
+( $stat->{runqueue}
+, $stat->{count}
+) = (split m@/@, (split /\s+/, <$fhl>)[3]);
+
+close($fhl);
+
+# --------------------------------------------------
+# Store statistics for the next run
+# --------------------------------------------------
+
+$plugin->safe_json({
+    time => $ntime,
+    new  => $stat->{new}
+});
+
+# --------------------------------------------------
+# Calculate deltas
+# --------------------------------------------------
+
+if ($stat->{new} == $init->{new} || $init->{new} > $stat->{new}) {
+    $stat->{new} = sprintf('%.2f', 0);
+} elsif ($delta > 0) {
+    $stat->{new} = sprintf('%.2f', ($stat->{new} - $init->{new}) / $delta);
+} else {
+    $stat->{new} = sprintf('%.2f', $stat->{new} - $init->{new});
+}
+
+# --------------------------------------------------
+# Check warning and critical
+# --------------------------------------------------
+
+my $result = $plugin->check_thresholds(
+    stats => $stat,
+    upshot_keys => [qw(new runqueue count blocked running)]
+);
+
+$plugin->exit(
+    status => $result->{status},
+    message => $result->{upshot},
+    stats => $stat
+);

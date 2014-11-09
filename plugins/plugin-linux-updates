@@ -1,0 +1,9 @@
+plugin {
+    id 23
+    plugin Linux.Updates.Check
+    command check-linux-updates
+    datatype none
+    category System,Linux,Security
+    abstract Linux check updates
+    description Check if updates are available.
+}

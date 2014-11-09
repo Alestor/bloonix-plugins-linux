@@ -1,0 +1,9 @@
+plugin {
+    id 27
+    plugin Network.MTR.Check
+    command check-mtr
+    datatype table
+    category System,Linux
+    abstract Traceroute
+    description Monitor the route to a host via MTR.
+}

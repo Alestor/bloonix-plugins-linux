@@ -1,0 +1,75 @@
+plugin {
+    id 40
+    plugin Linux.Socket.Check
+    command check-sockstat
+    datatype statistic
+    category System,Linux
+    abstract Socket usage check
+    description Linux socket statistics
+}
+
+statistic {
+    statkey sockets
+    alias Total sockets
+    datatype bigint
+    description Total number of used sockets.
+}
+
+statistic {
+    statkey udp
+    alias UDP sockets
+    datatype bigint
+    description Number of udp sockets in use.
+}
+
+statistic {
+    statkey tcp
+    alias TCP sockets
+    datatype bigint
+    description Number of tcp sockets in use.
+}
+
+statistic {
+    statkey ipfrag
+    alias IP fragments
+    datatype bigint
+    description Number of ip fragments in use.
+}
+
+statistic {
+    statkey raw
+    alias Raw sockets
+    datatype bigint
+    description Number of raw sockets in use.
+}
+
+chart {
+    id 1
+    title Linux - sockstats
+    options {
+        ylabel count
+        units null
+        chart-type area
+        series {
+            name tcp
+            color \#9a72ad
+        }
+        series {
+            name udp
+            color \#ffb244
+        }
+        series {
+            name sockets
+            color \#e9644a
+        }
+        series {
+            name ipfrag
+            color \#005467
+        }
+        series {
+            name raw
+            color \#2ba743
+        }
+    }
+}
+

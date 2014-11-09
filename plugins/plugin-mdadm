@@ -1,0 +1,9 @@
+plugin {
+    id 25
+    plugin Linux.MDADM.Check
+    command check-mdadm
+    datatype none
+    category System,Filesystem,Linux
+    abstract MDADM check
+    description Check the status of MD software raids.
+}

@@ -1,0 +1,465 @@
+plugin {
+    id 31
+    plugin Linux.NFS4Server.Check
+    command check-nfs4
+    datatype statistic
+    category System,Filesystem,Linux
+    abstract NFS4 check
+    description NFS4 server statistics (see rfc3010)
+}
+
+statistic {
+    statkey access
+    alias Access
+    datatype float
+    description ACCESS - Check Access Rights.
+}
+
+statistic {
+    statkey close
+    alias Close
+    datatype float
+    description CLOSE - Close File.
+}
+
+statistic {
+    statkey commit
+    alias Commit
+    datatype float
+    description COMMIT - Commit Cached Data.
+}
+
+statistic {
+    statkey create
+    alias Create
+    datatype float
+    description CREATE - Create a Non-Regular File Object.
+}
+
+statistic {
+    statkey delegpurge
+    alias Purge delegations
+    datatype float
+    description DELEGPURGE - Purge Delegations Awaiting Recovery.
+}
+
+statistic {
+    statkey delegreturn
+    alias Return delegation
+    datatype float
+    description DELEGRETURN - Return Delegation.
+}
+
+statistic {
+    statkey getattr
+    alias Get attributes
+    datatype float
+    description GETATTR - Get Attributes.
+}
+
+statistic {
+    statkey getfh
+    alias Get filehandle
+    datatype float
+    description GETFH - Get Current Filehandle.
+}
+
+statistic {
+    statkey link
+    alias Create link
+    datatype float
+    description LINK - Create Link to a File.
+}
+
+statistic {
+    statkey lock
+    alias Create lock
+    datatype float
+    description LOCK - Create Lock.
+}
+
+statistic {
+    statkey lockt
+    alias Test for lock
+    datatype float
+    description LOCKT - Test For Lock.
+}
+
+statistic {
+    statkey locku
+    alias Unlock file
+    datatype float
+    description LOCKU - Unlock File.
+}
+
+statistic {
+    statkey lookup
+    alias File lookup
+    datatype float
+    description LOOKUP - Lookup Filename.
+}
+
+statistic {
+    statkey lookupp
+    alias Lookup parent directory
+    datatype float
+    description LOOKUPP - Lookup Parent Directory.
+}
+
+statistic {
+    statkey nverify
+    alias Verify difference attributes
+    datatype float
+    description NVERIFY - Verify Difference in Attributes.
+}
+
+statistic {
+    statkey open
+    alias Open file
+    datatype float
+    description OPEN - Open a Regular File.
+}
+
+statistic {
+    statkey openattr
+    alias Open named attr directory
+    datatype float
+    description OPENATTR - Open Named Attribute Directory.
+}
+
+statistic {
+    statkey open_confirm
+    alias Confirm open
+    datatype float
+    description OPEN_CONFIRM - Confirm Open.
+}
+
+statistic {
+    statkey open_downgrade
+    alias Reduce open file access
+    datatype float
+    description OPEN_DOWNGRADE - Reduce Open File Access.
+}
+
+statistic {
+    statkey putfh
+    alias Set current filehandle
+    datatype float
+    description PUTFH - Set Current Filehandle.
+}
+
+statistic {
+    statkey putpubfh
+    alias Set public filehandle
+    datatype float
+    description PUTPUBFH - Set Public Filehandle.
+}
+
+statistic {
+    statkey putrootfh
+    alias Set root filehandle
+    datatype float
+    description PUTROOTFH - Set Root Filehandle.
+}
+
+statistic {
+    statkey read
+    alias Read file
+    datatype float
+    description READ - Read from File.
+}
+
+statistic {
+    statkey readdir
+    alias Read directory
+    datatype float
+    description READDIR - Read Directory.
+}
+
+statistic {
+    statkey readlink
+    alias Read link
+    datatype float
+    description READLINK - Read Symbolic Link.
+}
+
+statistic {
+    statkey remove
+    alias Remove filesystem object
+    datatype float
+    description REMOVE - Remove Filesystem Object.
+}
+
+statistic {
+    statkey rename
+    alias Rename
+    datatype float
+    description RENAME - Rename Directory Entry.
+}
+
+statistic {
+    statkey renew
+    alias Renew a lease
+    datatype float
+    description RENEW - Renew a Lease.
+}
+
+statistic {
+    statkey restorefh
+    alias Restore filehandle
+    datatype float
+    description RESTOREFH - Restore Saved Filehandle.
+}
+
+statistic {
+    statkey savefh
+    alias Save filehandle
+    datatype float
+    description SAVEFH - Save Current Filehandle.
+}
+
+statistic {
+    statkey secinfo
+    alias Obtain available security
+    datatype float
+    description SECINFO - Obtain Available Security.
+}
+
+statistic {
+    statkey setattr
+    alias Set attributes
+    datatype float
+    description SETATTR - Set Attributes.
+}
+
+statistic {
+    statkey setclientid
+    alias Negotiate client ID
+    datatype float
+    description SETCLIENTID - Negotiate Clientid.
+}
+
+statistic {
+    statkey setclientid_confirm
+    alias Confirm client ID
+    datatype float
+    description SETCLIENTID_CONFIRM - Confirm Clientid.
+}
+
+statistic {
+    statkey verify
+    alias Verify
+    datatype float
+    description VERIFY - Verify Same Attributes.
+}
+
+statistic {
+    statkey write
+    alias Write
+    datatype float
+    description WRITE - Write to File.
+}
+
+statistic {
+    statkey rellockowner
+    alias Release nfs lock state
+    datatype float
+    description Releasing nfs_lockowner State.
+}
+
+chart {
+    id 1
+    title NFS - file operations
+    options {
+        ylabel requests/s
+        units null
+        chart-type area
+        series {
+            name read
+        }
+        series {
+            name write
+        }
+        series {
+            name commit
+        }
+        series {
+            name open
+        }
+        series {
+            name close
+        }
+        series {
+            name lock
+        }
+        series {
+            name lockt
+        }
+        series {
+            name locku
+        }
+        series {
+            name lookup
+        }
+        series {
+            name lookupp
+        }
+        series {
+            name access
+        }
+        series {
+            name getattr
+        }
+        series {
+            name setattr
+        }
+        series {
+            name readdir
+        }
+        series {
+            name readlink
+        }
+    }
+}
+
+chart {
+    id 2
+    title NFS - file operations
+    options {
+        ylabel requests/s
+        units null
+        chart-type area
+        series {
+            name read
+        }
+        series {
+            name write
+        }
+        series {
+            name commit
+        }
+        series {
+            name open
+        }
+        series {
+            name close
+        }
+        series {
+            name lock
+        }
+        series {
+            name lockt
+        }
+        series {
+            name locku
+        }
+        series {
+            name lookup
+        }
+        series {
+            name lookupp
+        }
+        series {
+            name access
+        }
+        series {
+            name getattr
+        }
+        series {
+            name setattr
+        }
+        series {
+            name readdir
+        }
+        series {
+            name readlink
+        }
+    }
+}
+
+chart {
+    id 3
+    title NFS - other operations
+    options {
+        ylabel requests/s
+        units null
+        chart-type area
+        series {
+            name create
+        }
+        series {
+            name remove
+        }
+        series {
+            name rename
+        }
+        series {
+            name renew
+        }
+        series {
+            name link
+        }
+        series {
+            name nverify
+        }
+        series {
+            name verify
+        }
+        series {
+            name delegpurge
+        }
+        series {
+            name delegreturn
+        }
+        series {
+            name openattr
+        }
+        series {
+            name open_confirm
+        }
+        series {
+            name open_downgrade
+        }
+        series {
+            name secinfo
+        }
+        series {
+            name setclientid
+        }
+        series {
+            name setclientid_confirm
+        }
+        series {
+            name rellockowner
+        }
+    }
+}
+
+chart {
+    id 4
+    title NFS - filehandle operations
+    options {
+        ylabel requests/s
+        units null
+        chart-type area
+        series {
+            name getfh
+        }
+        series {
+            name putfh
+        }
+        series {
+            name putpubfh
+        }
+        series {
+            name putrootfh
+        }
+        series {
+            name restorefh
+        }
+        series {
+            name savefh
+        }
+    }
+}
+

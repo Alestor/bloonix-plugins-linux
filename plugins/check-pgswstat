@@ -1,0 +1,153 @@
+#!/usr/bin/perl
+
+=head1 NAME
+
+check-pgswstat - Plugin to check paging and swapping statistics.
+
+=head1 SYNOPSIS
+
+    check-pgswstat [ OPTIONS ]
+
+    check-pgswstat --help
+
+=head1 REPORTING BUGS
+
+Please report all bugs to <support(at)bloonix.de>.
+
+=head1 AUTHOR
+
+Jonny Schulz <support(at)bloonix.de>.
+
+=head1 POWERED BY
+
+     _    __ _____ _____ __  __ __ __   __
+    | |__|  |     |     |  \|  |__|\  \/  /
+    |  . |  |  |  |  |  |      |  | >    <
+    |____|__|_____|_____|__|\__|__|/__/\__\
+
+=head1 COPYRIGHT
+
+Copyright (C) 2009-2014 by Jonny Schulz. All rights reserved.
+
+=cut
+
+use strict;
+use warnings;
+use Bloonix::Plugin;
+
+# --------------------------------------------------
+# Plugin options
+# --------------------------------------------------
+
+my $plugin = Bloonix::Plugin->new(version => "0.8");
+
+$plugin->has_threshold(
+    keys => [qw(pgpgin pgpgout pswpin pswpout pgfault pgmajfault)]
+);
+
+# --------------------------------------------------
+# Parse options
+# --------------------------------------------------
+
+my $opt = $plugin->parse_options;
+
+# --------------------------------------------------
+# load() function to load paging and swapping stats
+# --------------------------------------------------
+
+sub load {
+    my %stats = ();
+
+    open my $fh, "<", "/proc/stat"
+        or die "cannot open /proc/stat - $!";
+
+    while (my $line = <$fh>) {
+        if ($line =~ /^page\s+(\d+)\s+(\d+)$/) {
+            @stats{qw(pgpgin pgpgout)} = ($1, $2);
+        } elsif ($line =~ /^swap\s+(\d+)\s+(\d+)$/) {
+            @stats{qw(pswpin pswpout)} = ($1, $2);
+        }
+    }
+
+    close($fh);
+
+    # if paging and swapping are not found in /proc/stat
+    # then let's try a look into /proc/vmstat (since 2.6)
+
+    if (!defined $stats{pswpout}) {
+        open my $fh, "<", "/proc/vmstat"
+            or die "cannot open /proc/vmstat - $!";
+
+        while (my $line = <$fh>) {
+            next unless $line =~ /^(pgpgin|pgpgout|pswpin|pswpout|pgfault|pgmajfault)\s+(\d+)/;
+            $stats{$1} = $2;
+        }
+
+        close($fh);
+    }
+
+    return \%stats;
+}
+
+# --------------------------------------------------
+# Load initial statistics
+# --------------------------------------------------
+
+my $init = $plugin->load_json;
+my $time = undef;
+
+if (defined $init) {
+    $time = delete $init->{time};
+} else {
+    $init = &load;
+    $time = time;
+    sleep 1;
+}
+
+# --------------------------------------------------
+# Load current statistics
+# --------------------------------------------------
+
+my $stat  = &load;
+my $ntime = time;
+my $delta = $ntime - $time;
+
+# --------------------------------------------------
+# Calculate deltas
+# --------------------------------------------------
+
+foreach my $key (keys %$stat) {
+    my $value = $stat->{$key};
+
+    if ($stat->{$key} == $init->{$key} || $init->{$key} > $stat->{$key}) {
+        $stat->{$key} = sprintf("%.2f", 0);
+    } elsif ($delta > 0) {
+        $stat->{$key} = sprintf("%.2f", ($stat->{$key} - $init->{$key}) / $delta);
+    } else {
+        $stat->{$key} = sprintf("%.2f", $stat->{$key} - $init->{$key});
+    }
+
+    $init->{$key} = $value;
+}
+
+# --------------------------------------------------
+# Store statistics for the next run
+# --------------------------------------------------
+
+$init->{time} = $ntime;
+$plugin->safe_json($init);
+
+# --------------------------------------------------
+# Check warning and critical
+# --------------------------------------------------
+
+my $result = $plugin->check_thresholds(
+    stats => $stat,
+    upshot_keys => [qw(pgpgin pgpgout pswpin pswpout)],
+);
+
+$plugin->exit(
+    status => $result->{status},
+    message => $result->{upshot},
+    stats => $stat
+);

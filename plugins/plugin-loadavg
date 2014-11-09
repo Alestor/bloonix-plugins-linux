@@ -1,0 +1,56 @@
+plugin {
+    id 24
+    plugin Linux.LoadAVG.Check
+    command check-loadavg
+    datatype statistic
+    category System,Linux
+    abstract Load average check
+    description Linux load average
+}
+
+statistic {
+    statkey avg15
+    alias Load average last 15 minutes
+    datatype float
+    units null
+    description The average processor workload of the last fifteen minutes.
+}
+
+statistic {
+    statkey avg5
+    alias Load average last 5 minutes
+    datatype float
+    units null
+    description The average processor workload of the last five minutes.
+}
+
+statistic {
+    statkey avg1
+    alias Load average last minute
+    datatype float
+    units null
+    description The average processor workload of the last minute.
+}
+
+chart {
+    id 1
+    title Linux - loadavg
+    options {
+        ylabel loadavg
+        units null
+        chart-type line
+        series {
+            name avg1
+            color \#e9644a
+        }
+        series {
+            name avg5
+            color \#005467
+        }
+        series {
+            name avg15
+            color \#9a72ad
+        }
+    }
+}
+

@@ -1,0 +1,89 @@
+plugin {
+    id 33
+    plugin Linux.OpenFiles.Check
+    command check-open-files
+    datatype statistic
+    category System,Linux
+    abstract Open files check
+    description Linux file statistics.
+}
+
+statistic {
+    statkey fh_alloc
+    alias FHs allocated
+    datatype bigint
+    description Number of allocated file handles.
+}
+
+statistic {
+    statkey fh_max
+    alias FHs maximum
+    datatype bigint
+    description Number of maximum file handles.
+}
+
+statistic {
+    statkey fh_free
+    alias FHs free
+    datatype bigint
+    description Number of free file handles.
+}
+
+statistic {
+    statkey nr_free_inodes
+    alias Inodes free
+    datatype bigint
+    description Number of free inodes.
+}
+
+statistic {
+    statkey nr_inodes
+    alias Inodes allocated
+    datatype bigint
+    description Number of allocated inodes.
+}
+
+statistic {
+    statkey nr_dentry
+    alias Dentries allocated
+    datatype bigint
+    description Number of allocated dentries (directory cache entries).
+}
+
+statistic {
+    statkey nr_unused
+    alias Dentries unused
+    datatype bigint
+    description Number of unused dentries (directory cache).
+}
+
+chart {
+    id 1
+    title Linux - filestats
+    options {
+        units default
+        ylabel count
+        chart-type area
+        series {
+            name fh_alloc
+            color \#005467
+        }
+        series {
+            name nr_inodes
+            color \#e9644a
+        }
+        series {
+            name nr_free_inodes
+            color \#2ba743
+        }
+        series {
+            name nr_dentry
+            color \#9a72ad
+        }
+        series {
+            name nr_unused
+            color \#ffb244
+        }
+    }
+}
+

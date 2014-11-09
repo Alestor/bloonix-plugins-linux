@@ -1,0 +1,9 @@
+plugin {
+    id 39
+    plugin Linux.Smart.Health
+    command check-smart-health
+    datatype none
+    category System,Disk,Linux
+    abstract Smart health
+    description Check the SMART health status of a disk.
+}

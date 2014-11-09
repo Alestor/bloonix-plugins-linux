@@ -1,0 +1,241 @@
+plugin {
+    id 32
+    plugin Linux.NFS4Client.Check
+    command check-nfs4-client
+    datatype statistic
+    category System,Filesystem,Linux
+    abstract NFS4 client check
+    description NFS4 client statistics (see rfc3010)
+}
+
+statistic {
+    statkey read
+    alias Read
+    datatype float
+    description READ - Read from File.
+}
+
+statistic {
+    statkey write
+    alias Write
+    datatype float
+    description WRITE - Write to File.
+}
+
+statistic {
+    statkey commit
+    alias Commit
+    datatype float
+    description COMMIT - Commit Cached Data.
+}
+
+statistic {
+    statkey open
+    alias Open
+    datatype float
+    description OPEN - Open a Regular File.
+}
+
+statistic {
+    statkey open_confirm
+    alias Open confirm
+    datatype float
+    description OPEN_CONFIRM - Confirm Open.
+}
+
+statistic {
+    statkey open_noattr
+    alias Open no attributes
+    datatype float
+    description OPEN_NOATTR
+}
+
+statistic {
+    statkey open_downgrade
+    alias Reduce open file access
+    datatype float
+    description OPEN_DOWNGRADE - Reduce Open File Access.
+}
+
+statistic {
+    statkey close
+    alias Close file
+    datatype float
+    description CLOSE - Close File.
+}
+
+statistic {
+    statkey setattr
+    alias Set attributes
+    datatype float
+    description SETATTR - Set Attributes.
+}
+
+statistic {
+    statkey fsinfo
+    alias Get filesystem info
+    datatype float
+    description FSINFO - Get static file system information.
+}
+
+statistic {
+    statkey renew
+    alias Renew lease
+    datatype float
+    description RENEW - Renew a Lease.
+}
+
+statistic {
+    statkey setclientid
+    alias Set client ID
+    datatype float
+    description SETCLIENTID - Negotiate Clientid.
+}
+
+statistic {
+    statkey setclientid_confirm
+    alias Confirm client ID
+    datatype float
+    description SETCLIENTID_CONFIRM - Confirm Clientid.
+}
+
+statistic {
+    statkey lock
+    alias Create lock
+    datatype float
+    description LOCK - Create Lock.
+}
+
+statistic {
+    statkey lockt
+    alias Test lock
+    datatype float
+    description LOCKT - Test For Lock.
+}
+
+statistic {
+    statkey locku
+    alias Unlock
+    datatype float
+    description LOCKU - Unlock File.
+}
+
+statistic {
+    statkey access
+    alias Access
+    datatype float
+    description ACCESS - Check Access Rights.
+}
+
+statistic {
+    statkey getattr
+    alias Get attributes
+    datatype float
+    description GETATTR - Get Attributes.
+}
+
+statistic {
+    statkey lookup
+    alias Lookup filename
+    datatype float
+    description LOOKUP - Lookup Filename.
+}
+
+statistic {
+    statkey lookupp
+    alias Lookup parent directory
+    datatype float
+    description LOOKUPP - Lookup Parent Directory.
+}
+
+statistic {
+    statkey remove
+    alias Remove filesystem object
+    datatype float
+    description REMOVE - Remove Filesystem Object.
+}
+
+statistic {
+    statkey rename
+    alias Rename
+    datatype float
+    description RENAME - Rename Directory Entry.
+}
+
+statistic {
+    statkey link
+    alias Create link
+    datatype float
+    description LINK - Create Link to a File.
+}
+
+statistic {
+    statkey symlink
+    alias Create symbolic link
+    datatype float
+    description SYMLINK - Create a symbolic link.
+}
+
+statistic {
+    statkey create
+    alias Create
+    datatype float
+    description CREATE - Create a Non-Regular File Object.
+}
+
+statistic {
+    statkey pathconf
+    alias Retrieve POSIX information
+    datatype float
+    description PATHCONF - Retrieve POSIX information.
+}
+
+statistic {
+    statkey statfs
+    alias StatFS
+    datatype float
+    description STATFS
+}
+
+statistic {
+    statkey readlink
+    alias Read link
+    datatype float
+    description READLINK - Read Symbolic Link.
+}
+
+statistic {
+    statkey readdir
+    alias Read directory
+    datatype float
+    description READDIR - Read Directory.
+}
+
+statistic {
+    statkey server_caps
+    alias Server caps
+    datatype float
+    description SERVER_CAPS
+}
+
+statistic {
+    statkey delegreturn
+    alias Return delegation
+    datatype float
+    description DELEGRETURN - Return Delegation.
+}
+
+statistic {
+    statkey getacl
+    alias Get ACL
+    datatype float
+    description GETACL - Get Access Control List.
+}
+
+statistic {
+    statkey setacl
+    alias Set ACL
+    datatype float
+    description SETACL - Set Access Control List.
+}
+

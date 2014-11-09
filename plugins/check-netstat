@@ -1,0 +1,210 @@
+#!/usr/bin/perl
+
+=head1 NAME
+
+check-netstat - Plugin to check netstat statistics.
+
+=head1 SYNOPSIS
+
+    check-netstat [ OPTIONS ]
+
+    check-netstat --help
+
+=head1 REPORTING BUGS
+
+Please report all bugs to <support(at)bloonix.de>.
+
+=head1 AUTHOR
+
+Jonny Schulz <support(at)bloonix.de>.
+
+=head1 POWERED BY
+
+     _    __ _____ _____ __  __ __ __   __
+    | |__|  |     |     |  \|  |__|\  \/  /
+    |  . |  |  |  |  |  |      |  | >    <
+    |____|__|_____|_____|__|\__|__|/__/\__\
+
+=head1 COPYRIGHT
+
+Copyright (C) 2009-2014 by Jonny Schulz. All rights reserved.
+
+=cut
+
+use strict;
+use warnings;
+use Bloonix::Plugin;
+
+my $netstat = "netstat";
+
+# --------------------------------------------------
+# Plugin options
+# --------------------------------------------------
+
+my $plugin = Bloonix::Plugin->new(version => "0.8");
+
+$plugin->info(
+    "The command 'netstat' is used to check the network statistics.",
+);
+
+$plugin->has_threshold(
+    keys => [qw(
+        recv_resets   sent_resets
+        recv_udp_pcks sent_udp_pcks
+        active        passive
+        failed        established
+        syn_send      syn_recv
+        fin_wait1     fin_wait2
+        time_wait     close
+        close_wait    last_ack
+        closing       unknown
+    )]
+);
+
+$plugin->example(
+    description => [
+        "An example to check the current established connections and trigger",
+        "",
+        "- a warning status if the number of established connections is higher than or equal 500",
+        "- or a critical status if the number of established connections is higher than or equal 700"
+    ],
+    arguments => [
+        warning => "established:ge:500",
+        critical => "established:ge:750"
+    ]
+);
+
+# --------------------------------------------------
+# Parse options
+# --------------------------------------------------
+
+my $opt = $plugin->parse_options;
+
+# --------------------------------------------------
+# load() function to load netstat statistics
+# --------------------------------------------------
+
+sub load {
+    my %stat = ();
+
+    $stat{active} = 0;
+    $stat{passive} = 0;
+    $stat{failed} = 0;
+    $stat{recv_resets} = 0;
+    $stat{sent_resets} = 0;
+    $stat{recv_udp_pcks} = 0;
+    $stat{sent_udp_pcks} = 0;
+    $stat{recv_udp_errs} = 0;
+    $stat{established} = 0;
+    $stat{syn_send} = 0;
+    $stat{syn_recv} = 0;
+    $stat{fin_wait1} = 0;
+    $stat{fin_wait2} = 0;
+    $stat{time_wait} = 0;
+    $stat{close} = 0;
+    $stat{close_wait} = 0;
+    $stat{last_ack} = 0;
+    $stat{closing} = 0;
+    $stat{unknown} = 0;
+
+    open my $fhs, "$netstat -s|" or die "cannot execute '$netstat -s' - $!";
+
+    while (my $line = <$fhs>) {
+        if ($line =~ /(\d+)\s+active connections openings/) {
+            $stat{active} = $1;
+        } elsif ($line =~ /(\d+)\s+passive connection openings/) {
+            $stat{passive} = $1;
+        } elsif ($line =~ /(\d+)\s+failed connection attempts/) {
+            $stat{failed} = $1;
+        } elsif ($line =~ /(\d+)\s+connection resets received/) {
+            $stat{recv_resets} = $1;
+        } elsif ($line =~ /(\d+)\s+resets sent/) {
+            $stat{sent_resets} = $1;
+        } elsif ($line =~ /(\d+)\s+packets received/) {
+            $stat{recv_udp_pcks} = $1;
+        } elsif ($line =~ /(\d+)\s+packets sent/) {
+            $stat{sent_udp_pcks} = $1;
+        } elsif ($line =~ /(\d+)\s+packet receive errors/) {
+            $stat{recv_udp_errs} = $1;
+        }
+    }
+
+    close $fhs;
+
+    open my $fht, "$netstat -tn|" or die "cannot execute '$netstat -t' - $!";
+
+    while (my $line = <$fht>) {
+        if ($line =~ /(ESTABLISHED|SYN_SENT|SYN_RECV|FIN_WAIT1|FIN_WAIT2|TIME_WAIT|CLOSE|CLOSE_WAIT|LAST_ACK|CLOSING|UNKNOWN)/) {
+            my $status = lc($1);
+            $stat{$status}++;
+        }
+    }
+
+    close $fht;
+    return \%stat;
+}
+
+# --------------------------------------------------
+# Load initial statistics
+# --------------------------------------------------
+
+my $init = $plugin->load_json;
+my $time = undef;
+
+if (defined $init) {
+    $time = delete $init->{time};
+} else {
+    $init = &load;
+    $time = time;
+    sleep 1;
+}
+
+# --------------------------------------------------
+# Load current statistics
+# --------------------------------------------------
+
+my $stat  = &load;
+my $ntime = time;
+my $delta = $ntime - $time;
+
+# --------------------------------------------------
+# Calculate deltas
+# --------------------------------------------------
+
+foreach my $key (keys %$stat) {
+    if ($key =~ /^(?:active|passive|failed|recv_resets|sent_resets|recv_udp_pcks|sent_udp_pcks|recv_udp_errs)\z/) {
+        my $value = $stat->{$key};
+
+        if ($stat->{$key} == $init->{$key} || $init->{$key} > $stat->{$key}) {
+            $stat->{$key} = sprintf("%.2f", 0);
+        } elsif ($delta > 0) {
+            $stat->{$key} = sprintf("%.2f", ($stat->{$key} - $init->{$key}) / $delta);
+        } else {
+            $stat->{$key} = sprintf("%.2f", $stat->{$key} - $init->{$key});
+        }
+
+        $init->{$key} = $value;
+    }
+}
+
+# --------------------------------------------------
+# Store statistics for the next run
+# --------------------------------------------------
+
+$init->{time} = $ntime;
+$plugin->safe_json($init);
+
+# --------------------------------------------------
+# Check warning and critical
+# --------------------------------------------------
+
+my $result = $plugin->check_thresholds(
+    stats => $stat,
+    upshot_keys => [qw(established active passive)]
+);
+
+$plugin->exit(
+    status => $result->{status},
+    message => $result->{upshot},
+    stats => $stat
+);

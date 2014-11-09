@@ -1,0 +1,251 @@
+plugin {
+    id 21
+    plugin Linux.Interface.Statistics
+    command check-ifstat
+    datatype statistic
+    category System,Network,Linux
+    abstract Network interface check
+    description Linux network I/O statistics
+}
+
+statistic {
+    statkey txbyt
+    alias TX bytes
+    datatype float
+    units bytes
+    description Number of bytes transmitted per second.
+}
+
+statistic {
+    statkey rxfifo
+    alias RX FIFO overruns
+    datatype float
+    description Number of FIFO overruns that happend on received packets per second.
+}
+
+statistic {
+    statkey rxframe
+    alias RX carrier errors
+    datatype float
+    description Number of carrier errors that happend on received packets per second.
+}
+
+statistic {
+    statkey rxerrs
+    alias RX errors
+    datatype float
+    description Number of errors that happend while received packets per second.
+}
+
+statistic {
+    statkey txcompr
+    alias TX compressed packets
+    datatype float
+    description Number of compressed packets transmitted per second.
+}
+
+statistic {
+    statkey ttbyt
+    alias Total bytes
+    datatype float
+    units bytes
+    description Total number of bytes transmitted per second.
+}
+
+statistic {
+    statkey txerrs
+    alias TX errors
+    datatype float
+    description Number of errors that happend while transmitting packets per second.
+}
+
+statistic {
+    statkey rxpcks
+    alias RX packets
+    datatype float
+    description Number of packets received per second.
+}
+
+statistic {
+    statkey txdrop
+    alias TX dropped packets
+    datatype float
+    description Number of packets that were dropped per second.
+}
+
+statistic {
+    statkey txcarr
+    alias TX carrier errors
+    datatype float
+    description Number of carrier errors that happend on transmitted packets per second.
+}
+
+statistic {
+    statkey txcolls
+    alias TX collisions
+    datatype float
+    description Number of collisions that were detected per second.
+}
+
+statistic {
+    statkey device
+    alias Device
+    datatype varchar(16)
+    description The device name.
+}
+
+statistic {
+    statkey txfifo
+    alias TX FIFO overruns
+    datatype float
+    description Number of FIFO overruns that happend on transmitted packets per second.
+}
+
+statistic {
+    statkey rxbyt
+    alias RX bytes
+    datatype float
+    units bytes
+    description Number of bytes received per second.
+}
+
+statistic {
+    statkey txpcks
+    alias TX packets
+    datatype float
+    description Number of packets transmitted per second.
+}
+
+statistic {
+    statkey rxdrop
+    alias RX dropped packets
+    datatype float
+    description Number of packets that were dropped per second.
+}
+
+statistic {
+    statkey rxmulti
+    alias RX multicast packets
+    datatype float
+    description Number of multicast packets received per second.
+}
+
+statistic {
+    statkey ttpcks
+    alias Total packets
+    datatype float
+    description Total number of packets transmitted per second.
+}
+
+statistic {
+    statkey rxcompr
+    alias RX compressed packets
+    datatype float
+    description Number of compressed packets received per second.
+}
+
+chart {
+    id 1
+    title Linux - ifstats bytes
+    options {
+        ylabel rxbyt/s (-) - txbyt/s (+)
+        units bytes
+        chart-type area
+        series {
+            name txbyt
+            color \#005467
+        }
+        series {
+            name rxbyt
+            color \#ff7a0d
+            opposite true
+        }
+    }
+}
+
+chart {
+    id 2
+    title Linux - ifstats packets
+    options {
+        ylabel rxpcks/s (-) / txpcks/s (+)
+        units default
+        chart-type area
+        series {
+            name txpcks
+            color \#005467
+        }
+        series {
+            name rxpcks
+            color \#ff7a0d
+            opposite true
+        }
+    }
+}
+
+chart {
+    id 3
+    title Linux - ifstats tx errs
+    options {
+        ylabel packets
+        units default
+        chart-type area
+        series {
+            name txerrs
+            color \#9a72ad
+        }
+        series {
+            name txdrop
+            color \#e9644a
+        }
+        series {
+            name txfifo
+            color \#ffb244
+        }
+        series {
+            name txcolls
+            color \#2ba743
+        }
+        series {
+            name txcarr
+            color \#005467
+        }
+        series {
+            name txcompr
+            color \#7648eb
+        }
+    }
+}
+
+chart {
+    id 4
+    title Linux - ifstats rx errs
+    options {
+        ylabel packets
+        units default
+        chart-type area
+        series {
+            name rxerrs
+            color \#9a72ad
+        }
+        series {
+            name rxdrop
+            color \#e9644a
+        }
+        series {
+            name rxfifo
+            color \#ffb244
+        }
+        series {
+            name rxframe
+            color \#2ba743
+        }
+        series {
+            name rxmulti
+            color \#005467
+        }
+        series {
+            name rxcompr
+            color \#7648eb
+        }
+    }
+}

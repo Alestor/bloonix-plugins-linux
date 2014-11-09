@@ -1,0 +1,141 @@
+plugin {
+    id 29
+    plugin Linux.NetstatPort.Check
+    command check-netstat-port
+    datatype statistic
+    category System,Network,Linux
+    abstract Netstat port check
+    description Linux netstat statistics by port
+}
+
+statistic {
+    statkey established
+    alias Established
+    datatype bigint
+    description ESTABLISHED - The socket has an established connection.
+}
+
+statistic {
+    statkey syn_send
+    alias SYN sent
+    datatype bigint
+    description SYN_SENT - The socket is actively attempting to establish a connection.
+}
+
+statistic {
+    statkey syn_recv
+    alias SYN received
+    datatype bigint
+    description SYN_RECV - A connection request has been received from the network.
+}
+
+statistic {
+    statkey fin_wait1
+    alias FIN wait1
+    datatype bigint
+    description FIN_WAIT1 - The socket is closed, and the connection is shutting down.
+}
+
+statistic {
+    statkey fin_wait2
+    alias FIN wait2
+    datatype bigint
+    description FIN_WAIT2 - Connection is closed, and the socket is waiting for a shutdown from the remote end.
+}
+
+statistic {
+    statkey time_wait
+    alias Time wait
+    datatype bigint
+    description TIME_WAIT - The socket is waiting after close to handle packets still in the network.
+}
+
+statistic {
+    statkey close
+    alias Close
+    datatype bigint
+    description CLOSE - The socket is not being used.
+}
+
+statistic {
+    statkey close_wait
+    alias Close wait
+    datatype bigint
+    description CLOSE_WAIT - The remote end has shut down, waiting for the socket to close.
+}
+
+statistic {
+    statkey last_ack
+    alias Last ACK
+    datatype bigint
+    description LAST_ACK - The remote end has shut down, and the socket is closed. Waiting for acknowledgement.
+}
+
+statistic {
+    statkey closing
+    alias Closing
+    datatype bigint
+    description CLOSING - Both sockets are shut down but we still don't have all our data sent.
+}
+
+statistic {
+    statkey unknown
+    alias Unknown
+    datatype bigint
+    description UNKNOWN - The state of the socket is unknown.
+}
+
+chart {
+    id 1
+    title Linux netstat
+    options {
+        ylabel connections
+        units null
+        chart-type area
+        series {
+            name established
+            color \#e9644a
+        }
+        series {
+            name syn_send
+            color \#ffb244
+        }
+        series {
+            name syn_recv
+            color \#9a72ad
+        }
+        series {
+            name fin_wait1
+            color \#005467
+        }
+        series {
+            name fin_wait2
+            color \#2ba743
+        }
+        series {
+            name time_wait
+            color \#7648eb
+        }
+        series {
+            name close
+            color \#7f7fff
+        }
+        series {
+            name close_wait
+            color \#1c6d16
+        }
+        series {
+            name last_ack
+            color \#bf00bf
+        }
+        series {
+            name closing
+            color \#275487
+        }
+        series {
+            name unknown
+            color \#666666
+        }
+    }
+}
+

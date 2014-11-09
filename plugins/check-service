@@ -1,0 +1,126 @@
+#!/usr/bin/perl
+
+=head1 NAME
+
+check-service - Plugin to check services.
+
+=head1 SYNOPSIS
+
+    check-service [ OPTIONS ]
+
+    check-service --help
+
+=head1 REPORTING BUGS
+
+Please report all bugs to <support(at)bloonix.de>.
+
+=head1 AUTHOR
+
+Jonny Schulz <support(at)bloonix.de>.
+
+=head1 POWERED BY
+
+     _    __ _____ _____ __  __ __ __   __
+    | |__|  |     |     |  \|  |__|\  \/  /
+    |  . |  |  |  |  |  |      |  | >    <
+    |____|__|_____|_____|__|\__|__|/__/\__\
+
+=head1 COPYRIGHT
+
+Copyright (C) 2009-2014 by Jonny Schulz. All rights reserved.
+
+=cut
+
+use strict;
+use warnings;
+use Bloonix::Plugin;
+
+# --------------------------------------------------
+# Plugin options
+# --------------------------------------------------
+
+my $plugin = Bloonix::Plugin->new(version => "0.4");
+
+$plugin->add_option(
+    name => "Service name",
+    option => "service",
+    value => "service",
+    value_type => "string",
+    mandatory => 1,
+    regex => qr/^[\w+\-]+\z/,
+    description => "This is the service name you want to check."
+);
+
+$plugin->add_option(
+    name => "Use 'service' instead 'init.d'",
+    option => "use-service",
+    description => "By default the service is checked with '/etc/init.d/name status'. It's possible to use the service command instead like 'service name status'. Enable this option if you want that the 'service' command is used instead the call over init.d."
+);
+
+$plugin->example(
+    description => [
+        "An example to check service /etc/init.d/httpd",
+        "",
+        "- return ok if the return value is 0",
+        "- return a critical status if the return value is higher than 0"
+    ],
+    arguments => [
+        service => "httpd"
+    ]
+);
+
+# --------------------------------------------------
+# Parse options
+# --------------------------------------------------
+
+my $opt = $plugin->parse_options;
+my $basedir = "/etc/init.d";
+my $service;
+my $command;
+
+if ($opt->{"use_service"}) {
+    $service = qx{which service};
+    chomp $service;
+    if (!$service) {
+        $plugin->exit(
+            status => "UNKNOWN",
+            message => "the command 'service' does not exists"
+        );
+    }
+    $command = "$service $opt->{service} status";
+} else {
+    $command = "$basedir/$opt->{service} status";
+}
+
+# --------------------------------------------------
+# Check the service
+# --------------------------------------------------
+
+if (!-e "$basedir/$opt->{service}") {
+    $plugin->exit(
+        status => "UNKNOWN",
+        message => "service $opt->{service} is not available"
+    );
+}
+
+if (!-x "$basedir/$opt->{service}") {
+    $plugin->exit(
+        status => "UNKONWN",
+        message => "service $opt->{service} is not executable"
+    );
+}
+
+my $output = qx{$command 2>&1};
+my $errcode = $?;
+
+if ($errcode == 0) {
+    $plugin->exit(
+        status => "OK",
+        message => "service $opt->{service} up and running"
+    );
+}
+
+$plugin->exit(
+    status => "CRITICAL",
+    message => "service $opt->{service} returns exit code $errcode"
+);

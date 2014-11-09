@@ -1,0 +1,167 @@
+#!/usr/bin/perl
+
+=head1 NAME
+
+check-netstat-port - Plugin to check netstat statistics by port.
+
+=head1 SYNOPSIS
+
+    check-netstat-port [ OPTIONS ]
+
+    check-netstat-port --help
+
+=head1 REPORTING BUGS
+
+Please report all bugs to <support(at)bloonix.de>.
+
+=head1 AUTHOR
+
+Jonny Schulz <support(at)bloonix.de>.
+
+=head1 POWERED BY
+
+     _    __ _____ _____ __  __ __ __   __
+    | |__|  |     |     |  \|  |__|\  \/  /
+    |  . |  |  |  |  |  |      |  | >    <
+    |____|__|_____|_____|__|\__|__|/__/\__\
+
+=head1 COPYRIGHT
+
+Copyright (C) 2009-2014 by Jonny Schulz. All rights reserved.
+
+=cut
+
+use strict;
+use warnings;
+use Bloonix::Plugin;
+
+# --------------------------------------------------
+# Plugin options
+# --------------------------------------------------
+
+my $plugin = Bloonix::Plugin->new(version => "0.4");
+
+$plugin->has_port(mandatory => 1);
+
+$plugin->add_option(
+    name => "Remote port",
+    option => "remote",
+    description => "By default the connection to the local port are checked. Enable this option if you want to check the connections to the remote port."
+);
+
+$plugin->has_threshold(
+    keys => [qw(
+        syn_send    syn_recv
+        fin_wait1   fin_wait2
+        time_wait   close
+        close_wait  last_ack
+        closing     established
+    )]
+);
+
+$plugin->example(
+    description => [
+        "An example to check the current established connections to the HTTP port and trigger",
+        "",
+        "- a warning status if the number of established connections is higher than or equal 500",
+        "- or a critical status if the number of established connections is higher than or equal 700"
+    ],
+    arguments => [
+        port => 80,
+        warning => "established:ge:500",
+        critical => "established:ge:750"
+    ]
+);
+
+# --------------------------------------------------
+# Other variables
+# --------------------------------------------------
+
+my %st_names = (
+    "01" => "established",
+    "02" => "syn_send",
+    "03" => "syn_recv",
+    "04" => "fin_wait1",
+    "05" => "fin_wait2",
+    "06" => "time_wait",
+    "07" => "close",
+    "08" => "close_wait",
+    "09" => "last_ack",
+    "0A" => "listen",
+    "0B" => "closing",
+);
+
+# --------------------------------------------------
+# Parse options
+# --------------------------------------------------
+
+my $opt = $plugin->parse_options;
+
+# --------------------------------------------------
+# Load statistics
+# --------------------------------------------------
+
+my $stat = {
+    map { $_ => 0 } qw(
+        established
+        syn_send
+        syn_recv
+        fin_wait1
+        fin_wait2
+        time_wait
+        close
+        close_wait
+        last_ack
+        closing
+        unknown
+    )
+};
+
+my $regex = $opt->{remote}
+    ? qr/^\s*[^\s]+\s+[^:]+:[^\s]+\s+[^\s]+\s+([^\s]{2})\s+[^:]+:([^\s]+)\s+/
+    : qr/^\s*[^\s]+\s+[^:]+:([^\s]+)\s+[^\s]+\s+([^\s]{2})\s+/;
+
+foreach my $file ("/proc/net/tcp", "/proc/net/tcp6") {
+    open my $fh, "<", $file or do {
+        print "unable to open '$file' - $!";
+        exit 3;
+    };
+
+    { my $header = <$fh> } # discard header
+
+    while (my $line = <$fh>) {
+        my ($port, $state);
+
+        if ($line =~ $regex) {
+            if ($opt->{remote}) {
+                $port = hex($2);
+                $state = $st_names{$1} || "unknown";
+            } else {
+                $port = hex($1);
+                $state = $st_names{$2} || "unknown";
+            }
+        }
+
+        if ($port eq $opt->{port} && $state ne "listen") {
+            $stat->{$state}++;
+        }
+    }
+
+    close $fh;
+}
+
+# --------------------------------------------------
+# Check warning and critical
+# --------------------------------------------------
+
+my $location = $opt->{remote} ? "remote" : "local";
+my $result = $plugin->check_thresholds(
+    stats => $stat,
+    upshot_keys => ["established"]
+);
+
+$plugin->exit(
+    status => $result->{status},
+    message => "port $opt->{port}: $result->{upshot}",
+    stats => $stat
+);

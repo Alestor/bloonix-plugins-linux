@@ -1,0 +1,122 @@
+#!/usr/bin/perl
+
+=head1 NAME
+
+check-open-files - Plugin to check the file and inode usage.
+
+=head1 SYNOPSIS
+
+    check-open-files [ OPTIONS ]
+
+    check-open-files --help
+
+=head1 REPORTING BUGS
+
+Please report all bugs to <support(at)bloonix.de>.
+
+=head1 AUTHOR
+
+Jonny Schulz <support(at)bloonix.de>.
+
+=head1 POWERED BY
+
+     _    __ _____ _____ __  __ __ __   __
+    | |__|  |     |     |  \|  |__|\  \/  /
+    |  . |  |  |  |  |  |      |  | >    <
+    |____|__|_____|_____|__|\__|__|/__/\__\
+
+=head1 COPYRIGHT
+
+Copyright (C) 2009-2014 by Jonny Schulz. All rights reserved.
+
+=cut
+
+use strict;
+use warnings;
+use Bloonix::Plugin;
+
+# --------------------------------------------------
+# Plugin options
+# --------------------------------------------------
+
+my $plugin = Bloonix::Plugin->new(version => "0.5");
+
+$plugin->add_option(
+    name => "Warning threshold",
+    option => "warning",
+    value => "percent",
+    value_type => "number",
+    default => 10,
+    description => "This is the warning threshold for real free file hanlders in percent. If less than this value in percent are free a warning status is triggered."
+);
+
+$plugin->add_option(
+    name => "Critical threshold",
+    option => "critical",
+    value => "percent",
+    value_type => "number",
+    default => 5,
+    description => "This is the critical threshold for real free file hanlders in percent. If less than this value in percent are free a critical status is triggered."
+);
+
+$plugin->example(
+    description => "Example to check the real free file handlers in percent",
+    arguments => [
+        warning => "5",
+        critical => "3"
+    ]
+);
+
+# --------------------------------------------------
+# Parse options
+# --------------------------------------------------
+
+my $opt = $plugin->parse_options;
+
+# --------------------------------------------------
+# Load the file statistics.
+# --------------------------------------------------
+
+my $file_nr   = "/proc/sys/fs/file-nr";
+my $inode_nr  = "/proc/sys/fs/inode-nr";
+my $dentstate = "/proc/sys/fs/dentry-state";
+my %stat = ();
+
+{
+    open my $fh, '<', $file_nr or die "cannot open $file_nr - $!";
+    @stat{qw(fh_alloc fh_free fh_max)} = (split /\s+/, <$fh>)[0..2];
+    close($fh);
+}
+
+{
+    open my $fh, '<', $inode_nr or die "cannot open $inode_nr - $!";
+    @stat{qw(nr_inodes nr_free_inodes)} = (split /\s+/, <$fh>)[0..1];
+    close($fh);
+}
+
+{
+    open my $fh, '<', $dentstate or die "cannot open $dentstate - $!";
+    @stat{qw(nr_dentry nr_unused)} = (split /\s+/, <$fh>)[0..3];
+    close($fh);
+}
+
+my $realfree = sprintf("%.2f", ($stat{fh_max} - $stat{fh_alloc} + $stat{fh_free}) * 100 / $stat{fh_max});
+
+# --------------------------------------------------
+# Check warning and critical
+# --------------------------------------------------
+
+my $status = "OK";
+my $string = "fh_real_free($realfree%), fh_alloc($stat{fh_alloc}), fh_free($stat{fh_free}), fh_max($stat{fh_max})";
+
+if ($opt->{critical} && $realfree <= $opt->{critical}) {
+    $status = "CRITICAL";
+} elsif ($opt->{warning} && $realfree <= $opt->{warning}) {
+    $status = "WARNING";
+}
+
+$plugin->exit(
+    status => $status,
+    message => $string,
+    stats => \%stat
+);

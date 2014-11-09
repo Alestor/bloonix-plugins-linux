@@ -1,0 +1,9 @@
+plugin {
+    id 38
+    plugin Linux.Service.Check
+    command check-service
+    datatype none
+    category System
+    abstract Service check
+    description Check the status of a service via "/etc/init.d/service status".
+}

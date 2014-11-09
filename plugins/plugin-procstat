@@ -1,0 +1,95 @@
+plugin {
+    id 36
+    plugin Linux.Processes.Check
+    command check-procstat
+    datatype statistic
+    category System,Linux
+    abstract Process status check
+    description Linux process statistics
+}
+
+statistic {
+    statkey count
+    alias Count
+    datatype bigint
+    description The number of kernel scheduling entities that currently exist on the system (processes, threads).
+}
+
+statistic {
+    statkey runqueue
+    alias Run queue
+    datatype bigint
+    description The number of currently executing kernel scheduling entities (processes, threads).
+}
+
+statistic {
+    statkey new
+    alias New
+    datatype float
+    description Number of new processes that were produced per second.
+}
+
+statistic {
+    statkey blocked
+    alias Blocked
+    datatype bigint
+    description Number of processes blocked waiting for I/O to complete.
+}
+
+statistic {
+    statkey running
+    alias Running
+    datatype bigint
+    description Number of processes in runnable state.
+}
+
+chart {
+    id 1
+    title Linux - count processes
+    options {
+        ylabel count
+        units null
+        chart-type area
+        series {
+            name count
+            color \#005467
+        }
+    }
+}
+
+chart {
+    id 2
+    title Linux - new processes
+    options {
+        ylabel new/s
+        units null
+        chart-type area
+        series {
+            name new
+            color \#005467
+        }
+    }
+}
+
+chart {
+    id 3
+    title Linux - procstats
+    options {
+        ylabel count
+        units null
+        chart-type area
+        series {
+            name running
+            color \#ffbc00
+        }
+        series {
+            name runqueue
+            color \#ff7c00
+        }
+        series {
+            name blocked
+            color \#ff5c00
+        }
+    }
+}
+

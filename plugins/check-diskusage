@@ -1,0 +1,176 @@
+#!/usr/bin/perl
+
+=head1 NAME
+
+check-diskusage - Plugin to check the disk usage.
+
+=head1 SYNOPSIS
+
+    check-diskusage [ OPTIONS ]
+
+    check-diskusage --help
+
+=head1 REPORTING BUGS
+
+Please report all bugs to <support(at)bloonix.de>.
+
+=head1 AUTHOR
+
+Jonny Schulz <support(at)bloonix.de>.
+
+=head1 POWERED BY
+
+     _    __ _____ _____ __  __ __ __   __
+    | |__|  |     |     |  \|  |__|\  \/  /
+    |  . |  |  |  |  |  |      |  | >    <
+    |____|__|_____|_____|__|\__|__|/__/\__\
+
+=head1 COPYRIGHT
+
+Copyright (C) 2009-2014 by Jonny Schulz. All rights reserved.
+
+=cut
+
+use strict;
+use warnings;
+use Bloonix::Plugin;
+
+# --------------------------------------------------
+# Plugin options
+# --------------------------------------------------
+
+my $plugin = Bloonix::Plugin->new(version => "0.7");
+
+$plugin->add_option(
+    name => "Mountpoint",
+    option => "mountpoint",
+    value => "mountpoint",
+    value_type => "string",
+    mandatory => 1,
+    regex => qr/^.+\z/,
+    description => "This is the mountpoint where a filesystem is mounted on. As example /var or a simple / for the root mountpoint."
+);
+
+$plugin->has_threshold(
+    keys => [
+        { key => "usageper",  unit => "percent" },
+        { key => "freeper",   unit => "percent" },
+        { key => "usage",     unit => "bytes"   },
+        { key => "free",      unit => "bytes"   },
+        { key => "ifreeper",  unit => "percent" },
+        { key => "iusageper", unit => "percent" }
+    ]
+);
+
+$plugin->example(
+    description => "A simple example to check the home mountpoint - if /home exists as a filesystem mountpoint",
+    arguments => [
+        mountpoint => "/home",
+        warning => "usageper:ge:90",
+        critical => "usageper:ge:95",
+        warning => "iusageper:ge:90",
+        critical => "iusageper:ge:95"
+    ]
+);
+
+# --------------------------------------------------
+# Parse options
+# --------------------------------------------------
+
+my $opt = $plugin->parse_options;
+
+# --------------------------------------------------
+# Everybody knows that df sometime hangs because of
+# lagging NFS shares or whatever. If 2 processes are
+# found then maybe someone is executing the script
+# from the command line. That should be okay, but if
+# there are more than 2 processes it's possible that
+# df hangs and then we shouldn't execute another df.
+# --------------------------------------------------
+
+my $proc = qx{/bin/ps -ef};
+my $progname = $plugin->progname;
+
+if ($? > 0) {
+    $plugin->exit(
+        status => "UNKNOWN",
+        message => "/bin/ps error"
+    );
+}
+
+my @num = ($proc =~ /\s+$progname(\s+|$)/g);
+
+if (@num > 2) {
+    $plugin->exit(
+        status => "CRITICAL",
+        message => "$progname already running"
+    );
+}
+
+# --------------------------------------------------
+# Load the disk and inode usage.
+# --------------------------------------------------
+
+my %stat = ();
+my $cmd  = "/bin/df -P '$opt->{mountpoint}'";
+
+open my $mfh, "$cmd|" or die "cannot execute '/bin/df -mP' - $!";
+{my $null = <$mfh>;}
+my $line = <$mfh>;
+close $mfh;
+
+if ($line && $line =~ /^(.+?)\s+(.+)$/) {
+    @stat{qw(
+        total
+        usage
+        free
+        usageper
+    )} = (split /\s+/, $2)[0..3];
+
+    $stat{total} *= 1024;
+    $stat{usage} *= 1024;
+    $stat{free} *= 1024;
+    $stat{usageper} =~ s/%//;
+    $stat{freeper} = 100 - $stat{usageper};
+}
+
+$cmd = "/bin/df -iP '$opt->{mountpoint}'";
+
+open my $ifh, "$cmd|" or die "cannot execute '/bin/df -iP' - $!";
+{my $null = <$ifh>;}
+$line = <$ifh>;
+close $ifh;
+
+if ($line && $line =~ /^(.+?)\s+(.+)$/) {
+    @stat{qw(
+        itotal
+        iusage
+        ifree
+        iusageper
+    )} = (split /\s+/, $2)[0..3];
+
+    $stat{iusageper} =~ s/%//;  
+    $stat{ifreeper} = 100 - $stat{iusageper};
+}
+
+if (scalar keys %stat != 10) {
+    $plugin->exit(
+        status => "UNKNOWN",
+        message => "mountpoint '$opt->{mountpoint}' does not exists"
+    );
+}
+
+# --------------------------------------------------
+# Check warning and critical
+# --------------------------------------------------
+
+my $result = $plugin->check_thresholds(
+    stats => \%stat,
+    upshot_keys => [qw(usageper iusageper)]
+);
+
+$plugin->exit(
+    status => $result->{status},
+    message => "$opt->{mountpoint}: - $result->{upshot}",
+    stats => \%stat
+);

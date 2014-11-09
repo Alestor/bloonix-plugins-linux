@@ -1,0 +1,281 @@
+#!/usr/bin/perl
+
+=head1 NAME
+
+check-linux-updates - Plugin to check services.
+
+=head1 SYNOPSIS
+
+    check-linux-updates [ OPTIONS ]
+
+    check-linux-updates --help
+
+=head1 REPORTING BUGS
+
+Please report all bugs to <support(at)bloonix.de>.
+
+=head1 AUTHOR
+
+Jonny Schulz <support(at)bloonix.de>.
+
+=head1 POWERED BY
+
+     _    __ _____ _____ __  __ __ __   __
+    | |__|  |     |     |  \|  |__|\  \/  /
+    |  . |  |  |  |  |  |      |  | >    <
+    |____|__|_____|_____|__|\__|__|/__/\__\
+
+=head1 COPYRIGHT
+
+Copyright (C) 2014 by Jonny Schulz. All rights reserved.
+
+=cut
+
+use strict;
+use warnings;
+use Bloonix::Plugin;
+
+# --------------------------------------------------
+# Plugin options
+# --------------------------------------------------
+
+my $plugin = Bloonix::Plugin->new(version => "0.3");
+$plugin->flags("sudo");
+
+$plugin->info(join(" ",
+    "This plugin works only with Debian/Ubuntu or RedHat/CentOS/Fedora like systems.",
+    "On RedHat/CentOS/Fedora you have to install the package 'yum-security'."
+));
+
+$plugin->example(
+    description => [
+        "Check if updates are available and trigger a critical status if",
+        "there is 1 or more as 1 package for security is available."
+    ],
+    arguments => [
+        "critical-security" => 1
+    ]
+);
+
+$plugin->add_option(
+    name => "Warning threshold for normal packages",
+    option => "warning",
+    value => "count",
+    value_type => "int",
+    description => join(" ",
+        "Set this value to the maximum number of packages that",
+        "may be available for an update. If more packages are",
+        "available then a WARNING is triggered."
+    )
+);
+
+$plugin->add_option(
+    name => "Critical threshold for normal packages",
+    option => "critical",
+    value => "count",
+    value_type => "int",
+    description => join(" ",
+        "Set this value to the maximum number of packages that",
+        "may be available for an update. If more packages arei",
+        "available then a CRITICAL is triggered."
+    )
+);
+
+$plugin->add_option(
+    name => "Warning threshold for security packages",
+    option => "warning-security",
+    value => "count",
+    value_type => "int",
+    description => join(" ",
+        "Set this value to the maximum number of packages that",
+        "may be available for an update. If more packages are",
+        "available then a WARNING is triggered."
+    )
+);
+
+$plugin->add_option(
+    name => "Critical threshold for security packages",
+    option => "critical-security",
+    value => "count",
+    value_type => "int",
+    description => join(" ",
+        "Set this value to the maximum number of packages that",
+        "may be available for an update. If more packages are",
+        "available then a CRITICAL is triggered."
+    )
+);
+
+$plugin->add_option(
+    name => "Debug",
+    description => "Print the available packages to stderr",
+    option => "debug",
+    command_line_only => 1
+);
+
+$plugin->has_timeout(default => 30);
+
+my $opt = $plugin->parse_options;
+my $apt_listchanges = "/usr/bin/apt-listchanges";
+my $apt_cache_dir = "/var/cache/apt/archives";
+my $apt_get = "/usr/bin/apt-get";
+my $up2date = "/usr/sbin/up2date";
+my $yum = "/usr/bin/yum";
+my $zypper = "/usr/bin/zypper";
+my $packager = "";
+my $count_packages = 0;
+my $security_packages = 0;
+
+if (!$packager) {
+    if (-x $yum) {
+        $packager = "yum";
+    } elsif (-x $apt_get) {
+        $packager = "apt";
+    } elsif (-x $zypper) {
+        $packager = "zypper";
+    }
+}
+
+if (!$packager) {
+    $plugin->exit(
+        status => "UNKNOWN",
+        message => "unable to determine the package manager"
+    );
+}
+
+# --------------------------------------------------
+# Functions for each packager
+# --------------------------------------------------
+
+sub yum {
+    my ($count_packages, $security_packages);
+    my $proc = qx{/bin/ps -ef};
+
+    if ($proc =~ m!$yum --security check-update!) {
+        $plugin->exit(
+            status => "UNKNOWN",
+            message => "command 'yum' already running"
+        );
+    }
+    # yum install yum-security
+    system("$yum clean metadata 1>/dev/null 2>&1");
+    my $output = qx{$yum --security check-update 2>/dev/null};
+    if ($output =~ /Needed (\d+) of (\d+) packages, for security/) {
+        $security_packages = $1;
+        $count_packages = $2;
+    } elsif ($output =~ /(\d+) package\(s\) needed for security, out of (\d+) available/) {
+        $security_packages = $1;
+        $count_packages = $2;
+    } elsif ($output =~ /No packages needed, for security, (\d+) available/) {
+        $count_packages = $1;
+    } elsif ($output =~ /No packages needed for security; (\d+) packages available/) {
+        $count_packages = $1;
+    }
+
+    return ($count_packages, $security_packages);
+}
+
+sub apt {
+    my ($count_packages, $security_packages);
+    my $proc = qx{/bin/ps -ef};
+
+    if ($proc =~ m!$apt_get --force-yes .+!) {
+        $plugin->exit(
+            status => "UNKNOWN",
+            message => "command 'apt-get' already running"
+        );
+    }
+    my @update = qx{$apt_get --force-yes update 2>&1};
+    my $err = $? >> 8;
+    if ($err > 0) {
+        $plugin->exit(
+            status => "UNKNOWN",
+            message => "command '$apt_get --force-yes update' runs on an error [exit code $err]"
+        );
+    }
+    my @output = qx{$apt_get --force-yes -s -q -y --allow-unauthenticated upgrade 2>&1};
+    @output = grep /^Inst/, @output;
+    foreach my $p (@output) {
+        my ($package, $version, $release) = ($p =~ /Inst (.*?) .*\((.*?) (.*?)\)/);
+        $p = join(" ", $package, $version);
+        $count_packages++;
+        if ($release =~ /security/) {
+            $security_packages++;
+        }
+    }
+
+    return ($count_packages, $security_packages);
+}
+
+sub zypper {
+    my ($count_packages, $security_packages);
+    my $proc = qx{/bin/ps -ef};
+    my $cmd = "$zypper -tqn list-patches";
+
+    if ($proc =~ m!$cmd!) {
+        $plugin->exit(
+            status => "UNKNOWN",
+            message => "command 'zypper' already running"
+        );
+    }
+
+    my @output = qx{$cmd 2>&1};
+    my $err = $? >> 8;
+    if ($err > 0) {
+        $plugin->exit(
+            status => "UNKNOWN",
+            message => "command '$zypper -n list-patches' runs on an error [exit code $err]"
+        );
+    }
+    foreach my $p (@output) {
+        if ($p =~ /(^Repository\s.+Name|^---)/) {
+            next;
+        }
+        $count_packages++;
+        if ($p =~ /\|\s+security\s+\|/) {
+            $security_packages++;
+        }
+    }
+
+    return ($count_packages, $security_packages);
+}
+
+# --------------------------------------------------
+# Run packager
+# --------------------------------------------------
+
+$plugin->eval(
+    timeout => $opt->{timeout},
+    action => $packager,
+    callback => sub {
+        no strict "refs";
+        my ($c, $s) = &{$packager}();
+        $count_packages = $c || 0;
+        $security_packages = $s || 0;
+    }
+);
+
+# --------------------------------------------------
+# Result
+# --------------------------------------------------
+
+my $status = "OK";
+my $message = $packager eq "zypper"
+    ? "$count_packages patches are ready for installation, $security_packages for security"
+    : "$count_packages packages are ready to update, $security_packages for security";
+
+if (
+    (defined $opt->{critical} && $count_packages > $opt->{critical})
+    || (defined $opt->{critical_security} && $security_packages > $opt->{critical_security})
+) {
+    $status = "CRITICAL";
+} elsif (
+    (defined $opt->{warning} && $count_packages > $opt->{warning})
+    || (defined $opt->{warning_security} && $security_packages > $opt->{warning_security})
+) {
+    $status = "WARNING";
+}
+
+$plugin->exit(
+    status => $status,
+    message => $message
+);

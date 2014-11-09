@@ -1,0 +1,270 @@
+plugin {
+    id 28
+    plugin Linux.Netstat.Check
+    command check-netstat
+    datatype statistic
+    category System,Network,Linux
+    abstract Netstat check
+    description Linux netstat statistics
+}
+
+statistic {
+    statkey active
+    alias Active
+    datatype float
+    description Number of active connections per second.
+}
+
+statistic {
+    statkey passive
+    alias Passive
+    datatype float
+    description Number of passive connections per second.
+}
+
+statistic {
+    statkey failed
+    alias Failed
+    datatype float
+    description Number of failed connections per second.
+}
+
+statistic {
+    statkey recv_resets
+    alias Received resets
+    datatype float
+    description Number of connection resets received per second.
+}
+
+statistic {
+    statkey sent_resets
+    alias Sent resets
+    datatype float
+    description Number of connection resets sent per second.
+}
+
+statistic {
+    statkey recv_udp_pcks
+    alias Received UDP packets
+    datatype float
+    description Number of udp packets received per second.
+}
+
+statistic {
+    statkey sent_udp_pcks
+    alias Sent UDP packets
+    datatype float
+    description Number of udp packets sent per second.
+}
+
+statistic {
+    statkey recv_udp_errs
+    alias Received UDP errors
+    datatype float
+    description Number of udp packet receive errors per second.
+}
+
+statistic {
+    statkey established
+    alias Established
+    datatype bigint
+    description ESTABLISHED - The socket has an established connection.
+}
+
+statistic {
+    statkey syn_send
+    alias SYN sent
+    datatype bigint
+    description SYN_SENT - The socket is actively attempting to establish a connection.
+}
+
+statistic {
+    statkey syn_recv
+    alias SYN received
+    datatype bigint
+    description SYN_RECV - A connection request has been received from the network.
+}
+
+statistic {
+    statkey fin_wait1
+    alias FIN wait1
+    datatype bigint
+    description FIN_WAIT1 - The socket is closed, and the connection is shutting down.
+}
+
+statistic {
+    statkey fin_wait2
+    alias FIN wait2
+    datatype bigint
+    description FIN_WAIT2 - Connection is closed, and the socket is waiting for a shutdown from the remote end.
+}
+
+statistic {
+    statkey time_wait
+    alias Time wait
+    datatype bigint
+    description TIME_WAIT - The socket is waiting after close to handle packets still in the network.
+}
+
+statistic {
+    statkey close
+    alias Close
+    datatype bigint
+    description CLOSE - The socket is not being used.
+}
+
+statistic {
+    statkey close_wait
+    alias Close wait
+    datatype bigint
+    description CLOSE_WAIT - The remote end has shut down, waiting for the socket to close.
+}
+
+statistic {
+    statkey last_ack
+    alias Last ACK
+    datatype bigint
+    description LAST_ACK - The remote end has shut down, and the socket is closed. Waiting for acknowledgement.
+}
+
+statistic {
+    statkey closing
+    alias Closing
+    datatype bigint
+    description CLOSING - Both sockets are shut down but we still don't have all our data sent.
+}
+
+statistic {
+    statkey unknown
+    alias Unknown
+    datatype bigint
+    description UNKNOWN - The state of the socket is unknown.
+}
+
+chart {
+    id 1
+    title Linux netstat - connections/s
+    options {
+        ylabel connections/s
+        units default
+        chart-type area
+        series {
+            name active
+            color \#ffb244
+        }
+        series {
+            name passive
+            color \#005467
+        }
+        series {
+            name failed
+            color \#e9644a
+        }
+    }
+}
+
+chart {
+    id 2
+    title Linux netstat - established connections/s
+    options {
+        ylabel established
+        units default
+        chart-type area
+        series {
+            name established
+            color \#005467
+        }
+    }
+}
+
+chart {
+    id 3
+    title Linux netstat - connection resets/s
+    options {
+        ylabel recv/s (-) / sent/s (+)
+        units default
+        chart-type area
+        series {
+            name sent_resets
+            color \#005467
+        }
+        series {
+            name recv_resets
+            color \#ff7a0d
+            opposite true
+        }
+    }
+}
+
+chart {
+    id 4
+    title Linux netstat - udp packets/s
+    options {
+        ylabel recv/s (-) / sent/s (+)
+        units default
+        chart-type area
+        series {
+            name sent_udp_pcks
+            color \#005467
+        }
+        series {
+            name recv_udp_pcks
+            color \#ff7a0d
+            opposite true
+        }
+    }
+}
+
+chart {
+    id 5
+    title Linux netstat - current connections
+    options {
+        ylabel connections
+        units null
+        chart-type area
+        series {
+            name established
+            color \#e9644a
+        }
+        series {
+            name syn_send
+            color \#ffb244
+        }
+        series {
+            name syn_recv
+            color \#9a72ad
+        }
+        series {
+            name fin_wait1
+            color \#005467
+        }
+        series {
+            name fin_wait2
+            color \#2ba743
+        }
+        series {
+            name time_wait
+            color \#7648eb
+        }
+        series {
+            name close
+            color \#7f7fff
+        }
+        series {
+            name close_wait
+            color \#1c6d16
+        }
+        series {
+            name last_ack
+            color \#bf00bf
+        }
+        series {
+            name closing
+            color \#275487
+        }
+        series {
+            name unknown
+            color \#666666
+        }
+    }
+}

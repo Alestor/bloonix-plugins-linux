@@ -1,0 +1,48 @@
+plugin {
+    id 35
+    plugin Ping.Check
+    command check-ping
+    datatype statistic
+    category System,Network
+    netaccess yes
+    prefer remote
+    worldwide yes
+    abstract Ping check
+    description Ping statistics.
+}
+
+statistic {
+    statkey rta
+    alias Round trip average
+    datatype float
+    units ms
+    description Round trip average in milliseconds.
+}
+
+statistic {
+    statkey loss
+    alias Packets loss
+    datatype float
+    units percent
+    description Packets loss in percent.
+}
+
+chart {
+    id 1
+    title Ping - round trip average / paket loss
+    options {
+        ylabel loss (-) / rta (+)
+        units null
+        chart-type area
+        series {
+            name rta
+            color \#005467
+        }
+        series {
+            name loss
+            color \#ff7a0d
+            opposite true
+        }
+    }
+}
+

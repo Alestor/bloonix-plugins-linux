@@ -1,0 +1,167 @@
+#!/usr/bin/perl
+
+=head1 NAME
+
+check-cpustat - Plugin to check the cpu load.
+
+=head1 SYNOPSIS
+
+    check-cpustat [ OPTIONS ]
+
+    check-cpustat --help
+
+=head1 REPORTING BUGS
+
+Please report all bugs to <support(at)bloonix.de>.
+
+=head1 AUTHOR
+
+Jonny Schulz <support(at)bloonix.de>.
+
+=head1 POWERED BY
+
+     _    __ _____ _____ __  __ __ __   __
+    | |__|  |     |     |  \|  |__|\  \/  /
+    |  . |  |  |  |  |  |      |  | >    <
+    |____|__|_____|_____|__|\__|__|/__/\__\
+
+=head1 COPYRIGHT
+
+Copyright (C) 2009-2014 by Jonny Schulz. All rights reserved.
+
+=cut
+
+use strict;
+use warnings;
+use Bloonix::Plugin;
+
+# --------------------------------------------------
+# Plugin options
+# --------------------------------------------------
+
+my $plugin = Bloonix::Plugin->new(version => "0.8");
+
+$plugin->has_threshold(
+    unit => "percent",
+    keys => [qw(user system total iowait idle irq softirq steal quest)]
+);
+
+$plugin->example(
+    description => [
+        "The following check configuration would trigger",
+        "",
+        "- a warning if the IOwait is equal or higher than 40%",
+        "- a critical if the IOwait is equal or higher than 60%",
+        "- a warning if the total CPU usage is equal or higher than 90%",
+        "- a critical if the total CPU usage is equal or higher than 95%"
+    ],
+    arguments => [
+        warning => "iowait:ge:40",
+        critical => "iowait:ge:60",
+        warning => "total:ge:90",
+        critical => "total:ge:95"
+    ]
+);
+
+# --------------------------------------------------
+# Parse options
+# --------------------------------------------------
+
+my $opt = $plugin->parse_options;
+
+# --------------------------------------------------
+# load() function to load the cpu usage
+# --------------------------------------------------
+
+sub load {
+    my %stat = ();
+
+    open my $fh, '<', "/proc/stat"
+        or die "UNKNOWN - cannot open /proc/stat - $!";
+
+    while (my $line = <$fh>) {
+        if ($line =~ /^cpu\s+(.*)$/) {
+            my @values = split /\s+/, $1;
+            pop @values; # user_hz
+            # - user, nice, system, idle
+            # - iowait, irq and softirq are only set by kernel versions higher than 2.4
+            # - steal is available since 2.6.11
+            # - quest is available since 2.6.24
+            (@stat{qw(user nice system idle iowait irq softirq steal quest)}) = @values;
+
+            foreach my $key (keys %stat) {
+                if (!defined $stat{$key}) {
+                    $stat{$key} = 0;
+                }
+            }
+
+            last;
+        }
+    }
+
+    close $fh;
+    return \%stat;
+}
+
+# --------------------------------------------------
+# Load initial statistics
+# --------------------------------------------------
+
+my $init = $plugin->load_json;
+
+if (!defined $init) {
+    $init = &load;
+    sleep 1;
+}
+
+# --------------------------------------------------
+# Load current statistics
+# --------------------------------------------------
+
+my $stat = &load;
+
+# --------------------------------------------------
+# Calculate deltas
+# --------------------------------------------------
+
+my $time = 0;
+
+foreach my $key (keys %$stat) {
+    $stat->{$key} -= $init->{$key};
+    $init->{$key} += $stat->{$key};
+    $time += $stat->{$key};
+}
+
+foreach my $key (keys %$stat) {
+    if ($stat->{$key} > 0) {
+        $stat->{$key} = sprintf('%.2f', 100 * $stat->{$key} / $time);
+    } elsif ($stat->{$key} < 0) {
+        # the value is lower after a system reboot
+        $stat->{$key} = sprintf('%.2f', 0);
+    } else {
+        $stat->{$key} = sprintf('%.2f', $stat->{$key});
+    }
+}
+
+$stat->{total} = sprintf('%.2f', 100 - $stat->{idle});
+
+# --------------------------------------------------
+# Store statistics for the next run
+# --------------------------------------------------
+
+$plugin->safe_json($init);
+
+# --------------------------------------------------
+# Check warning and critical
+# --------------------------------------------------
+
+my $result = $plugin->check_thresholds(
+    stats => $stat,
+    upshot_keys => [qw(total iowait system user)]
+);
+
+$plugin->exit(
+    status => $result->{status},
+    message => $result->{upshot},
+    stats => $stat
+);

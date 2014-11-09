@@ -1,0 +1,228 @@
+#!/usr/bin/perl
+
+=head1 NAME
+
+check-ifstat - Plugin to check network interface load.
+
+=head1 SYNOPSIS
+
+    check-ifstat [ OPTIONS ]
+
+    check-ifstat --help
+
+=head1 REPORTING BUGS
+
+Please report all bugs to <support(at)bloonix.de>.
+
+=head1 AUTHOR
+
+Jonny Schulz <support(at)bloonix.de>.
+
+=head1 POWERED BY
+
+     _    __ _____ _____ __  __ __ __   __
+    | |__|  |     |     |  \|  |__|\  \/  /
+    |  . |  |  |  |  |  |      |  | >    <
+    |____|__|_____|_____|__|\__|__|/__/\__\
+
+=head1 COPYRIGHT
+
+Copyright (C) 2009-2014 by Jonny Schulz. All rights reserved.
+
+=cut
+
+use strict;
+use warnings;
+use Bloonix::Plugin;
+
+# --------------------------------------------------
+# Plugin options
+# --------------------------------------------------
+
+my $plugin = Bloonix::Plugin->new(version => "0.8");
+
+$plugin->add_option(
+    name => "Network interface",
+    option => "interface",
+    value => "interface",
+    value_type => "string",
+    mandatory => 1,
+    description => "This is the network interface you want to check. As example eth0 or eth1."
+);
+
+$plugin->has_list_objects(description => "List available interfaces.");
+
+$plugin->has_threshold(
+    keys => [
+        { key => "rxbyt", unit => "bytes" },
+        { key => "rxpcks" },
+        { key => "rxerrs" },
+        { key => "rxdrop" },
+        { key => "rxfifo" },
+        { key => "rxframe" },
+        { key => "rxcompr" },
+        { key => "rxmulti" },
+        { key => "txbyt", unit => "bytes" },
+        { key => "txpcks" },
+        { key => "txerrs" },
+        { key => "txdrop" },
+        { key => "txfifo" },
+        { key => "txcolls" },
+        { key => "txcompr" },
+        { key => "txcarr" },
+        { key => "ttbyt", unit => "bytes" },
+        { key => "ttpcks" }
+    ]
+);
+
+$plugin->example(
+    description => [
+        "An example to check the interface eth0 and trigger",
+        "",
+        "- a warning if ttpcks is equal or higher than 10000",
+        "- a critical if ttpcks is equal or higher than 20000",
+        "- a warning if ttbyt is equal or higher than 60M",
+        "- a critical if ttbyt is equal or higher than 80M"
+    ],
+    arguments => [
+        interface => "eth0",
+        warning => "ttpcks:ge:10000",
+        critical => "ttpcks:ge:20000",
+        warning => "ttbyt:ge:60MB",
+        critical => "ttbyt:ge:80MB"
+    ]
+);
+
+# --------------------------------------------------
+# load() function to load the interface statistics
+# --------------------------------------------------
+
+sub load {
+    my %stat = ();
+
+    open my $fh, '<', "/proc/net/dev"
+        or die "cannot open /proc/net/dev - $!";
+
+    while (my $line = <$fh>) {
+        next unless $line =~ /^\s*(\w+):\s*(.*)/;
+
+        @{$stat{$1}}{qw(
+            rxbyt rxpcks rxerrs rxdrop rxfifo rxframe rxcompr rxmulti
+            txbyt txpcks txerrs txdrop txfifo txcolls txcarr  txcompr
+        )} = split /\s+/, $2;
+
+        $stat{$1}{ttbyt}  = $stat{$1}{rxbyt}  + $stat{$1}{txbyt};
+        $stat{$1}{ttpcks} = $stat{$1}{rxpcks} + $stat{$1}{txpcks};
+    }
+
+    close $fh;
+    return \%stat;
+}
+
+# --------------------------------------------------
+# Parse options
+# --------------------------------------------------
+
+my $opt = $plugin->parse_options;
+
+if ($opt->{list}) {
+    my $interfaces = &load;
+    $plugin->exit(
+        status => "OK",
+        message => "Available interfaces",
+        stats => [ keys %$interfaces ]
+    );
+}
+
+# --------------------------------------------------
+# Load initial statistics
+# --------------------------------------------------
+
+my $init = $plugin->load_json;
+my $time = undef;
+
+if (defined $init) {
+    $time = delete $init->{time};
+} else {
+    $init = &load;
+    $time = time;
+    sleep 1;
+}
+
+# --------------------------------------------------
+# Load current statistics
+# --------------------------------------------------
+
+my $stat  = &load;
+my $ntime = time;
+my $delta = $ntime - $time;
+
+# --------------------------------------------------
+# Calculate deltas
+# --------------------------------------------------
+
+foreach my $dev (keys %$init) {
+    # The device does not exists any more
+    if (!exists $stat->{$dev}) {
+        delete $init->{$dev};
+    }
+}
+
+foreach my $dev (keys %$stat) {
+    # A new device
+    if (!exists $init->{$dev}) {
+        @{$init->{$dev}}{qw(
+            rxbyt rxpcks rxerrs rxdrop rxfifo rxframe rxcompr rxmulti
+            txbyt txpcks txerrs txdrop txfifo txcolls txcarr  txcompr
+        )} = (0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
+    }
+
+    my $idev = $init->{$dev};
+    my $ldev = $stat->{$dev};
+
+    foreach my $key (keys %$ldev) {
+        my $tval = $ldev->{$key};
+
+        if ($idev->{$key} >= $ldev->{$key}) {
+            $ldev->{$key} = sprintf("%.2f", 0);
+        } elsif ($delta > 0) {
+            $ldev->{$key} = sprintf("%.2f", ($ldev->{$key} - $idev->{$key}) / $delta);
+        } else {
+            $ldev->{$key} = sprintf("%.2f", $ldev->{$key} - $idev->{$key});
+        }
+
+        $idev->{$key} = $tval;
+    }
+}
+
+# --------------------------------------------------
+# Store statistics for the next run
+# --------------------------------------------------
+
+$init->{time} = $ntime;
+$plugin->safe_json($init);
+
+# --------------------------------------------------
+# Check warning and critical
+# --------------------------------------------------
+
+if (!exists $stat->{$opt->{interface}}) {
+    $plugin->exit(
+        status => "UNKNOWN",
+        message => "interface '$opt->{interface}' does not exists"
+    );
+}
+
+$stat = $stat->{$opt->{interface}};
+
+my $status = "OK";
+my $result = $plugin->check_thresholds(
+    stats => $stat,
+    upshot_keys => [qw(ttbyt rxbyt txbyt)]
+);
+
+$plugin->exit(
+    status => $result->{status},
+    message => "IFSTAT $result->{status} $opt->{interface} - $result->{upshot}",
+    stats => $stat
+);

@@ -1,0 +1,90 @@
+plugin {
+    id 34
+    plugin Linux.Paging.Check
+    command check-pgswstat
+    datatype statistic
+    category System,Linux
+    abstract Paging/Swaping check
+    description Linux paging/swapping statistics.
+}
+
+statistic {
+    statkey pgpgin
+    alias Paged in
+    datatype float
+    units kilobytes
+    description Number of kilobytes the system has paged in from disk per second.
+}
+
+statistic {
+    statkey pgpgout
+    alias Pages out
+    datatype float
+    units kilobytes
+    description Number of kilobytes the system has paged out to disk per second.
+}
+
+statistic {
+    statkey pswpin
+    alias Swapped in
+    datatype float
+    units kilobytes
+    description Number of kilobytes the system has swapped in from disk per second.
+}
+
+statistic {
+    statkey pswpout
+    alias Swapped out
+    datatype float
+    units kilobytes
+    description Number of kilobytes the system has swapped out to disk per second.
+}
+
+statistic {
+    statkey pgmajfault
+    alias Major faults
+    datatype float
+    description Number of major faults per second the system required loading a memory page from disk.
+}
+
+statistic {
+    statkey pgfault
+    alias Page faults
+    datatype float
+    description Number of page faults the system has made per second minor + major.
+}
+
+chart {
+    id 1
+    title Linux - pgswstats
+    options {
+        units kilobytes
+        ylabel bytes/s
+        chart-type area
+        series {
+            name pgpgin
+            color \#66c066
+        }
+        series {
+            name pgpgout
+            color \#0000ff
+        }
+        series {
+            name pswpin
+            color \#ff6666
+        }
+        series {
+            name pswpout
+            color \#bf00bf
+        }
+        series {
+            name pgfault
+            color \#ea8f00
+        }
+        series {
+            name pgmajfault
+            color \#eacc00
+        }
+    }
+}
+

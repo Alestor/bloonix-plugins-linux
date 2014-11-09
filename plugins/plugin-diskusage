@@ -1,0 +1,94 @@
+plugin {
+    id 19
+    plugin Linux.Disk.Check
+    command check-diskusage
+    datatype statistic
+    category System,Linux
+    abstract Diskusage check
+    description Linux disk usage
+}
+
+statistic {
+    statkey usage
+    alias Usage
+    datatype bigint
+    units kilobytes
+    description The used disk space in kilobytes.
+}
+
+statistic {
+    statkey disk
+    alias Disk name
+    datatype varchar(100)
+    description The disk name.
+}
+
+statistic {
+    statkey free
+    alias Free
+    datatype bigint
+    units kilobytes
+    description The free disk space in kilobytes.
+}
+
+statistic {
+    statkey freeper
+    alias Free
+    datatype bigint
+    units percent
+    description The free disk space in percent.
+}
+
+statistic {
+    statkey usageper
+    alias Usage
+    datatype bigint
+    units percent
+    description The used disk space in percent.
+}
+
+statistic {
+    statkey ifreeper
+    alias Inodes free
+    datatype bigint
+    units percent
+    description The free inodes in percent.
+}
+
+statistic {
+    statkey iusageper
+    alias Inodes used
+    datatype bigint
+    units percent
+    description The used inodes in percent.
+}
+
+statistic {
+    statkey mountpoint
+    alias Mountpoint
+    datatype varchar(100)
+    description The moint point of the disk.
+}
+
+statistic {
+    statkey total
+    alias Total
+    datatype bigint
+    units kilobytes
+    description The total size of the disk.
+}
+
+chart {
+    id 1
+    title Linux - diskusage
+    options {
+        ylabel disk usage in %
+        units null
+        chart-type area
+        series {
+            name usageper
+            color \#005467
+        }
+    }
+}
+

@@ -1,0 +1,131 @@
+#!/usr/bin/perl
+
+=head1 NAME
+
+check-smart-health - Plugin to check the health of disks via smartctl.
+
+=head1 SYNOPSIS
+
+    check-smart-health [ OPTIONS ]
+
+    check-smart-health --help
+
+=head1 REPORTING BUGS
+
+Please report all bugs to <support(at)bloonix.de>.
+
+=head1 AUTHOR
+
+Jonny Schulz <support(at)bloonix.de>.
+
+=head1 POWERED BY
+
+     _    __ _____ _____ __  __ __ __   __
+    | |__|  |     |     |  \|  |__|\  \/  /
+    |  . |  |  |  |  |  |      |  | >    <
+    |____|__|_____|_____|__|\__|__|/__/\__\
+
+=head1 COPYRIGHT
+
+Copyright (C) 2014 by Jonny Schulz. All rights reserved.
+
+=cut
+
+use strict;
+use warnings;
+use Bloonix::Plugin;
+
+# --------------------------------------------------
+# Plugin options
+# --------------------------------------------------
+
+my $plugin = Bloonix::Plugin->new(version => "0.3");
+$plugin->flags("sudo");
+$plugin->info("The tool smartctl is needed for this plugin! Please install smartmontools on your server.");
+
+$plugin->example(
+    description => "A simple example to check the health status of /dev/sda",
+    arguments => [
+        device => "sda"
+    ]
+);
+
+$plugin->add_option(
+    name => "Device name",
+    option => "device",
+    value => "device",
+    multiple => 1,
+    mandatory => 1,
+    regex => qr/^[a-zA-Z_0-9]+\z/,
+    value_type => "string",
+    description => "This is the device name to check."
+);
+
+$plugin->has_timeout(default => 30);
+
+# --------------------------------------------------
+# Parse options
+# --------------------------------------------------
+
+my $opt = $plugin->parse_options;
+my $smartctl = qx{which smartctl};
+chomp $smartctl;
+
+if (!$smartctl || $smartctl !~ m!/smartctl$! || !-e $smartctl) {
+    $plugin->exit(
+        status => "UNKNOWN",
+        message => "command smartctl not found"
+    );
+}
+
+if ($smartctl =~ /\s/) {
+    $plugin->exit(
+        status => "UNKNOWN",
+        message => "whitespaces are not allowed in path to the smartctl command"
+    );
+}
+
+# --------------------------------------------------
+# Get the device status
+# --------------------------------------------------
+
+my %result = map { $_ => "UNKNOWN" } @{ $opt->{device} };
+
+$plugin->eval(
+    timeout => $opt->{timeout},
+    action => "smartctl",
+    callback => sub {
+        foreach my $device (@{ $opt->{device} }) {
+            my $output = qx{$smartctl -H /dev/$device};
+            my $status;
+
+            if ($output =~ /SMART\s+overall\-health\s+self\-assessment\s+test\s+result:\s+(.+)/) {
+                $result{$device} = $1;
+            } elsif ($output =~ /SMART\s+Health\s+Status:\s+(.+)/) {
+                $result{$device} = $1;
+            }
+
+            chomp $result{$device};
+        }
+    }
+);
+
+# --------------------------------------------------
+# Check the status of all devices
+# --------------------------------------------------
+
+my $status = "OK";
+my @message;
+
+foreach my $device (sort keys %result) {
+    push @message, "$device=$result{$device}";
+
+    if ($result{$device} !~ /^(PASSED|OK)\z/) {
+        $status = "CRITICAL";
+    }
+}
+
+$plugin->exit(
+    status => $status,
+    message => join(", ", @message)
+);

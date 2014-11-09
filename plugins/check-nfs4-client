@@ -1,0 +1,148 @@
+#!/usr/bin/perl
+
+=head1 NAME
+
+check-nfs4-client - Plugin to check NFS v4 client statistics.
+
+=head1 SYNOPSIS
+
+    check-nfs4-client [ OPTIONS ]
+
+    check-nfs4-client --help
+
+=head1 REPORTING BUGS
+
+Please report all bugs to <support(at)bloonix.de>.
+
+=head1 AUTHOR
+
+Jonny Schulz <support(at)bloonix.de>.
+
+=head1 POWERED BY
+
+     _    __ _____ _____ __  __ __ __   __
+    | |__|  |     |     |  \|  |__|\  \/  /
+    |  . |  |  |  |  |  |      |  | >    <
+    |____|__|_____|_____|__|\__|__|/__/\__\
+
+=head1 COPYRIGHT
+
+Copyright (C) 2012-2014 by Jonny Schulz. All rights reserved.
+
+=cut
+
+use strict;
+use warnings;
+use Bloonix::Plugin;
+
+# --------------------------------------------------
+# Plugin options
+# --------------------------------------------------
+
+my $plugin = Bloonix::Plugin->new(version => "0.4");
+
+$plugin->has_threshold(
+    keys => [qw(
+        read write commit open open_confirm open_noattr open_downgrade close
+        setattr fsinfo renew setclientid setclientid_confirm lock lockt locku
+        access getattr lookup lookup_root remove rename link symlink create
+        pathconf statfs readlink readdir server_caps delegreturn getacl setacl
+    )]
+);
+
+# --------------------------------------------------
+# Parse options
+# --------------------------------------------------
+
+my $opt = $plugin->parse_options;
+my $procnfs = "/proc/net/rpc/nfs";
+
+# --------------------------------------------------
+# Load statistics
+# --------------------------------------------------
+
+sub load {
+    my $file = shift;
+    my %stat = ();
+
+    open my $fh, "<", $file or do {
+        print "NFS4 CLIENT CRITICAL - unable to open '$file' - $!\n";
+        exit 2;
+    };
+
+    while (my $line = <$fh>) {
+        if ($line =~ /^proc4\s+(.*)/) {
+            @stat{qw(
+                read write commit open open_confirm open_noattr open_downgrade close
+                setattr fsinfo renew setclientid setclientid_confirm lock lockt locku
+                access getattr lookup lookup_root remove rename link symlink create
+                pathconf statfs readlink readdir server_caps delegreturn getacl setacl
+            )} = split /\s+/, $1;
+        }
+    }
+
+    return \%stat;
+}
+
+# --------------------------------------------------
+# Load initial statistics
+# --------------------------------------------------
+
+my $init = undef;
+my $time = undef;
+
+if (defined $init) {
+    $time = delete $init->{time};
+} else {
+    $init = &load($procnfs);
+    $time = time;
+    sleep 1;
+}
+
+# --------------------------------------------------
+# Load current statistics
+# --------------------------------------------------
+
+my $stat  = &load($procnfs);
+my $ntime = time;
+my $delta = $ntime - $time;
+
+# --------------------------------------------------
+# Calculate deltas
+# --------------------------------------------------
+
+foreach my $key (keys %$stat) {
+    my $value = $stat->{$key};
+
+    if ($stat->{$key} == $init->{$key} || $init->{$key} > $stat->{$key}) {
+        $stat->{$key} = sprintf("%.2f", 0);
+    } elsif ($delta > 0) {
+        $stat->{$key} = sprintf("%.2f", ($stat->{$key} - $init->{$key}) / $delta);
+    } else {
+        $stat->{$key} = sprintf("%.2f", $stat->{$key} - $init->{$key});
+    }
+
+    $init->{$key} = $value;
+}
+
+# --------------------------------------------------
+# Store statistics for the next run
+# --------------------------------------------------
+
+$init->{time} = $ntime;
+$plugin->safe_json($init);
+
+# --------------------------------------------------
+# Check warning and critical
+# --------------------------------------------------
+
+my $result = $plugin->check_thresholds(
+    stats => $stat,
+    upshot_keys => [qw(getattr setattr read write)]
+);
+
+$plugin->exit(
+    status => $result->{status},
+    message => "nfs4 client: $result->{upshot}",
+    stats => $stat
+);

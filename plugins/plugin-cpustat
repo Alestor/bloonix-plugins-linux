@@ -1,0 +1,132 @@
+plugin {
+    id 18
+    plugin Linux.CPU.Check
+    command check-cpustat
+    datatype statistic
+    category System,Linux
+    abstract CPU check
+    description Linux CPU statistics
+}
+
+statistic {
+    statkey user
+    alias User
+    datatype float
+    units percent
+    description Percentage of CPU utilization at the user level.
+}
+
+statistic {
+    statkey nice
+    alias Nice
+    datatype float
+    units percent
+    description The nice level of the process.
+}
+
+statistic {
+    statkey system
+    alias System
+    datatype float
+    units percent
+    description Percentage of CPU utilization at the system level.
+}
+
+statistic {
+    statkey idle
+    alias Idle
+    datatype float
+    units percent
+    description Percentage of time the CPU is in idle state.
+}
+
+statistic {
+    statkey iowait
+    alias IOwait
+    datatype float
+    units percent
+    description Percentage of time the CPU is in idle state because an i/o operation is waiting for a disk. This statistic is only available since kernel version 2.5.41.
+}
+
+statistic {
+    statkey irq
+    alias IRQ
+    datatype float
+    units percent
+    description Percentage of time the CPU is servicing interrupts. This statistic is only available since kernel version 2.6.0-test4.
+}
+
+statistic {
+    statkey softirq
+    alias Soft IRQ
+    datatype float
+    units percent
+    description Percentage of time the CPU is servicing softirqs. This statistic is only available since kernel version 2.6.0-test4.
+}
+
+statistic {
+    statkey steal
+    alias Steal
+    datatype float
+    units percent
+    description Percentage of stolen CPU time, which is the time spent in other operating systems when running in a virtualized environment. This statistic is only available since kernel version 2.6.11.
+}
+
+statistic {
+    statkey quest
+    alias Quest
+    datatype float
+    units percent
+    description Percentage of CPU time, which is the time spent running a virtual CPU for guest operating systems under the control of the Linux kernel. This statistic is only available since kernel version 2.6.24.
+}
+
+statistic {
+    statkey total
+    alias Total
+    datatype float
+    units percent
+    description The total usage of the CPU in percent.
+}
+
+chart {
+    id 1
+    title Linux - cpu usage
+    options {
+        ylabel cpu usage in %
+        units null
+        chart-type area
+        stack true
+        series {
+            name system
+            color \#ffb244
+        }
+        series {
+            name user
+            color \#9a72ad
+        }
+        series {
+            name iowait
+            color \#ff0000
+        }
+        series {
+            name nice
+            color \#005467
+        }
+        series {
+            name irq
+            color \#2ba743
+        }
+        series {
+            name softirq
+            color \#7648eb
+        }
+        series {
+            name steal
+            color \#e9644a
+        }
+        series {
+            name quest
+            color \#666666
+        }
+    }
+}

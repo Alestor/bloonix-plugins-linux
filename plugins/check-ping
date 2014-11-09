@@ -1,0 +1,229 @@
+#!/usr/bin/perl
+
+=head1 NAME
+
+check-ping - Plugin to check hosts via ping.
+
+=head1 SYNOPSIS
+
+    check-ping [ OPTIONS ]
+
+    check-ping --help
+
+=head1 REPORTING BUGS
+
+Please report all bugs to <support(at)bloonix.de>.
+
+=head1 AUTHOR
+
+Jonny Schulz <support(at)bloonix.de>.
+
+=head1 POWERED BY
+
+     _    __ _____ _____ __  __ __ __   __
+    | |__|  |     |     |  \|  |__|\  \/  /
+    |  . |  |  |  |  |  |      |  | >    <
+    |____|__|_____|_____|__|\__|__|/__/\__\
+
+=head1 COPYRIGHT
+
+Copyright (C) 2009-2014 by Jonny Schulz. All rights reserved.
+
+=cut
+
+use strict;
+use warnings;
+use Bloonix::Plugin;
+
+# --------------------------------------------------
+# Plugin options
+# --------------------------------------------------
+
+my $plugin = Bloonix::Plugin->new(version => "0.9");
+
+if ($^O !~ /linux/) {
+    $plugin->exit(
+        status => "UNKNOWN",
+        message => "this check runs only on linux distributions."
+    );
+}
+
+$plugin->has_host(mandatory => 1);
+$plugin->has_timeout(default => 10);
+$plugin->has_use_ipv6;
+
+$plugin->add_option(
+    name => "Packets",
+    option => "packets",
+    value => "packets",
+    value_type => "number",
+    default => 3,
+    regex => qr/^([1-9]|10)\z/,
+    description => "Number of packets to send. At least 1 and maximum 10."
+);
+
+$plugin->add_option(
+    name => "Warning threshold",
+    option => "warning",
+    value => "seconds",
+    value_type => "string",
+    default => "2000,33%",
+    regex => qr/^(\d+(?:\.\d+){0,1}),(\d+)%\z/,
+    description => "Set the the maximum average in seconds and loss in percent with a comma separated."
+);
+
+$plugin->add_option(
+    name => "Critical threshold",
+    option => "critical",
+    value => "seconds",
+    value_type => "string",
+    default => "5000,66%",
+    regex => qr/^(\d+(?:\.\d+){0,1}),(\d+)%\z/,
+    description => "Set the the maximum average in seconds and loss in percent with a comma separated."
+);
+
+$plugin->example(
+    description => [
+        "A simple example:",
+        "",
+        "- Trigger a warning if rta is higher than 1000ms or package loss is higher than 40%.",
+        "- Trigger a critical if rta is higher than 2000ms or package loss is higher than 60%."
+    ],
+    arguments => [
+        host => "127.0.0.1",
+        warning => "1000,40%",
+        critical => "2000,60%"
+    ]
+);
+
+# --------------------------------------------------
+# Parse options
+# --------------------------------------------------
+
+my $opt = $plugin->parse_options;
+my ($ping, $pingv, $ipaddr);
+
+if ($opt->{use_ipv6}) {
+    $ping = "/bin/ping6";
+    $pingv = "PING6";
+    $ipaddr = $plugin->get_ip_by_hostname(ipv6 => $opt->{host})
+} else {
+    $ping = "/bin/ping";
+    $pingv = "PING";
+    $ipaddr = $plugin->get_ip_by_hostname(ipv4 => $opt->{host})
+}
+
+if (!-x $ping) {
+    $plugin->exit(
+        status => "UNKNOWN",
+        message => "no ping utility found ($ping)."
+    );
+}
+
+if ($opt->{warning} =~ /^(\d+(?:\.\d+){0,1}),(\d+)%\z/) {
+    $opt->{warning} = { avg => $1, loss => $2 };
+}
+
+if ($opt->{critical} =~ /^(\d+(?:\.\d+){0,1}),(\d+)%\z/) {
+    $opt->{critical} = { avg => $1, loss => $2 };
+}
+
+# --------------------------------------------------
+# Ping ping ping :-)
+# --------------------------------------------------
+
+my $ping_output;
+
+eval {
+    local $SIG{__DIE__} = sub { alarm(0) };
+    local $SIG{ALRM} = sub { die "ping timed out" };
+    alarm($opt->{timeout});
+    $ping_output = qx{$ping -c $opt->{packets} $ipaddr 2>&1};
+    alarm(0);
+};
+
+if ($@ && $@ =~ /ping timed out/) {
+    $plugin->add_mtr($ipaddr);
+    $plugin->exit(
+        status => "CRITICAL",
+        message => "ping to host $opt->{host} timed out",
+        stats => { rta => 0, loss => 100 },
+        tags => "timeout"
+    );
+}
+
+if (!$ping_output) {
+    $plugin->exit(
+        status => "UNKNOWN",
+        message => "no ping output"
+    );
+}
+
+# --------------------------------------------------
+# Check ping output and thresholds
+# --------------------------------------------------
+
+# --- xxx.xx.xxx.xxx ping statistics ---
+# 2 packets transmitted, 2 received, 0% packet loss, time 1000ms
+# rtt min/avg/max/mdev = 9.880/9.934/9.989/0.113 ms
+my $rxping = qr/
+    (\d+)\s+packets\s+transmitted,\s+(\d+)\s+received,\s+([\d.]+)%\s+packet\s+loss,\s+time\s+(\d+)ms.*
+    rtt\s+min\/avg\/max\/mdev\s*=\s*([\d.]+)\/([\d.]+)\/([\d.]+)\/([\d.]+)\s*ms
+/xsi;
+
+# --- xxx.xx.xxx.xxx ping statistics ---
+# 3 packets transmitted, 0 received, +2 errors, 100% packet loss, time 1999ms
+# , pipe 2
+my $rxping_err = qr/
+    (\d+)\s+packets\s+transmitted,\s+(\d+)\s+received,\s+.+errors,\s+([\d.]+)%\s+packet\s+loss,\s+time\s+(\d+)ms
+/xsi;
+
+my $rxping_err2 = qr/
+    (\d+)\s+packets\s+transmitted,\s+(\d+)\s+received,\s+([\d.]+)%\s+packet\s+loss,\s+time\s+(\d+)ms
+/xsi;
+
+my ( $packets
+   , $received
+   , $loss
+   , $time
+   , $min
+   , $avg
+   , $max
+   , $mdev
+) = ($ping_output =~ $rxping);
+
+if (!defined $packets) {
+    ($packets, $received, $loss, $time) = ($ping_output =~ $rxping_err);
+    if (!$packets) {
+        ($packets, $received, $loss, $time) = ($ping_output =~ $rxping_err2);
+    }
+    ($min, $avg, $max, $mdev) = (0, 0, 0, 0);
+}
+
+if (!defined $packets) {
+    my $message = $ping_output =~ /unknown/
+        ? "$pingv UNKNOWN - unknown host $opt->{host}"
+        : "$pingv UNKNOWN - unable to parse ping output";
+
+    $plugin->exit(
+        status => "UNKNOWN",
+        message => $message
+    );
+}
+
+my $status = "OK";
+my $message = "packet loss ${loss}%, min ${min}ms, avg ${avg}ms, max ${max}ms, mdev ${mdev}ms, IP: $ipaddr";
+my $exitcode = 0;
+
+if ($avg >= $opt->{critical}->{avg} || $loss >= $opt->{critical}->{loss}) {
+    $status = "CRITICAL";
+    $plugin->add_mtr($ipaddr);
+} elsif ($avg >= $opt->{warning}->{avg} || $loss >= $opt->{warning}->{loss}) {
+    $status = "WARNING";
+}
+
+$plugin->exit(
+    status => $status,
+    message => $message,
+    stats => { rta => $avg, loss => $loss }
+);

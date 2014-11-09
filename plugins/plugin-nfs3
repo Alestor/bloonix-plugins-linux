@@ -1,0 +1,9 @@
+plugin {
+    id 30
+    plugin Linux.NFS3.Check
+    command check-nfs3
+    datatype none
+    category System,Filesystem,Linux
+    abstract NFS3 check
+    description This plugin can check the nfs3 server or nfs3 client.
+}

@@ -1,0 +1,9 @@
+plugin {
+    id 20
+    plugin Linux.Interface.Check
+    command check-iflink
+    datatype none
+    category System,Network,Linux
+    abstract Interface link check
+    description Check the link of an interface.
+}

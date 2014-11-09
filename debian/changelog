@@ -1,0 +1,154 @@
+bloonix-plugins-linux (0.23-1) unstable; urgency=low
+
+    * Fixed typo in check-ping description (20ms -> 2000ms).
+
+ -- Jonny Schulz <js@bloonix.de>  Sat, 08 Nov 2014 16:33:49 +0100
+
+bloonix-plugins-linux (0.22-1) unstable; urgency=low
+
+    * Implemented a timeout for check-smart-health and
+      check-linux-updates.
+    * Added zypper to check-linux-updates.
+
+ -- Jonny Schulz <js@bloonix.de>  Wed, 05 Nov 2014 18:38:33 +0100
+
+bloonix-plugins-linux (0.21-1) unstable; urgency=low
+
+    * Fixed check-linux-updates. Intercept errors from apt.
+
+ -- Jonny Schulz <js@bloonix.de>  Tue, 04 Nov 2014 17:42:54 +0100
+
+bloonix-plugins-linux (0.20-1) unstable; urgency=low
+
+    * Updated the license information.
+
+ -- Jonny Schulz <js@bloonix.de>  Mon, 03 Nov 2014 21:15:48 +0100
+
+bloonix-plugins-linux (0.19-1) unstable; urgency=low
+
+    * Fixed the ping check parser.
+    * An mtr result is added if the extern checks fails.
+    * Licence added and old releases deleted.
+
+ -- Jonny Schulz <js@bloonix.de>  Tue, 26 Aug 2014 11:38:58 +0200
+
+bloonix-plugins-linux (0.18-1) unstable; urgency=low
+
+    * Added check-mtr.
+    * Added check-linux-updates.
+
+ -- Jonny Schulz <js@bloonix.de>  Mon, 12 May 2014 20:40:19 +0200
+
+bloonix-plugins-linux (0.17-1) unstable; urgency=low
+
+    * Added check-smart-health.
+
+ -- Jonny Schulz <js@bloonix.de>  Wed, 23 Apr 2014 14:40:53 +0200
+
+bloonix-plugins-linux (0.16-1) unstable; urgency=low
+
+    * Fixed units in check-memstat.
+    * Renamed check-filestat to check-open-files.
+    * Fixed units from kilobytes to bytes for plugin memstats.
+    * Added field "quest" to check-cpustat.
+
+ -- Jonny Schulz <js@bloonix.de>  Sat, 12 Apr 2014 13:13:51 +0200
+
+bloonix-plugins-linux (0.15-1) unstable; urgency=low
+
+    * Complete rewrite of all plugins.
+
+ -- Jonny Schulz <js@bloonix.de>  Sat, 23 Mar 2014 00:00:00 +0100
+
+bloonix-plugins-linux (0.12-1) unstable; urgency=low
+
+    * Fixed check-ifstat - the initial statistics
+      are always marked as corrupt.
+    * Fixed check-bonding - now active-active setups
+      are parsed correclty.
+
+ -- Jonny Schulz <js@bloonix.de>  Sat, 23 Feb 2013 01:52:00 +0200
+
+bloonix-plugins-linux (0.10-1) unstable; urgency=low
+
+  * Added plugin check-netstat-port.
+  * Added NFS plugins check-nfs3, check-nfs4, and
+    check-nfs4-client.
+
+ -- Jonny Schulz <js@bloonix.de>  Mon, 17 Sep 2012 00:18:57 +0200
+
+bloonix-plugins-linux (0.9-1) unstable; urgency=low
+
+  * Fixed the undefined bug in check-bonding.
+  * Added a lot of new statistics to check-netstat.
+  * Added plugin check-iflink.
+
+ -- Jonny Schulz <js@bloonix.de>  Fri, 23 Mar 2012 21:37:54 +0100
+
+bloonix-plugins-linux (0.8-1) unstable; urgency=low
+
+  * Fixed a bug in check-procstat. If the script runs
+    the first time or the yaml file does not exists
+    then $init->{time} was undef.
+  * Improved check-cpustat, check-ifstat, check-iostat,
+    check-netstat, check-pgswstat, check-procstat.
+    If the YAML data are broken then the temporary
+    file will be overwritten.
+
+ -- Jonny Schulz <js@bloonix.de>  Wed, 14 Mar 2012 20:04:43 +0100
+
+bloonix-plugins-linux (0.7-1) unstable; urgency=low
+
+  * Updated the plugin-* files.
+  * Added key memrealfree to check-memstat.
+
+ -- Jonny Schulz <js@bloonix.de>  Tue, 29 Nov 2011 13:03:15 +0100
+
+bloonix-plugins-linux (0.6-1) unstable; urgency=low
+
+  * Added check-bonding.
+
+ -- Jonny Schulz <js@bloonix.de>  Tue, 29 Nov 2011 13:02:11 +0100
+
+bloonix-plugins-linux (0.5-1) unstable; urgency=low
+
+  * Added ipv6 to the parameter list in usage().
+  * Fixed type commited -> committed in check-memstats.
+
+ -- Jonny Schulz <js@bloonix.de>  Mon, 11 Jul 2011 21:50:12 +0200
+
+bloonix-plugins-linux (0.4-1) unstable; urgency=low
+
+  * Renamed environment variable YAML_FILE_BASEDIR to
+    PLUGIN_LIBDIR.
+  * Kicked unused option o_stat.
+
+ -- Jonny Schulz <js@bloonix.de>  Fri, 01 Jul 2011 15:19:12 +0200
+
+bloonix-plugins-linux (0.3-1) unstable; urgency=low
+
+  * Fixed a bug in check-netstat at line 154 and
+    renamed recv_udp_pcks to sent_udp_pcks.
+  * Renamed all plugin files from *.plugin to plugin-*.
+
+ -- Jonny Schulz <js@bloonix.de>  Mon, 27 Dec 2010 10:17:33 +0100
+
+bloonix-plugins-linux (0.2-2) unstable; urgency=low
+
+  * Build with gpg key.
+
+ -- Jonny Schulz <js@bloonix.de>  Sun, 12 Dec 2010 03:27:22 +0100
+
+bloonix-plugins-linux (0.2-1) unstable; urgency=low
+
+  * Kicked option --stat from all plugins, because
+    statistics will be printed by default on stdout.
+
+ -- Jonny Schulz <js@bloonix.de>  Wed, 17 Nov 2010 15:46:46 +0100
+
+bloonix-plugins-linux (0.1-1) unstable; urgency=low
+
+  * Initial release.
+
+ -- Jonny Schulz <js@bloonix.de>  Mon, 02 Aug 2010 15:21:22 +0200
+

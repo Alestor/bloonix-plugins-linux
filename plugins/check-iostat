@@ -1,0 +1,255 @@
+#!/usr/bin/perl
+
+=head1 NAME
+
+check-iostat - Plugin to check the cpu load.
+
+=head1 SYNOPSIS
+
+    check-iostat [ OPTIONS ]
+
+    check-iostat --help
+
+=head1 REPORTING BUGS
+
+Please report all bugs to <support(at)bloonix.de>.
+
+=head1 AUTHOR
+
+Jonny Schulz <support(at)bloonix.de>.
+
+=head1 POWERED BY
+
+     _    __ _____ _____ __  __ __ __   __
+    | |__|  |     |     |  \|  |__|\  \/  /
+    |  . |  |  |  |  |  |      |  | >    <
+    |____|__|_____|_____|__|\__|__|/__/\__\
+
+=head1 COPYRIGHT
+
+Copyright (C) 2009-2014 by Jonny Schulz. All rights reserved.
+
+=cut
+
+use strict;
+use warnings;
+use Bloonix::Plugin;
+
+# --------------------------------------------------
+# Plugin options
+# --------------------------------------------------
+
+my $plugin = Bloonix::Plugin->new(version => "0.8");
+
+$plugin->info(
+    "Available devices:",
+    "  cat /proc/partitions",
+    "or",
+    "  cat /proc/diskstats"
+);
+
+$plugin->add_option(
+    name => "Device name",
+    option => "device",
+    value => "device",
+    value_type => "string",
+    mandatory => 1,
+    description => "This is the device name you want to check. As example 'sda' or 'vda'."
+);
+
+$plugin->has_threshold(
+    keys => [qw(
+        rdreq rdblk wrtreq wrtblk ttreq ttblk
+    )]
+);
+
+$plugin->has_list_objects(description => "List available devices.");
+
+$plugin->example(
+    description => "An example how to check the device /dev/sda",
+    arguments => [
+        device => "sda"
+    ]
+);
+
+# --------------------------------------------------
+# Parse options
+# --------------------------------------------------
+
+my $opt = $plugin->parse_options;
+
+# --------------------------------------------------
+# load() function to load the disk statistics
+# --------------------------------------------------
+
+sub load {
+    my (%stat, $fh);
+
+    # -----------------------------------------------------------------------------
+    # One of the both must be opened for the disk statistics!
+    # If /proc/diskstats (2.6) doesn't exists then let's try
+    # to read the /proc/partitions (2.4).
+    #
+    # From /usr/src/linux/Documentation/iostat.txt.
+    #
+    # ... the statistics fields are those after the device name.
+    #
+    # Field  1 -- # of reads issued
+    #     This is the total number of reads completed successfully.
+    # Field  2 -- # of reads merged, field 6 -- # of writes merged
+    #     Reads and writes which are adjacent to each other may be merged for
+    #     efficiency.  Thus two 4K reads may become one 8K read before it is
+    #     ultimately handed to the disk, and so it will be counted (and queued)
+    #     as only one IOSTAT.  This field lets you know how often this was done.
+    # Field  3 -- # of sectors read
+    #     This is the total number of sectors read successfully.
+    # Field  4 -- # of milliseconds spent reading
+    #     This is the total number of milliseconds spent by all reads (as
+    #     measured from __make_request() to end_that_request_last()).
+    # Field  5 -- # of writes completed
+    #     This is the total number of writes completed successfully.
+    # Field  7 -- # of sectors written
+    #     This is the total number of sectors written successfully.
+    # Field  8 -- # of milliseconds spent writing
+    #     This is the total number of milliseconds spent by all writes (as
+    #     measured from __make_request() to end_that_request_last()).
+    # Field  9 -- # of IOSTATs currently in progress
+    #     The only field that should go to zero. Incremented as requests are
+    #     given to appropriate request_queue_t and decremented as they finish.
+    # Field 10 -- # of milliseconds spent doing IOSTATs
+    #     This field is increases so long as field 9 is nonzero.
+    # Field 11 -- weighted # of milliseconds spent doing IOSTATs
+    #     This field is incremented at each IOSTAT start, IOSTAT completion, IOSTAT
+    #     merge, or read of these stats by the number of IOSTATs in progress
+    #     (field 9) times the number of milliseconds spent doing IOSTAT since the
+    #     last update of this field.  This can provide an easy measure of both
+    #     IOSTAT completion time and the backlog that may be accumulating.
+    # -----------------------------------------------------------------------------
+
+    if (open $fh, "<", "/proc/diskstats" || open $fh, "<", "/proc/partitions") {
+        while (my $line = <$fh>) {
+            if ($line =~ /^\s+\d+\s+\d+\s+(\w+[^\d])\s+(.*)/) {
+                my $x = $stat{$1} = { };
+                my @f = split /\s+/, $2;
+                $x->{rdreq}  = $f[0]; # Field 1
+                $x->{rdblk}  = $f[2]; # Field 3
+                $x->{wrtreq} = $f[4]; # Field 5
+                $x->{wrtblk} = $f[6]; # Field 7
+                $x->{ttreq}  = $f[0] + $f[4];
+                $x->{ttblk}  = $f[2] + $f[6];
+            }
+        }
+
+        close($fh);
+    } else {
+        die "cannot open /proc/diskstats or /proc/partitions - $!";
+    }
+
+    if (!-e "/proc/diskstats" || !scalar keys %stat) {
+        die "no diskstats found! your system seems not to be compiled with CONFIG_BLK_STATS=y";
+    }
+
+    return \%stat;
+}
+
+# --------------------------------------------------
+# List devices
+# --------------------------------------------------
+
+if ($opt->{list}) {
+    my $devices = &load;
+    $plugin->exit(
+        status => "OK",
+        message => "Available devices",
+        stats => [ keys %$devices ]
+    );
+}
+
+# --------------------------------------------------
+# Load initial statistics
+# --------------------------------------------------
+
+my $init = $plugin->load_json;
+my $time = undef;
+
+if (defined $init) {
+    $time = delete $init->{time};
+} else {
+    $init = &load;
+    $time = time;
+    sleep 1;
+}
+
+# --------------------------------------------------
+# Load current statistics
+# --------------------------------------------------
+
+my $stat  = &load;
+my $ntime = time;
+my $delta = $ntime - $time;
+
+# --------------------------------------------------
+# Calculate deltas
+# --------------------------------------------------
+
+foreach my $dev (keys %$init) {
+    # The device does not exists any more
+    if (!exists $stat->{$dev}) {
+        delete $init->{$dev};
+    }
+}
+
+foreach my $dev (keys %$stat) {
+    if (!exists $init->{$dev}) {
+        # A new device
+        @{$init->{$dev}}{qw(rdreq rdblk wrtreq wrtblk ttreq ttblk)} = (0,0,0,0,0,0);
+    }
+
+    my $idev = $init->{$dev};
+    my $ldev = $stat->{$dev};
+
+    foreach my $key (keys %$ldev) {
+        my $value = $ldev->{$key};
+
+        if ($ldev->{$key} == $idev->{$key} || $idev->{$key} > $ldev->{$key}) {
+            $ldev->{$key} = sprintf("%.2f", 0);
+        } elsif ($delta > 0) {
+            $ldev->{$key} = sprintf("%.2f", ($ldev->{$key} - $idev->{$key}) / $delta);
+        } else {
+            $ldev->{$key} = sprintf("%.2f", $ldev->{$key} - $idev->{$key});
+        }
+
+        $idev->{$key} = $value;
+    }
+}
+
+# --------------------------------------------------
+# Store statistics for the next run
+# --------------------------------------------------
+
+$init->{time} = $ntime;
+$plugin->safe_json($init);
+
+# --------------------------------------------------
+# Check warning and critical
+# --------------------------------------------------
+
+if (!exists $stat->{$opt->{device}}) {
+    $plugin->exit(
+        status => "UNKNOWN",
+        message => "device '$opt->{device}' does not exists"
+    );
+}
+
+$stat = $stat->{$opt->{device}};
+
+my $result = $plugin->check_thresholds(
+    stats => $stat,
+    upshot_keys => [qw(rdreq rdblk wrtreq wrtblk ttreq ttblk)]
+);
+
+$plugin->exit(
+    status => $result->{status},
+    message => "$opt->{device}: $result->{upshot}",
+    stats => $stat
+);

@@ -1,0 +1,229 @@
+#!/usr/bin/perl
+
+=head1 NAME
+
+check-bonding - Plugin to check bonding.
+
+=head1 SYNOPSIS
+
+    check-bonding [ OPTIONS ]
+
+    check-bonding --help
+
+=head1 REPORTING BUGS
+
+Please report all bugs to <support(at)bloonix.de>.
+
+=head1 AUTHOR
+
+Jonny Schulz <support(at)bloonix.de>.
+
+=head1 POWERED BY
+
+     _    __ _____ _____ __  __ __ __   __
+    | |__|  |     |     |  \|  |__|\  \/  /
+    |  . |  |  |  |  |  |      |  | >    <
+    |____|__|_____|_____|__|\__|__|/__/\__\
+
+=head1 COPYRIGHT
+
+Copyright (C) 2009-2014 by Jonny Schulz. All rights reserved.
+
+=cut
+
+use strict;
+use warnings;
+use Bloonix::Plugin;
+
+# --------------------------------------------------
+# Plugin options
+# --------------------------------------------------
+
+my $plugin = Bloonix::Plugin->new(version => "0.6");
+
+$plugin->example(
+    description => "A simple example to check the interfaces bond0 and bond1:",
+    arguments => [
+        interface => "bond0",
+        interface => "bond1"
+    ]
+);
+
+$plugin->add_option(
+    name => "Check all interfaces",
+    option => "all",
+    description => "Enable this option if you want to check all configured bonding interfaces on the system. If you use this option then you don't need to spcifiy the interfaces with the option 'Bonding interface'."
+);
+
+$plugin->add_option(
+    name => "Bonding interface",
+    option => "interface",
+    value => "interface",
+    value_type => "string",
+    multiple => 1,
+    description => "The bonding interface to check. Use the option 'Check all interfaces' if you want to check all interfaces."
+);
+
+$plugin->one_must_have_options("all", "bond");
+
+# --------------------------------------------------
+# Parse options
+# --------------------------------------------------
+
+my $opt = $plugin->parse_options;
+my $procbond = "/proc/net/bonding";
+my $classnet = "/sys/class/net/%s/carrier";
+#$procbond = "../test/proc-net-bonding";
+#$classnet = "../test/sys-class-net-%s-carrier";
+
+if (!$opt->{all}) {
+    foreach my $bond (@{$opt->{bond}}) {
+        if ($bond !~ /^[\w\-:]+\z/) {
+            $plugin->exit(
+                status => "UNKNOWN",
+                message => "Invalid interface name '$bond'"
+            );
+        }
+    }
+}
+
+if (!-r $procbond) {
+    $plugin->exit(
+        status => "CRITICAL",
+        message => "unable to read $procbond"
+    );
+}
+
+if ($opt->{all}) {
+    opendir(my $dh, $procbond);
+    push @{$opt->{bond}}, grep /\w/, readdir($dh);
+    closedir $dh;
+
+    if (!@{$opt->{bond}}) {
+        $plugin->exit(
+            status => "CRITICAL",
+            message => "no bond interfaces found"
+        );
+    }
+}
+
+# Example: /proc/net/bonding/bond0
+#
+# Ethernet Channel Bonding Driver: v3.5.0 (November 4, 2008)
+# 
+# Bonding Mode: fault-tolerance (active-backup)
+# Primary Slave: eth1
+# Currently Active Slave: eth2
+# MII Status: up
+# MII Polling Interval (ms): 0
+# Up Delay (ms): 0
+# Down Delay (ms): 0
+# ARP Polling Interval (ms): 100
+# ARP IP target/s (n.n.n.n form): 192.168.40.175
+# 
+# Slave Interface: eth1
+# MII Status: down
+# Link Failure Count: 16
+# Permanent HW addr: 00:0a:cd:18:1e:5f
+# 
+# Slave Interface: eth2
+# MII Status: up
+# Link Failure Count: 5
+# Permanent HW addr: 5c:d9:98:44:95:60
+
+# --------------------------------------------------
+# Check bond interfaces
+# --------------------------------------------------
+
+my $status  = "OK";
+my @message = ();
+my %bonds   = ();
+
+BOND:
+foreach my $bond (@{$opt->{bond}}) {
+    my $bstr;
+
+    if (open my $fh, "<", "$procbond/$bond") {
+        $bstr = do { local $/; <$fh> };
+        close $fh;
+
+        my $bond_mode = $bstr =~ /Bonding\s+Mode:\s+load/ ? "lb" : "nlb";
+
+        if (
+            ($bond_mode eq "nlb" && $bstr =~ /Currently\s+Active\s+Slave:\s+.+?\nMII\s+Status:\s+(\w+)/)
+            || ($bond_mode eq "lb" && $bstr =~ /.+?\nMII\sStatus:\s+(\w+)/)
+        ) {
+            push @{$bonds{$bond}}, "mii status $1";
+
+            if ($1 ne "up" && $status =~ /^(OK|WARNING)\z/) {
+                $status = "CRITICAL";
+            }
+        } else {
+            $status = "UNKNOWN";
+            push @{$bonds{$bond}}, "unable to parse $procbond/$bond";
+            next BOND;
+        }
+
+        my @iface;
+        while ($bstr =~ /Slave\s+Interface:\s+([^\n]+)/g) {
+            push @iface, $1;
+        }
+
+        if (!@iface) {
+            if ($status =~ /^(OK|WARNING)\z/) {
+                push @{$bonds{$bond}}, "no iface found";
+                $status = "CRITICAL";
+            }
+            next BOND;
+        }
+
+        foreach my $iface (@iface) {
+            my $file = sprintf($classnet, $iface);
+
+            if (open my $cfh, "<", $file) {
+                my $flag = do { local $/; <$cfh> };
+
+                if (defined $flag && $flag =~ /^1/) {
+                    push @{$bonds{$bond}}, "$iface link ok";
+                } else {
+                    push @{$bonds{$bond}}, "$iface has no link";
+
+                    if ($status eq "OK") {
+                        # Warning should be enough because if both
+                        # interfaces has no link than the mii status
+                        # of the bond interace should be CRITICAL.
+                        $status = "WARNING";
+                    }
+                }
+
+                close $cfh;
+            } else {
+                push @{$bonds{$bond}}, "unable to read $iface/carrier";
+                if ($status =~ /^(OK|WARNING)\z/) {
+                    $status = "CRITICAL";
+                }
+            }
+        }
+    } else {
+        push @{$bonds{$bond}}, "unable to read $procbond/$bond";
+        if ($status =~ /^(OK|WARNING)\z/) {
+            $status = "CRITICAL";
+        }
+    }
+}
+
+foreach my $bond (sort keys %bonds) {
+    my $str = $bond . "[";
+    $str .= join(", ", @{$bonds{$bond}});
+    $str .= "]";
+    push @message, $str;
+}
+
+# --------------------------------------------------
+# Print status
+# --------------------------------------------------
+
+$plugin->exit(
+    status => $status,
+    message => join(", ", @message)
+);

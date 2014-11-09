@@ -1,0 +1,96 @@
+plugin {
+    id 22
+    plugin Linux.DiskIO.Check
+    command check-iostat
+    datatype statistic
+    category System,Linux
+    abstract Disk i/o check
+    description Linux disk i/o statistics
+}
+
+statistic {
+    statkey rdreq
+    alias Read requests
+    datatype float
+    description Number of read requests that were made to physical disk per second.
+}
+
+statistic {
+    statkey wrtreq
+    alias Write requests
+    datatype float
+    description Number of write requests that were made to physical disk per second.
+}
+
+statistic {
+    statkey rdblk
+    alias Blocks read
+    datatype float
+    description Number of blocks that were read from physical disk per second.
+}
+
+statistic {
+    statkey wrtblk
+    alias Blocks written
+    datatype float
+    description Number of blocks that were written to physical disk per second.
+}
+
+statistic {
+    statkey disk
+    alias Disk name
+    datatype varchar(100)
+    description The disk name.
+}
+
+statistic {
+    statkey ttreq
+    alias Total requests
+    datatype float
+    description Total number of requests were made from/to physical disk per second.
+}
+
+statistic {
+    statkey ttblk
+    alias Total blocks
+    datatype float
+    description Total number of blocks transmitted from/to physical disk per second.
+}
+
+chart {
+    id 1
+    title Linux - disk load in blocks
+    options {
+        units default
+        ylabel blocks/s
+        chart-type area
+        series {
+            name rdblk
+            color \#ff7a0d
+        }
+        series {
+            name wrtblk
+            color \#005467
+            opposite true
+        }
+    }
+}
+
+chart {
+    id 2
+    title Linux - disk requests
+    options {
+        units default
+        ylabel wrtreq (-) / rdreq (+)
+        chart-type area
+        series {
+            name rdreq
+            color \#ff7a0d
+        }
+        series {
+            name wrtreq
+            color \#005467
+            opposite true
+        }
+    }
+}

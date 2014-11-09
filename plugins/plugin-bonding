@@ -1,0 +1,9 @@
+plugin {
+    id 17
+    plugin Linux.Bonding.Check
+    command check-bonding
+    datatype none
+    category System,Network,Linux
+    abstract Bonding check
+    description Check network interfaces.
+}

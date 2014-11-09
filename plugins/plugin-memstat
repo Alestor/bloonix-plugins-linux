@@ -1,0 +1,263 @@
+plugin {
+    id 26
+    plugin Linux.Memory.Check
+    command check-memstat
+    datatype statistic
+    category System,Linux
+    abstract Memory check
+    description Linux memory statistics
+}
+
+statistic {
+    statkey memtotal
+    alias Total memory
+    datatype bigint
+    units bytes
+    description Total size of memory in bytes.
+}
+
+statistic {
+    statkey memused
+    alias Memory used
+    datatype bigint
+    units bytes
+    description Total size of real used memory (memtotal - memfree - cached - buffers) in bytes.
+}
+
+statistic {
+    statkey memusedper
+    alias Memory used
+    datatype float
+    units percent
+    description Total size of used memory in percent.
+}
+
+statistic {
+    statkey memfree
+    alias Memory free
+    datatype bigint
+    units bytes
+    description Total size of free memory in bytes.
+}
+
+statistic {
+    statkey memrealfree
+    alias Memory free
+    datatype bigint
+    units bytes
+    description Total size of free memory is real free (memfree + buffers + cached) in bytes.
+}
+
+statistic {
+    statkey buffers
+    alias Buffers
+    datatype bigint
+    units bytes
+    description Total size of buffers used from memory in bytes.
+}
+
+statistic {
+    statkey cached
+    alias Cached
+    datatype bigint
+    units bytes
+    description Total size of cached memory in bytes.
+}
+
+statistic {
+    statkey swapcached
+    alias Swap cached
+    datatype bigint
+    units bytes
+    description Memory that once was swapped out, is swapped back in but still also is in the swapfile.
+}
+
+statistic {
+    statkey active
+    alias Active
+    datatype bigint
+    units bytes
+    description Memory that has been used more recently and usually not reclaimed unless absolutely necessary.
+}
+
+statistic {
+    statkey inactive
+    alias Inactive
+    datatype bigint
+    units bytes
+    description Memory which has been less recently used and is more eligible to be reclaimed for other purposes.
+}
+
+statistic {
+    statkey swaptotal
+    alias Total swap
+    datatype bigint
+    units bytes
+    description Total size of swap space in bytes.
+}
+
+statistic {
+    statkey swapfree
+    alias Swap free
+    datatype bigint
+    units bytes
+    description Total size of swap space is free in bytes.
+}
+
+statistic {
+    statkey swapused
+    alias Swap used
+    datatype bigint
+    units bytes
+    description Total size of swap space is used is bytes.
+}
+
+statistic {
+    statkey swapusedper
+    alias Swap used
+    datatype float
+    units percent
+    description Total size of swap space is used in percent.
+}
+
+statistic {
+    statkey dirty
+    alias Dirty
+    datatype bigint
+    units bytes
+    description Total size of memory pages in bytes that waits to be written back to disk.
+}
+
+statistic {
+    statkey writeback
+    alias Writeback
+    datatype bigint
+    units bytes
+    description Total size of memory that was written back to disk.
+}
+
+statistic {
+    statkey mapped
+    alias Mapped
+    datatype bigint
+    units bytes
+    description Total size of memory in kilbytes that is mapped by devices or libraries with mmap.
+}
+
+statistic {
+    statkey slab
+    alias Slab
+    datatype bigint
+    units bytes
+    description Total size of memory in bytes that used by kernel for data structure allocations.
+}
+
+statistic {
+    statkey committed
+    alias Committed
+    datatype bigint
+    units bytes
+    description The amount of memory presently allocated on the system.
+}
+
+statistic {
+    statkey vmallocused
+    alias Vmalloc used
+    datatype bigint
+    units bytes
+    description Amount of vmalloc area which is used.
+}
+
+statistic {
+    statkey pagetables
+    alias Page tables
+    datatype bigint
+    units bytes
+    description Amount of memory dedicated to the lowest level of page tables.
+}
+
+chart {
+    id 1
+    title Linux - memory and swap usage in %
+    options {
+        ylabel percent %
+        units null
+        chart-type area
+        series {
+            name memusedper
+            color \#ff7a0d
+        }
+        series {
+            name swapusedper
+            color \#005467
+        }
+    }
+}
+
+chart {
+    id 2
+    title Linux - memory usage
+    options {
+        units bytes
+        ylabel bytes
+        chart-type area
+        series {
+            name memused
+            color \#e9644a
+        }
+        series {
+            name memfree
+            color \#2ba743
+        }
+        series {
+            name buffers
+            color \#9a72ad
+        }
+        series {
+            name cached
+            color \#005467
+        }
+    }
+}
+
+chart {
+    id 3
+    title Linux - memory status
+    options {
+        units bytes
+        ylabel bytes
+        chart-type area
+        series {
+            name active
+            color \#ffb244
+        }
+        series {
+            name inactive
+            color \#9a72ad
+        }
+        series {
+            name dirty
+            color \#005467
+        }
+        series {
+            name writeback
+            color \#e9644a
+        }
+        series {
+            name mapped
+            color \#2ba743
+        }
+        series {
+            name slab
+            color \#7648eb
+        }
+        series {
+            name committed
+            color \#7f7fff
+        }
+        series {
+            name vmallocused
+            color \#bf00bf
+        }
+    }
+}
