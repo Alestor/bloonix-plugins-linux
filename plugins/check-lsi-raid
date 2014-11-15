@@ -1,0 +1,613 @@
+#!/usr/bin/perl
+
+=head1 NAME
+
+check-lsi-raid - Plugin to check bonding.
+
+=head1 SYNOPSIS
+
+    check-lsi-raid [ OPTIONS ]
+
+    check-lsi-raid --help
+
+=head1 REPORTING BUGS
+
+Please report all bugs to <support(at)bloonix.de>.
+
+=head1 AUTHOR
+
+Jonny Schulz <support(at)bloonix.de>.
+
+=head1 POWERED BY
+
+     _    __ _____ _____ __  __ __ __   __
+    | |__|  |     |     |  \|  |__|\  \/  /
+    |  . |  |  |  |  |  |      |  | >    <
+    |____|__|_____|_____|__|\__|__|/__/\__\
+
+=head1 COPYRIGHT
+
+Copyright (C) 2014 by Jonny Schulz. All rights reserved.
+
+=cut
+
+use strict;
+use warnings;
+use Bloonix::Plugin;
+
+# --------------------------------------------------
+# Plugin options
+# --------------------------------------------------
+
+my $plugin = Bloonix::Plugin->new(version => "0.1");
+$plugin->flags("sudo");
+
+$plugin->info(
+    "This plugin checks the status of all disks on all raid controllers that are found.",
+    "In addition the battery status is checked and the temperature of the battery.",
+    "The commands MegaCli, MegaCli64, storcli or storcli64 are used to check the status of the RAID.",
+    "Please install the tools to the path /usr/bin, /opt/MegaRAID/MegaCli or /opt/MegaRAID/storcli."
+);
+
+$plugin->add_option(
+    name => "Force StorCli",
+    description => "Force the usage of the StorCli tool instead of MegaCli. By default MegaCli is used if if both is installed.",
+    option => "force-storcli"
+);
+
+$plugin->add_option(
+    name => "Debugging output",
+    description => "Debugging output",
+    option => "debug",
+    command_line_only => 1
+);
+
+my $opt = $plugin->parse_options;
+
+# --------------------------------------------------
+# Find the StorCli/MegaCli program
+# --------------------------------------------------
+
+$ENV{PATH} = join(":", "/opt/MegaRAID/MegaCli", "/opt/MegaRAID/storcli", $ENV{PATH});
+my @progs = qw(MegaCli64 MegaCli megacli);
+my @message = ();
+my @post_message = ();
+my $status = "OK";
+my ($cmd, $type);
+
+if ($opt->{force_storcli}) {
+    unshift @progs, qw(storcli64 storcli);
+} else {
+    push @progs, qw(storcli64 storcli);
+}
+
+foreach my $prog (@progs) {
+    my $path = qx{which $prog};
+    chomp $path;
+    if ($path && -e $path) {
+        $cmd = $path;
+        last;
+    }
+}
+
+if (!$cmd) {
+    $plugin->exit(
+        status => "UNKNOWN",
+        message => "unable to find any program like megacli or storcli"
+    );
+}
+
+# --------------------------------------------------
+# Get bbu state
+# --------------------------------------------------
+
+# Command: MegaCli -AdpBbuCmd -GetBbuStatus -aALL -NoLog
+#
+# Output:
+#
+# BBU status for Adapter: 0
+#
+# BatteryType: BBU
+# Voltage: 3917 mV
+# Current: 0 mA
+# Temperature: 27 C
+# Battery State: Optimal
+# BBU Firmware Status:
+#
+#   Charging Status              : None
+#   Voltage                                 : OK
+#   Temperature                             : OK
+#   Learn Cycle Requested                   : No
+#   Learn Cycle Active                      : No
+#   Learn Cycle Status                      : OK
+#   Learn Cycle Timeout                     : No
+#   I2c Errors Detected                     : No
+#   Battery Pack Missing                    : No
+#   Battery Replacement required            : No
+#   Remaining Capacity Low                  : No
+#   Periodic Learn Required                 : No
+#   Transparent Learn                       : No
+#   No space to cache offload               : No
+#   Pack is about to fail & should be replaced : No
+#   Cache Offload premium feature required  : No
+#   Module microcode update required        : No
+#
+# BBU GasGauge Status: 0x0028 
+# Relative State of Charge: 97 %
+# Charger Status: Complete
+# Remaining Capacity: 257 mAh
+# Full Charge Capacity: 265 mAh
+# isSOHGood: Yes
+#
+# Exit Code: 0x00
+
+my $bdata = $plugin->execute(
+    action => "execution of $cmd",
+    timeout => 15,
+    command => "$cmd -AdpBbuCmd -GetBbuStatus -aALL -NoLog",
+    debug => $opt->{debug},
+    callback => sub {
+        my $ipc = shift;
+        my $data = {};
+        my $b;
+
+        foreach my $line ($ipc->get_stdout) {
+            if ($line =~ /BBU\s+status\s+for\s+Adapter\s*:\s*(\d+)/) {
+                $data->{$1} = $b = {
+                    battery_state => "Faulty",
+                    voltage_state => "",
+                    temperature_state => "",
+                    battery_pack_missing => "",
+                    battery_replacement_required => "",
+                    pack_is_about_to_fail => ""
+                };
+            } elsif ($line =~ /Battery\s+State\s*:\s*(.*)/) {
+                $b->{battery_state} = $1;
+            #} elsif ($line =~ /Charging\s+Status\s*:\s*([^\s]+)/) {
+            } elsif ($line =~ /Voltage\s*:\s*([^\s]+)/) {
+                $b->{voltage_state} = $1;
+            } elsif ($line =~ /Temperature\s*:\s*([^\s]+)/) {
+                $b->{temperatur_state} = $1;
+            #} elsif ($line =~ /Learn\s+Cycle\s+Requested\s*:\s*([^\s]+)/) {
+            #} elsif ($line =~ /Learn\s+Cycle\s+Active\s*:\s*([^\s]+)/) {
+            #} elsif ($line =~ /Learn\s+Cycle\s+Status\s*:\s*([^\s]+)/) {
+            #} elsif ($line =~ /Learn\s+Cycle\s+Timeout\s*:\s*([^\s]+)/) {
+            } elsif ($line =~ /I2c\s+Errors\s+Detected\s*:\s*([^\s]+)/) {
+            } elsif ($line =~ /Battery\s+Pack\s+Missing\s*:\s*([^\s]+)/) {
+                $b->{battery_pack_missing} = $1;
+            } elsif ($line =~ /Battery\s+Replacement\s+required\s*:\s*([^\s]+)/) {
+                $b->{battery_replacement_required} = $1;
+            #} elsif ($line =~ /Remaining\s+Capacity\s+Low\s*:\s*([^\s]+)/) {
+            #} elsif ($line =~ /Periodic\s+Learn\s+Required\s*:\s*([^\s]+)/) {
+            #} elsif ($line =~ /Transparent\s+Learn\s*:\s*([^\s]+)/) {
+            #} elsif ($line =~ /No\s+space\s+to\s+cache\s+offload\s*:\s*([^\s]+)/) {
+            } elsif ($line =~ /Pack\s+is\s+about\s+to\s+fail\s+&\s+should\s+be\s+replaced\s*:\s*([^\s]+)/) {
+                $b->{pack_is_about_to_fail} = $1;
+            #} elsif ($line =~ /Cache\s+Offload\s+premium\s+feature\s+required\s*:\s*([^\s]+)/) {
+            #} elsif ($line =~ /Module\s+microcode\s+update\s+required\s*:\s*([^\s]+)/) {
+            }
+
+            return $data;
+        }
+    }
+);
+
+foreach my $adp (keys %$bdata) {
+    my $b = $bdata->{$adp};
+
+    push @message, "battery state of adapter $adp: $b->{battery_state}";
+
+    if ($b->{battery_state} eq "Optimal") {
+        push @message, "battery state of adapter $adp: $b->{battery_state}";
+    } else {
+        push @message, "[battery state of adapter $adp: $b->{battery_state} (CRITICAL)]";
+        $status = "CRITICAL";
+    }
+
+    if ($b->{voltage_state} ne "OK") {
+        push @message, "[battery voltage is not OK of adapter $adp (CRITICAL)]";
+        $status = "CRITICAL";
+    }
+
+    if ($b->{temperatur_state} ne "OK") {
+        push @message, "[battery temperature is not OK of adapter $adp (CRITICAL)]";
+        $status = "CRITICAL";
+    }
+
+    if ($b->{battery_pack_missing} ne "No") {
+        push @message, "[battery pack missing of adapter $adp (CRITICAL)]";
+        $status = "CRITICAL";
+    }
+
+    if ($b->{battery_replacement_required} ne "No") {
+        push @message, "[battery replacement required of adapter $adp (CRITICAL)]";
+        $status = "CRITICAL";
+    }
+
+    if ($b->{pack_is_about_to_fail} ne "No") {
+        push @message, "[battery pack is about to fail of adapter $adp (CRITICAL)]";
+        $status = "CRITICAL";
+    }
+}
+
+if (!scalar keys %$bdata) {
+    push @post_message, "no batteries found";
+}
+
+# --------------------------------------------------
+# Server example
+# --------------------------------------------------
+
+=head1 EXAMPLE
+
+    +--------------------------------------------------------------------+
+    |  Server                                                            |
+    |                                                                    |
+    |  +--------------------------------------------------------------+  |
+    |  |  Adapter 1                                                   |  |
+    |  |                                                              |  |
+    |  |  +--------------------------+  +--------------------------+  |  |
+    |  |  |  Logical device 1        |  |  Logical device 2        |  |  |
+    |  |  |  (RAID 10)               |  |  (RAID 10)               |  |  |
+    |  |  |                          |  |                          |  |  |
+    |  |  |  +--------+  +--------+  |  |  +--------+  +--------+  |  |  |
+    |  |  |  | Disk 1 |  | Disk 2 |  |  |  | Disk 5 |  | Disk 6 |  |  |  |
+    |  |  |  |        |  |        |  |  |  |        |  |        |  |  |  |
+    |  |  |  +--------+  +--------+  |  |  +--------+  +--------+  |  |  |
+    |  |  |                          |  |                          |  |  |
+    |  |  |  +--------+  +--------+  |  |  +--------+  +--------+  |  |  |
+    |  |  |  | Disk 3 |  | Disk 4 |  |  |  | Disk 7 |  | Disk 8 |  |  |  |
+    |  |  |  |        |  |        |  |  |  |        |  |        |  |  |  |
+    |  |  |  +--------+  +--------+  |  |  +--------+  +--------+  |  |  |
+    |  |  |                          |  |                          |  |  |
+    |  |  +--------------------------+  +--------------------------+  |  |
+    |  |                                                              |  |
+    |  +--------------------------------------------------------------+  |
+    |                                                                    |
+    +--------------------------------------------------------------------+
+
+    Get adapters                            MegaCli -adpCount -NoLog
+    Get logical devices of each adapter     MegaCli -LdGetNum -a$adp -NoLog
+
+
+    StorCli -adpCount -NoLog                            Get adapters
+    StorCli -LdGetNum -a0 -NoLog                        Get logical devices the the adapter
+    StorCli -LdInfo -L0 -a0 -NoLog                      Get logical device information
+    StorCli -PdList -a0 -NoLog                          Get physical device information (all)
+    StorCli -AdpBbuCmd -GetBbuStatus -aALL -NoLog       Get battery information
+
+=cut
+
+# --------------------------------------------------
+# Get adapters
+# --------------------------------------------------
+
+# Command: MegaCli -adpCount -NoLog
+#
+# Output:
+#
+#    Controller Count: 1.
+#
+#    Exit Code: 0x01
+
+my $adapters = $plugin->execute(
+    action => "execution of $cmd",
+    timeout => 14,
+    command => "$cmd -adpCount -NoLog",
+    debug => $opt->{debug},
+    callback => sub {
+        my $ipc = shift;
+
+        foreach my $line ($ipc->get_stdout) {
+            if ($line =~ /Controller\s+Count:\s*(\d+)/) {
+                return $1;
+            }
+        }
+
+        return 0;
+    }
+);
+
+# --------------------------------------------------
+# Get logical devices for each adapter
+# --------------------------------------------------
+
+for (my $adp = 0; $adp < $adapters; $adp++) {
+
+    # Command: MegaCli -LdGetNum -a0 -NoLog
+    #
+    # Output:
+    #
+    #    Number of Virtual Drives Configured on Adapter 0: 1
+    #
+    #   Exit Code: 0x01
+
+    my $logical_devices = $plugin->execute(
+        action => "execution of $cmd",
+        timeout => 15,
+        command => "$cmd -LdGetNum -a$adp -NoLog",
+        debug => $opt->{debug},
+        callback => sub {
+            my $ipc = shift;
+
+            foreach my $line ($ipc->get_stdout) {
+                if ($line =~ /Number\s+of\s+Virtual\s+Drives\s+Configured\s+on\s+Adapter\s+\d+:\s*(\d+)/) {
+                    return $1;
+                }
+            }
+
+            return 0;
+        }
+    );
+
+    # no logical devices found
+    next unless $logical_devices;
+
+    for (my $ld = 0; $ld < $logical_devices; $ld++) {
+
+        # Command: MegaCli -LdInfo -L0 -a0 -NoLog
+        #
+        # Output:
+        #
+        #   Adapter 0 -- Virtual Drive Information:
+        #   Virtual Drive: 0 (Target Id: 0)
+        #   Name                :
+        #   RAID Level          : Primary-1, Secondary-0, RAID Level Qualifier-0
+        #   Size                : 135.969 GB
+        #   Physical Sector Size: 512
+        #   Logical Sector Size : 512
+        #   VD has Emulated PD  : No
+        #   Mirror Data         : 135.969 GB
+        #   State               : Optimal
+        #   Strip Size          : 64 KB
+        #   Number Of Drives    : 2
+        #   Span Depth          : 1
+        #   Creation Date     : 22-07-2011
+        #   Creation Time     : 11:38:55 AM
+        #   Default Cache Policy: WriteThrough, ReadAheadNone, Direct, No Write Cache if Bad BBU
+        #   Current Cache Policy: WriteThrough, ReadAheadNone, Direct, No Write Cache if Bad BBU
+        #   Default Access Policy: Read/Write
+        #   Current Access Policy: Read/Write
+        #   Disk Cache Policy   : Disabled
+        #   Encryption Type     : None
+        #   Is VD Cached: No
+        #
+        #   Exit Code: 0x00
+
+        my $ldata = $plugin->execute(
+            action => "execution of $cmd",
+            timeout => 15,
+            command => "$cmd -LdInfo -L$ld -a$adp -NoLog",
+            debug => $opt->{debug},
+            callback => sub {
+                my $ipc = shift;
+                my $data = {
+                    raid_level => "n/a",
+                    size => "n/a",
+                    state => "n/a",
+                    number_of_drives => 0,
+                    span_depth => 0
+                };
+
+                foreach my $line ($ipc->get_stdout) {
+                    if ($line =~ /^RAID\s+Level\s*:\s*Primary-(\d)/) {
+                        $data->{raid_level} = $1;
+                    } elsif ($line =~ /^Size\s*:\s*([\d\.]+)\s*(.B)/) {
+                        my ($size, $unit) = ($1, $2);
+                        if ($unit eq "MB") {
+                            $size = sprintf("%.1f", $size * 1024);
+                            $unit = "GB";
+                        }
+                        $size = sprintf("%.1f", $size);
+                        $data->{size} = "$size $unit";
+                    } elsif ($line =~ /^State\s*:\s*([^\s]+)/) {
+                        $data->{state} = $1;
+                    } elsif ($line =~ /^Number\s+Of\s+Drives.+?:\s*(\d+)/) {
+                        $data->{number_of_drives} = $1;
+                    } elsif ($line =~ /^Span\s+Depth.+?:\s*(\d+)/) {
+                        $data->{span_depth} = $1;
+                    }
+                }
+
+                if ($data->{number_of_drives} && $data->{span_depth} > 1) {
+                    $data->{number_of_drives} *= $data->{span_depth};
+                    if ($data->{raid_level} < 10) {
+                        $data->{raid_level} .= 0;
+                    }
+                }
+
+                return $data;
+            }
+        );
+
+        if ($ldata->{state} eq "Optimal") {
+            $ldata->{state} .= " (OK)";
+        } else {
+            $ldata->{state} .= " (CRITICAL)";
+            $status = "CRITICAL";
+        }
+
+        push @message, "[". join(", ",
+            "ADP$adp",
+            "LD$ld",
+            "RAID-$ldata->{raid_level} $ldata->{size}",
+            "$ldata->{number_of_drives} drives",
+            $ldata->{state}
+        ) ."]";
+
+        # Command: MegaCli -PdList -a0 -NoLog
+        #
+        # Output:
+        #
+        #   Adapter #0
+        #   
+        #   Enclosure Device ID: 64
+        #   Slot Number: 0
+        #   Drive's postion: DiskGroup: 0, Span: 0, Arm: 0
+        #   Enclosure position: 0
+        #   Device Id: 10
+        #   WWN: 5000C5003B1A8220
+        #   Sequence Number: 2
+        #   Media Error Count: 0
+        #   Other Error Count: 0
+        #   Predictive Failure Count: 0
+        #   Last Predictive Failure Event Seq Number: 0
+        #   PD Type: SAS
+        #   
+        #   Raw Size: 136.731 GB [0x11176d60 Sectors]
+        #   Non Coerced Size: 136.231 GB [0x11076d60 Sectors]
+        #   Coerced Size: 135.972 GB [0x10ff2000 Sectors]
+        #   Logical Sector Size: 512 
+        #   Physical Sector Size:  512
+        #   Firmware state: Online, Spun Up
+        #   Device Firmware Level: B53C
+        #   Shield Counter: 0
+        #   Successful diagnostics completion on :  N/A
+        #   SAS Address(0): 0x5000c5003b1a8221
+        #   SAS Address(1): 0x0
+        #   Connected Port Number: 1(path0) 
+        #   Inquiry Data: IBM-ESXSST9146803SS     B53C6SD3L0KS0324B53C    
+        #   IBM FRU/CRU: 42D0633     
+        #   FDE Capable: Not Capable
+        #   FDE Enable: Disable
+        #   Secured: Unsecured
+        #   Locked: Unlocked
+        #   Needs EKM Attention: No
+        #   Foreign State: None 
+        #   Device Speed: 6.0Gb/s 
+        #   Link Speed: 6.0Gb/s 
+        #   Media Type: Hard Disk Device
+        #   Drive:  Not Certified
+        #   Drive Temperature :65C (149.00 F)
+        #   PI Eligibility:  No 
+        #   Drive is formatted for PI information:  No
+        #   PI: No PI
+        #   Port-0 :
+        #   Port status: Active
+        #   Port's Linkspeed: 6.0Gb/s 
+        #   Port-1 :
+        #   Port status: Active
+        #   Port's Linkspeed: Unknown 
+        #   Drive has flagged a S.M.A.R.T alert : No
+        #   
+        #   Enclosure Device ID: 64
+        #   Slot Number: 1
+        #   Drive's postion: DiskGroup: 0, Span: 0, Arm: 1
+        #   Enclosure position: 0
+        #   Device Id: 9
+        #   WWN: 5000C5003B19F9B8
+        #   Sequence Number: 2
+        #   Media Error Count: 0
+        #   Other Error Count: 0
+        #   Predictive Failure Count: 0
+        #   Last Predictive Failure Event Seq Number: 0
+        #   PD Type: SAS
+        #   
+        #   Raw Size: 136.731 GB [0x11176d60 Sectors]
+        #   Non Coerced Size: 136.231 GB [0x11076d60 Sectors]
+        #   Coerced Size: 135.972 GB [0x10ff2000 Sectors]
+        #   Logical Sector Size: 512 
+        #   Physical Sector Size:  512
+        #   Firmware state: Online, Spun Up
+        #   Device Firmware Level: B53C
+        #   Shield Counter: 0
+        #   Successful diagnostics completion on :  N/A
+        #   SAS Address(0): 0x5000c5003b19f9b9
+        #   SAS Address(1): 0x0
+        #   Connected Port Number: 0(path0) 
+        #   Inquiry Data: IBM-ESXSST9146803SS     B53C6SD3L1HT0324B53C    
+        #   IBM FRU/CRU: 42D0633     
+        #   FDE Capable: Not Capable
+        #   FDE Enable: Disable
+        #   Secured: Unsecured
+        #   Locked: Unlocked
+        #   Needs EKM Attention: No
+        #   Foreign State: None 
+        #   Device Speed: 6.0Gb/s 
+        #   Link Speed: 6.0Gb/s 
+        #   Media Type: Hard Disk Device
+        #   Drive:  Not Certified
+        #   Drive Temperature :65C (149.00 F)
+        #   PI Eligibility:  No 
+        #   Drive is formatted for PI information:  No
+        #   PI: No PI
+        #   Port-0 :
+        #   Port status: Active
+        #   Port's Linkspeed: 6.0Gb/s 
+        #   Port-1 :
+        #   Port status: Active
+        #   Port's Linkspeed: Unknown 
+        #   Drive has flagged a S.M.A.R.T alert : No
+        #   
+        #   Exit Code: 0x00
+
+        my $pdata = $plugin->execute(
+            action => "execution of $cmd",
+            timeout => 15,
+            command => "$cmd -PdList -a$adp -NoLog",
+            debug => $opt->{debug},
+            callback => sub {
+                my $ipc = shift;
+                my $data = {};
+                my $p;
+
+                foreach my $line ($ipc->get_stdout) {
+                    if ($line =~ /Slot\s+Number\s*:\s*(\d+)/) {
+                        $p = $data->{$1} = {
+                            media_errors => 0,
+                            other_errors => 0,
+                            predictive_failures => 0,
+                            state => "bad"
+                        };
+                    } elsif ($line =~ /(\w+)\s+Error\s+Count\s*:\s*(\d+)/) {
+                        my ($key, $value) = ($1, $2);
+                        if ($key eq "Media") {
+                            $p->{media_errors} += $value;
+                        } else {
+                            $p->{other_errors} += $value;
+                        }
+                    } elsif ($line =~ /Predictive\s+Failure\s+Count\s*:\s*(\d+)/) {
+                        $p->{predictive_failures} += $1;
+                    } elsif ($line =~ /Firmware\s*state\s*:\s*(\w+)/) {
+                        $p->{state} = lc $1;
+                    }
+                }
+
+                return $data;
+            }
+        );
+
+        foreach my $pd (keys %$pdata) {
+            my $p = $pdata->{$pd};
+            my @m = ("PD$pd", "state $p->{state}");
+            my $s = "OK";
+
+            if ($p->{state} !~ /hotspare|online|unconfigured/) {
+                $s = "CRITICAL";
+                $status = "CRITICAL";
+            }
+
+            foreach my $key (qw/media_errors other_errors predictive_failures/) {
+                if ($p->{$key} > 0) {
+                    if ($s eq "OK") {
+                        $s = "WARNING";
+                    }
+                    if ($status eq "OK") {
+                        $status = "WARNING";
+                    }
+                    my $str = $key;
+                    $str =~ tr/_/ /;
+                    push @m, "$p->{$key} $str";
+                }
+            }
+
+            $m[0] .= " ($s)";
+            push @message, "[". join(", ", @m) ."]";
+        }
+    }
+}
+
+$plugin->exit(
+    status => $status,
+    message => join(", ", @message, @post_message)
+);

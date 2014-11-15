@@ -1,0 +1,9 @@
+plugin {
+    id 61
+    plugin Linux.RAID.LSI.Check
+    command check-lsi-raid
+    datatype none
+    category System,RAID,Disk,Linux
+    abstract LSI raid check
+    description Check the raid health with megacli or storcli.
+}

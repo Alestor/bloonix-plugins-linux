@@ -1,3 +1,7 @@
+bloonix-plugins-linux (0.24) released at 2014-XX-XX
+
+    * New plugin check-lsi-raid added.
+
 bloonix-plugins-linux (0.23) released at 2014-11-08
 
     * Fixed typo in check-ping description (20ms -> 2000ms).
