@@ -50,6 +50,33 @@ $plugin->info(
 );
 
 $plugin->add_option(
+    name => "The number of other errors to ignore",
+    option => "ignore-other-errors",
+    value => "number",
+    value_type => "int",
+    default => 0,
+    description => "The number of other errors to ignore and to return status OK."
+);
+
+$plugin->add_option(
+    name => "The number of media errors to ignore",
+    option => "ignore-media-errors",
+    value => "number",
+    value_type => "int",
+    default => 0,
+    description => "The number of media errors to ignore and to return status OK."
+);
+
+$plugin->add_option(
+    name => "The number of predictive failures to ignore",
+    option => "ignore-predictive-failures",
+    value => "number",
+    value_type => "int",
+    default => 0,
+    description => "The number of predictive failures to ignore and to return status OK."
+);
+
+$plugin->add_option(
     name => "Force StorCli",
     description => "Force the usage of the StorCli tool instead of MegaCli. By default MegaCli is used if if both is installed.",
     option => "force-storcli"
@@ -589,11 +616,13 @@ for (my $adp = 0; $adp < $adapters; $adp++) {
 
             foreach my $key (qw/media_errors other_errors predictive_failures/) {
                 if ($p->{$key} > 0) {
-                    if ($s eq "OK") {
-                        $s = "WARNING";
-                    }
-                    if ($status eq "OK") {
-                        $status = "WARNING";
+                    if ($opt->{"ignore_$key"} < $p->{$key}) {
+                        if ($s eq "OK") {
+                            $s = "WARNING";
+                        }
+                        if ($status eq "OK") {
+                            $status = "WARNING";
+                        }
                     }
                     my $str = $key;
                     $str =~ tr/_/ /;
