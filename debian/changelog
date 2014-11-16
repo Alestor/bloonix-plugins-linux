@@ -1,3 +1,9 @@
+bloonix-plugins-linux (0.24-1) unstable; urgency=low
+
+    * New plugin check-lsi-raid added.
+
+ -- Jonny Schulz <js@bloonix.de>  Sun, 16 Nov 2014 15:36:53 +0100
+
 bloonix-plugins-linux (0.23-1) unstable; urgency=low
 
     * Fixed typo in check-ping description (20ms -> 2000ms).
