@@ -27,4 +27,7 @@ install:
 		chmod 644 $(PREFIX)/lib/bloonix/etc/plugins/$$file; \
 	done;
 
+	mkdir -p /etc/bloonix/agent/sudoers.d;
+	cp -a sudoers/* /etc/bloonix/agent/sudoers.d/;
+
 clean:

@@ -1,0 +1,1 @@
+bloonix ALL=(ALL) NOPASSWD:/usr/lib/bloonix/plugins/check-postfix-mailqueue
