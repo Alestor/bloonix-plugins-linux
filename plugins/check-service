@@ -39,7 +39,7 @@ use Bloonix::Plugin;
 # Plugin options
 # --------------------------------------------------
 
-my $plugin = Bloonix::Plugin->new(version => "0.4");
+my $plugin = Bloonix::Plugin->new(version => "0.5");
 
 $plugin->add_option(
     name => "Service name",
@@ -47,7 +47,7 @@ $plugin->add_option(
     value => "service",
     value_type => "string",
     mandatory => 1,
-    regex => qr/^[\w+\-\.]+\z/,
+    regex => qr/^[\w\-.]+\z/,
     description => "This is the service name you want to check."
 );
 
