@@ -47,6 +47,9 @@ rm -rf %{buildroot}
 %{blxdir}/plugins/check-*
 %{blxdir}/etc/plugins/plugin-*
 
+%dir /etc/bloonix/agent/sudoers.d
+/etc/bloonix/agent/sudoers.d/*
+
 %dir %attr(0755, root, root) %{docdir}
 %doc %attr(0444, root, root) %{docdir}/ChangeLog
 %doc %attr(0444, root, root) %{docdir}/LICENSE

@@ -3,9 +3,10 @@ use strict;
 use warnings;
 use Getopt::Long qw(:config no_ignore_case);
 
-my $prefix   = "/usr/local";
-my $perl     = "/usr/bin/perl";
-my $help     = undef;
+my $prefix = "/usr/local";
+my $confdir = "/etc";
+my $perl = "/usr/bin/perl";
+my $help = undef;
 
 if (!-e "Makefile") {
     print "Execute me from the source directory!\n";
@@ -14,14 +15,16 @@ if (!-e "Makefile") {
 
 GetOptions(
     "prefix=s" => \$prefix,
-    "perl=s"   => \$perl,
-    "h|help"   => \$help
+    "confdir=s" => \$confdir,
+    "perl=s" => \$perl,
+    "h|help"  => \$help
 );
 
 if ($help) {
     print "Usage: perl Configure.PL [ OPTIONS ]\n\n";
     print "Configure options:\n\n";
     print "  --destdir DIR\n";
+    print "  --confdir DIR (default: /etc)\n";
     print "  --prefix DIR\n";
     print "  --perl PERL EXECUTABLE\n";
     print "\n";
@@ -35,6 +38,7 @@ print "Writing Makefile.config ...\n";
 print $fh <<EOF;
 # Base paths
 PREFIX=\$(DESTDIR)$prefix
+CONFDIR=\$(DESTDIR)$confdir
 PERL=$perl
 EOF
 

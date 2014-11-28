@@ -17,9 +17,9 @@ install:
 		chmod 755 $(PREFIX)/lib/bloonix/plugins/$$file; \
 	done;
 
-	if test ! -e "$(PREFIX)/lib/bloonix/etc/plugins/linux" ; then \
-		mkdir -p $(PREFIX)/lib/bloonix/etc/plugins/; \
-		chmod 755 $(PREFIX)/lib/bloonix/etc/plugins/; \
+	if test ! -e "$(PREFIX)/lib/bloonix/etc/plugins" ; then \
+		mkdir -p $(PREFIX)/lib/bloonix/etc/plugins; \
+		chmod 755 $(PREFIX)/lib/bloonix/etc/plugins; \
 	fi;
 
 	cd plugins; for file in plugin-* ; do \
@@ -27,7 +27,8 @@ install:
 		chmod 644 $(PREFIX)/lib/bloonix/etc/plugins/$$file; \
 	done;
 
-	mkdir -p /etc/bloonix/agent/sudoers.d;
-	cp -a sudoers/* /etc/bloonix/agent/sudoers.d/;
+	mkdir -p $(CONFDIR)/bloonix/agent/sudoers.d;
+	cp -a sudoers/* $(CONFDIR)/bloonix/agent/sudoers.d/;
+	chmod 440 $(CONFDIR)/bloonix/agent/sudoers.d/*;
 
 clean:
