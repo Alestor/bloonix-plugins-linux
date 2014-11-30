@@ -1,3 +1,7 @@
+bloonix-plugins-linux (0.25) released at 2014-11-30
+
+    * New sudo file check-service.
+
 bloonix-plugins-linux (0.24) released at 2014-11-16
 
     * New plugin check-lsi-raid added.

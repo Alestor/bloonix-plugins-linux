@@ -5,5 +5,5 @@ plugin {
     datatype none
     category System
     abstract Service check
-    description Check the status of a service via "/etc/init.d/service status".
+    description Check the status of a service.
 }

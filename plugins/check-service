@@ -39,7 +39,9 @@ use Bloonix::Plugin;
 # Plugin options
 # --------------------------------------------------
 
+@ARGV = grep !/--use-service/, @ARGV; # deprecated parameter
 my $plugin = Bloonix::Plugin->new(version => "0.5");
+$plugin->flags("sudo");
 
 $plugin->add_option(
     name => "Service name",
@@ -51,18 +53,18 @@ $plugin->add_option(
     description => "This is the service name you want to check."
 );
 
-$plugin->add_option(
-    name => "Use 'service' instead 'init.d'",
-    option => "use-service",
-    description => "By default the service is checked with '/etc/init.d/name status'. It's possible to use the service command instead like 'service name status'. Enable this option if you want that the 'service' command is used instead the call over init.d."
-);
+$plugin->info(join(" ",
+    "This plugin tries to determine automatically the method to check the status of a service.",
+    "At first the plugin searchs for 'systemctl', then for 'service' and then the plugin checks",
+    "if /etc/init.d/service-name exists."
+));
 
 $plugin->example(
     description => [
-        "An example to check service /etc/init.d/httpd",
+        "An example to check service httpd:",
         "",
-        "- return ok if the return value is 0",
-        "- return a critical status if the return value is higher than 0"
+        "- return OK if the return value is 0",
+        "- return CRITICAL if the return value is higher than 0"
     ],
     arguments => [
         service => "httpd"
@@ -74,44 +76,43 @@ $plugin->example(
 # --------------------------------------------------
 
 my $opt = $plugin->parse_options;
-my $basedir = "/etc/init.d";
-my $service;
 my $command;
+my $service;
 
-if ($opt->{"use_service"}) {
-    $service = qx{which service};
-    chomp $service;
-    if (!$service) {
-        $plugin->exit(
-            status => "UNKNOWN",
-            message => "the command 'service' does not exists"
-        );
+foreach my $svc (qw/systemctl service/) {
+    $command = qx{which $svc};
+    chomp $command;
+    if (-x $command) {
+        $service = $svc;
+        last;
     }
+}
+
+if (!$service && -x "/etc/init.d/$opt->{service}") {
+    $service = "sysVinit";
+}
+
+if (!$service) {
+    $plugin->exit(
+        status => "UNKNOWN",
+        message => "unable to find method to check the status of the service"
+    );
+}
+
+if ($service eq "sysVinit") {
+    $command = "/etc/init.d/$opt->{service} status";
+} elsif ($service eq "systemctl") {
+    $command = "systemctl status $opt->{service}.service";
+} elsif ($service eq "service") {
     $command = "$service $opt->{service} status";
-} else {
-    $command = "$basedir/$opt->{service} status";
 }
 
 # --------------------------------------------------
 # Check the service
 # --------------------------------------------------
 
-if (!-e "$basedir/$opt->{service}") {
-    $plugin->exit(
-        status => "UNKNOWN",
-        message => "service $opt->{service} is not available"
-    );
-}
-
-if (!-x "$basedir/$opt->{service}") {
-    $plugin->exit(
-        status => "UNKONWN",
-        message => "service $opt->{service} is not executable"
-    );
-}
-
 my $output = qx{$command 2>&1};
-my $errcode = $?;
+my $errcode = $? >> 8;
 
 if ($errcode == 0) {
     $plugin->exit(
