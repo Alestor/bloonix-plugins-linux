@@ -1,6 +1,9 @@
 bloonix-plugins-linux (0.25) released at 2014-11-30
 
     * New sudo file check-service.
+    * check-service now tries to determine the service method to
+      check the status of services. systemctl is supported.
+    * Kicked sudo file for check-postfix-mailqueue.
 
 bloonix-plugins-linux (0.24) released at 2014-11-16
 

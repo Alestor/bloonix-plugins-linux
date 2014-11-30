@@ -57,6 +57,9 @@ rm -rf %{buildroot}
 %changelog
 * Sun Nov 30 2014 Jonny Schulz <js@bloonix.de> - 0.25-1
 - New sudo file check-service.
+- check-service now tries to determine the service method to
+  check the status of services. systemctl is supported.
+- Kicked sudo file for check-postfix-mailqueue.
 * Sun Nov 16 2014 Jonny Schulz <js@bloonix.de> - 0.24-1
 - New plugin check-lsi-raid added.
 * Sat Nov 08 2014 Jonny Schulz <js@bloonix.de> - 0.23-1

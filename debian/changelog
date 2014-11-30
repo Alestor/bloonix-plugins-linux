@@ -1,8 +1,11 @@
 bloonix-plugins-linux (0.25-1) unstable; urgency=low
 
     * New sudo file check-service.
+    * check-service now tries to determine the service method to
+      check the status of services. systemctl is supported.
+    * Kicked sudo file for check-postfix-mailqueue.
 
- -- Jonny Schulz <js@bloonix.de>  Sun, 30 Nov 2014 19:46:23 +0100
+ -- Jonny Schulz <js@bloonix.de>  Sun, 30 Nov 2014 19:48:25 +0100
 
 bloonix-plugins-linux (0.24-1) unstable; urgency=low
 
