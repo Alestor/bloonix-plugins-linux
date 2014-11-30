@@ -1,6 +1,6 @@
 Summary: Bloonix plugins for Linux.
 Name: bloonix-plugins-linux
-Version: 0.24
+Version: 0.25
 Release: 1%{dist}
 License: Commercial
 Group: Utilities/System
@@ -55,6 +55,8 @@ rm -rf %{buildroot}
 %doc %attr(0444, root, root) %{docdir}/LICENSE
 
 %changelog
+* Sun Nov 30 2014 Jonny Schulz <js@bloonix.de> - 0.25-1
+- New sudo file check-service.
 * Sun Nov 16 2014 Jonny Schulz <js@bloonix.de> - 0.24-1
 - New plugin check-lsi-raid added.
 * Sat Nov 08 2014 Jonny Schulz <js@bloonix.de> - 0.23-1

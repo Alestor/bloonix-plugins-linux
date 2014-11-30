@@ -1,3 +1,9 @@
+bloonix-plugins-linux (0.25-1) unstable; urgency=low
+
+    * New sudo file check-service.
+
+ -- Jonny Schulz <js@bloonix.de>  Sun, 30 Nov 2014 19:46:23 +0100
+
 bloonix-plugins-linux (0.24-1) unstable; urgency=low
 
     * New plugin check-lsi-raid added.
