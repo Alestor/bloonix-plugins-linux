@@ -1,6 +1,6 @@
 Summary: Bloonix plugins for Linux.
 Name: bloonix-plugins-linux
-Version: 0.25
+Version: 0.27
 Release: 1%{dist}
 License: Commercial
 Group: Utilities/System
@@ -36,6 +36,19 @@ mkdir -p ${RPM_BUILD_ROOT}%{docdir}
 install -c -m 0444 LICENSE ${RPM_BUILD_ROOT}%{docdir}/
 install -c -m 0444 ChangeLog ${RPM_BUILD_ROOT}%{docdir}/
 
+%post
+if [ ! -e "/etc/bloonix/agent/sudoers.d" ] ; then
+    mkdir -p /etc/bloonix/agent/sudoers.d
+    chown root:root /etc/bloonix/agent/sudoers.d
+    chmod 755 /etc/bloonix/agent/sudoers.d
+fi
+for f in check-linux-updates check-lsi-raid check-mdadm check-service check-smart-health ; do
+    if [ ! -e "/etc/bloonix/agent/sudoers.d/$f" ] ; then
+        cp -a /usr/lib/bloonix/etc/sudoers.d/$f /etc/bloonix/agent/sudoers.d/
+        chmod 440 /etc/bloonix/agent/sudoers.d/$f
+    fi
+done
+
 %clean
 rm -rf %{buildroot}
 
@@ -47,14 +60,19 @@ rm -rf %{buildroot}
 %{blxdir}/plugins/check-*
 %{blxdir}/etc/plugins/plugin-*
 
-%dir /etc/bloonix/agent/sudoers.d
-/etc/bloonix/agent/sudoers.d/*
+%dir %{blxdir}/etc/sudoers.d
+%{blxdir}/etc/sudoers.d/*
 
 %dir %attr(0755, root, root) %{docdir}
 %doc %attr(0444, root, root) %{docdir}/ChangeLog
 %doc %attr(0444, root, root) %{docdir}/LICENSE
 
 %changelog
+* Wed Dec 03 2014 Jonny Schulz <js@bloonix.de> - 0.27-1
+- Fixed check-bonding error message: "At least one of the
+  following options must be set: all, bond"
+* Tue Dec 02 2014 Jonny Schulz <js@bloonix.de> - 0.26-1
+- Fixed handling of sudo files.
 * Sun Nov 30 2014 Jonny Schulz <js@bloonix.de> - 0.25-1
 - New sudo file check-service.
 - check-service now tries to determine the service method to

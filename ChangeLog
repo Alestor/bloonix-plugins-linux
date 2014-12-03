@@ -1,3 +1,12 @@
+bloonix-plugins-linux (0.27) released at 2014-12-03
+
+    * Fixed check-bonding error message: "At least one of the
+      following options must be set: all, bond"
+
+bloonix-plugins-linux (0.26) released at 2014-12-02
+
+    * Fixed handling of sudo files.
+
 bloonix-plugins-linux (0.25) released at 2014-11-30
 
     * New sudo file check-service.

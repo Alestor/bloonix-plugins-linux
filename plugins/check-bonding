@@ -64,7 +64,7 @@ $plugin->add_option(
     description => "The bonding interface to check. Use the option 'Check all interfaces' if you want to check all interfaces."
 );
 
-$plugin->one_must_have_options("all", "bond");
+$plugin->one_must_have_options("all", "interface");
 
 # --------------------------------------------------
 # Parse options

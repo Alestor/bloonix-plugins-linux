@@ -1,3 +1,16 @@
+bloonix-plugins-linux (0.27-1) unstable; urgency=low
+
+    * Fixed check-bonding error message: "At least one of the
+      following options must be set: all, bond"
+
+ -- Jonny Schulz <js@bloonix.de>  Wed, 03 Dec 2014 15:04:34 +0100
+
+bloonix-plugins-linux (0.26-1) unstable; urgency=low
+
+    * Fixed handling of sudo files.
+
+ -- Jonny Schulz <js@bloonix.de>  Tue, 02 Dec 2014 23:39:42 +0100
+
 bloonix-plugins-linux (0.25-1) unstable; urgency=low
 
     * New sudo file check-service.
