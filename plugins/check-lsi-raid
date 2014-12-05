@@ -42,12 +42,12 @@ use Bloonix::Plugin;
 my $plugin = Bloonix::Plugin->new(version => "0.1");
 $plugin->flags("sudo");
 
-$plugin->info(
+$plugin->info(join(" ",
     "This plugin checks the status of all disks on all raid controllers that are found.",
     "In addition the battery status is checked and the temperature of the battery.",
     "The commands MegaCli, MegaCli64, storcli or storcli64 are used to check the status of the RAID.",
     "Please install the tools to the path /usr/bin, /opt/MegaRAID/MegaCli or /opt/MegaRAID/storcli."
-);
+));
 
 $plugin->add_option(
     name => "The number of other errors to ignore",
