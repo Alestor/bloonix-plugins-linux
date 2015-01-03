@@ -335,6 +335,13 @@ my $adapters = $plugin->execute(
     }
 );
 
+if (!$adapters) {
+    $plugin->exit(
+        status => "CRITICAL",
+        message => "no controller found"
+    );
+}
+
 # --------------------------------------------------
 # Get logical devices for each adapter
 # --------------------------------------------------
