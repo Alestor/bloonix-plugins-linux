@@ -1,3 +1,7 @@
+bloonix-plugins-linux (0.28) released at 2014-XX-XX
+
+    * check-lsi-raid returns now a CRITICAL if no controller were found.
+
 bloonix-plugins-linux (0.27) released at 2014-12-03
 
     * Fixed check-bonding error message: "At least one of the
