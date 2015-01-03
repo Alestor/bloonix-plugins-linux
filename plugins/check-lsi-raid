@@ -39,7 +39,7 @@ use Bloonix::Plugin;
 # Plugin options
 # --------------------------------------------------
 
-my $plugin = Bloonix::Plugin->new(version => "0.1");
+my $plugin = Bloonix::Plugin->new(version => "0.2");
 $plugin->flags("sudo");
 
 $plugin->info(join(" ",
