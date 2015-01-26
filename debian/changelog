@@ -1,3 +1,9 @@
+bloonix-plugins-linux (0.28-1) unstable; urgency=low
+
+    * check-lsi-raid returns now a CRITICAL if no controller were found.
+
+ -- Jonny Schulz <js@bloonix.de>  Mon, 26 Jan 2015 19:06:13 +0100
+
 bloonix-plugins-linux (0.27-1) unstable; urgency=low
 
     * Fixed check-bonding error message: "At least one of the

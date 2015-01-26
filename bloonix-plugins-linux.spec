@@ -1,6 +1,6 @@
 Summary: Bloonix plugins for Linux.
 Name: bloonix-plugins-linux
-Version: 0.27
+Version: 0.28
 Release: 1%{dist}
 License: Commercial
 Group: Utilities/System
@@ -68,6 +68,8 @@ rm -rf %{buildroot}
 %doc %attr(0444, root, root) %{docdir}/LICENSE
 
 %changelog
+* Mon Jan 26 2015 Jonny Schulz <js@bloonix.de> - 0.28-1
+- check-lsi-raid returns now a CRITICAL if no controller were found.
 * Wed Dec 03 2014 Jonny Schulz <js@bloonix.de> - 0.27-1
 - Fixed check-bonding error message: "At least one of the
   following options must be set: all, bond"
