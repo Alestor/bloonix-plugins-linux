@@ -47,7 +47,7 @@ $plugin->add_option(
     value => "mountpoint",
     value_type => "string",
     mandatory => 1,
-    regex => qr/^.+\z/,
+    regex => qr/^[^'`]+\z/,
     description => "This is the mountpoint where a filesystem is mounted on. As example /var or a simple / for the root mountpoint."
 );
 
@@ -78,6 +78,28 @@ $plugin->example(
 # --------------------------------------------------
 
 my $opt = $plugin->parse_options;
+
+if ($opt->{suggest_options}) {
+    my @suggest;
+    open my $fh, "/bin/df -mP|" or die "cannot execute '/bin/df -mP' - $!";
+    {my $null = <$fh>;}
+    my @lines = <$fh>;
+    close $fh;
+    foreach my $line (@lines) {
+        my $mountpoint = (split /\s+/, $line)[5];
+        if ($mountpoint !~ m!^/(run|dev|proc|sys)($|/)!) {
+            push @suggest, {
+                mountpoint => $mountpoint,
+                warning => [ "usageper:gt:85", "iusageper:gt:85" ],
+                critical => [ "usageper:gt:90", "iusageper:gt:90" ]
+            };
+        }
+    }
+    $plugin->exit(
+        status => "OK",
+        suggest => \@suggest
+    );
+}
 
 # --------------------------------------------------
 # Everybody knows that df sometime hangs because of
@@ -112,9 +134,8 @@ if (@num > 2) {
 # --------------------------------------------------
 
 my %stat = ();
-my $cmd  = "/bin/df -P '$opt->{mountpoint}'";
 
-open my $mfh, "$cmd|" or die "cannot execute '/bin/df -mP' - $!";
+open my $mfh, "/bin/df -P '$opt->{mountpoint}'|" or die "cannot execute '/bin/df -mP' - $!";
 {my $null = <$mfh>;}
 my $line = <$mfh>;
 close $mfh;
@@ -134,9 +155,7 @@ if ($line && $line =~ /^(.+?)\s+(.+)$/) {
     $stat{freeper} = 100 - $stat{usageper};
 }
 
-$cmd = "/bin/df -iP '$opt->{mountpoint}'";
-
-open my $ifh, "$cmd|" or die "cannot execute '/bin/df -iP' - $!";
+open my $ifh, "/bin/df -iP '$opt->{mountpoint}'|" or die "cannot execute '/bin/df -iP' - $!";
 {my $null = <$ifh>;}
 $line = <$ifh>;
 close $ifh;
