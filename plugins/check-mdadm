@@ -43,8 +43,8 @@ my $plugin = Bloonix::Plugin->new(version => "0.4");
 $plugin->flags("sudo");
 
 $plugin->add_option(
+    option => "ignore-status-checking",
     name => "Ignore status 'checking'",
-    alias => "ignore-status-checking",
     description => "Enable this option to ignore the MD RAID status 'checking'."
 );
 
