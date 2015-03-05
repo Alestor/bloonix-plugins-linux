@@ -39,8 +39,14 @@ use Bloonix::Plugin;
 # Plugin options
 # --------------------------------------------------
 
-my $plugin = Bloonix::Plugin->new(version => "0.3");
+my $plugin = Bloonix::Plugin->new(version => "0.4");
 $plugin->flags("sudo");
+
+$plugin->add_option(
+    name => "Ignore status 'checking'",
+    alias => "ignore-status-checking",
+    description => "Enable this option to ignore the MD RAID status 'checking'."
+);
 
 my $opt = $plugin->parse_options;
 my $mdadm = qx{which mdadm};
@@ -102,7 +108,7 @@ eval {
             }
         }
 
-        if ($status{state} =~ /^(?:active|clean)\s*\z/) {
+        if ($status{state} =~ /^(?:active|clean)\s*\z/ || ($opt->{ignore_staus_checking} && $status{state} =~ /checking/)) {
             push @message, "[$array state:$status{state}]";
             next;
         }
