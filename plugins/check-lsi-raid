@@ -213,9 +213,9 @@ my $bdata = $plugin->execute(
             #} elsif ($line =~ /Cache\s+Offload\s+premium\s+feature\s+required\s*:\s*([^\s]+)/) {
             #} elsif ($line =~ /Module\s+microcode\s+update\s+required\s*:\s*([^\s]+)/) {
             }
-
-            return $data;
         }
+
+        return $data;
     }
 );
 

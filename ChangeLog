@@ -1,6 +1,7 @@
 bloonix-plugins-linux (0.29) released at 2014-XX-XX
 
     * Add parameter ignore-status-checking to check-mdadm.
+    * Fixed battery check of check-lsi-raid.
 
 bloonix-plugins-linux (0.28) released at 2014-01-26
 
