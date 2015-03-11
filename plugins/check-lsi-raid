@@ -193,8 +193,8 @@ my $bdata = $plugin->execute(
             #} elsif ($line =~ /Charging\s+Status\s*:\s*([^\s]+)/) {
             } elsif ($line =~ /Voltage\s*:\s*([^\s]+)/) {
                 $b->{voltage_state} = $1;
-            } elsif ($line =~ /Temperature\s*:\s*([^\s]+)/) {
-                $b->{temperatur_state} = $1;
+            } elsif ($line =~ /^\s+Temperature\s*:\s*([^\s]+)/) {
+                $b->{temperature_state} = $1;
             #} elsif ($line =~ /Learn\s+Cycle\s+Requested\s*:\s*([^\s]+)/) {
             #} elsif ($line =~ /Learn\s+Cycle\s+Active\s*:\s*([^\s]+)/) {
             #} elsif ($line =~ /Learn\s+Cycle\s+Status\s*:\s*([^\s]+)/) {
@@ -236,7 +236,7 @@ foreach my $adp (keys %$bdata) {
         $status = "CRITICAL";
     }
 
-    if ($b->{temperatur_state} ne "OK") {
+    if ($b->{temperature_state} ne "OK") {
         push @message, "[battery temperature is not OK of adapter $adp (CRITICAL)]";
         $status = "CRITICAL";
     }
