@@ -264,13 +264,13 @@ my $message = $packager eq "zypper"
     : "$count_packages packages are ready to update, $security_packages for security";
 
 if (
-    (defined $opt->{critical} && $count_packages > $opt->{critical})
-    || (defined $opt->{critical_security} && $security_packages > $opt->{critical_security})
+    (defined $opt->{critical} && $opt->{critical} > 0 && $count_packages >= $opt->{critical})
+    || (defined $opt->{critical_security} && $opt->{critical_security} > 0 && $security_packages >= $opt->{critical_security})
 ) {
     $status = "CRITICAL";
 } elsif (
-    (defined $opt->{warning} && $count_packages > $opt->{warning})
-    || (defined $opt->{warning_security} && $security_packages > $opt->{warning_security})
+    (defined $opt->{warning} && $opt->{warning} > 0 && $count_packages >= $opt->{warning})
+    || (defined $opt->{warning_security} && $opt->{warning_security} > 0 && $security_packages >= $opt->{warning_security})
 ) {
     $status = "WARNING";
 }
