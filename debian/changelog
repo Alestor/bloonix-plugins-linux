@@ -5,6 +5,7 @@ bloonix-plugins-linux (0.30-1) unstable; urgency=low
       positive CRITICAL.
     * Fixed threshold checking in check-linux-updates.
     * Kicked thresholds in check-mtr.
+    * Fixed check-mdadm: now state checking is really ignored.
 
  -- Jonny Schulz <js@bloonix.de>  Wed, 22 Apr 2015 23:22:00 +0200
 

@@ -74,6 +74,7 @@ rm -rf %{buildroot}
   positive CRITICAL.
 - Fixed threshold checking in check-linux-updates.
 - Kicked thresholds in check-mtr.
+- Fixed check-mdadm: now state checking is really ignored.
 * Mon Mar 09 2015 Jonny Schulz <js@bloonix.de> - 0.29-1
 - Add parameter ignore-status-checking to check-mdadm.
 - Fixed battery check of check-lsi-raid.
