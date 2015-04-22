@@ -5,6 +5,7 @@ bloonix-plugins-linux (0.30) released at 2015-04-22
       positive CRITICAL.
     * Fixed threshold checking in check-linux-updates.
     * Kicked thresholds in check-mtr.
+    * Fixed check-mdadm: now state checking is really ignored.
 
 bloonix-plugins-linux (0.29) released at 2015-03-09
 
