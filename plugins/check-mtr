@@ -39,10 +39,9 @@ use Bloonix::Plugin;
 # Plugin options
 # --------------------------------------------------
 
-my $plugin = Bloonix::Plugin->new(version => "0.1");
+my $plugin = Bloonix::Plugin->new(version => "0.2");
 
 $plugin->has_host(mandatory => 1);
-$plugin->has_threshold(keys => [qw(Snt Loss Last Avg Best Wrst StDev)]);
 $plugin->has_timeout(default => 30);
 
 # --------------------------------------------------
@@ -74,7 +73,8 @@ if ($ipc->timeout) {
 
 my @lines = @{ $ipc->stdout };
 my @header = split /\s+/, shift @lines;
-my @output;
+my (@output, %totals);
+
 foreach my $line (@lines) {
     $line =~ s/^\s*//;
     my %data;
@@ -82,6 +82,11 @@ foreach my $line (@lines) {
         =  split /\s+/, $line;
     $data{step} =~ s/\|.+//;
     $data{loss} =~ s/%//;
+    foreach my $key (qw/loss snt last avg best wrst stdev/) {
+        if ($data->{$key} =~ /^\d+(\.\d+){0,1}\z/) {
+            $totals{$key} += $data->{$key};
+        }
+    }
     push @output, \%data;
 }
 

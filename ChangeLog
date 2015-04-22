@@ -1,9 +1,10 @@
-bloonix-plugins-linux (0.30) released at 2015-XX-XX
+bloonix-plugins-linux (0.30) released at 2015-04-22
 
     * Fix inconsistency (temperature_state vs temperatur_state).
     * Fix regex in line 196 which matched a wrong line, causing a false
       positive CRITICAL.
     * Fixed threshold checking in check-linux-updates.
+    * Kicked thresholds in check-mtr.
 
 bloonix-plugins-linux (0.29) released at 2015-03-09
 
