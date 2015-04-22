@@ -73,7 +73,7 @@ if ($ipc->timeout) {
 
 my @lines = @{ $ipc->stdout };
 my @header = split /\s+/, shift @lines;
-my (@output, %totals);
+my @output;
 
 foreach my $line (@lines) {
     $line =~ s/^\s*//;
@@ -82,11 +82,6 @@ foreach my $line (@lines) {
         =  split /\s+/, $line;
     $data{step} =~ s/\|.+//;
     $data{loss} =~ s/%//;
-    foreach my $key (qw/loss snt last avg best wrst stdev/) {
-        if ($data->{$key} =~ /^\d+(\.\d+){0,1}\z/) {
-            $totals{$key} += $data->{$key};
-        }
-    }
     push @output, \%data;
 }
 
