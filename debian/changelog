@@ -1,3 +1,13 @@
+bloonix-plugins-linux (0.30-1) unstable; urgency=low
+
+    * Fix inconsistency (temperature_state vs temperatur_state).
+    * Fix regex in line 196 which matched a wrong line, causing a false
+      positive CRITICAL.
+    * Fixed threshold checking in check-linux-updates.
+    * Kicked thresholds in check-mtr.
+
+ -- Jonny Schulz <js@bloonix.de>  Wed, 22 Apr 2015 23:22:00 +0200
+
 bloonix-plugins-linux (0.29-1) unstable; urgency=low
 
     * Add parameter ignore-status-checking to check-mdadm.

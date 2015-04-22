@@ -1,6 +1,6 @@
 Summary: Bloonix plugins for Linux.
 Name: bloonix-plugins-linux
-Version: 0.29
+Version: 0.30
 Release: 1%{dist}
 License: Commercial
 Group: Utilities/System
@@ -68,6 +68,12 @@ rm -rf %{buildroot}
 %doc %attr(0444, root, root) %{docdir}/LICENSE
 
 %changelog
+* Wed Apr 22 2015 Jonny Schulz <js@bloonix.de> - 0.30-1
+- Fix inconsistency (temperature_state vs temperatur_state).
+- Fix regex in line 196 which matched a wrong line, causing a false
+  positive CRITICAL.
+- Fixed threshold checking in check-linux-updates.
+- Kicked thresholds in check-mtr.
 * Mon Mar 09 2015 Jonny Schulz <js@bloonix.de> - 0.29-1
 - Add parameter ignore-status-checking to check-mdadm.
 - Fixed battery check of check-lsi-raid.
