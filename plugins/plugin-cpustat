@@ -21,7 +21,7 @@ statistic {
     alias Nice
     datatype float
     units percent
-    description The nice level of the process.
+    description Time spent in user mode with low priority.
 }
 
 statistic {
