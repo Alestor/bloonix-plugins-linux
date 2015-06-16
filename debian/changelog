@@ -1,3 +1,11 @@
+bloonix-plugins-linux (0.31-1) unstable; urgency=low
+
+    * Fixed parsing of mtr output.
+    * Added key "other" to the cpu statistics for unkown fields
+      in /proc/stat.
+
+ -- Jonny Schulz <js@bloonix.de>  Tue, 16 Jun 2015 13:51:32 +0200
+
 bloonix-plugins-linux (0.30-1) unstable; urgency=low
 
     * Fix inconsistency (temperature_state vs temperatur_state).

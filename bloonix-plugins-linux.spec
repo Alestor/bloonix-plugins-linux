@@ -1,6 +1,6 @@
 Summary: Bloonix plugins for Linux.
 Name: bloonix-plugins-linux
-Version: 0.30
+Version: 0.31
 Release: 1%{dist}
 License: Commercial
 Group: Utilities/System
@@ -68,6 +68,10 @@ rm -rf %{buildroot}
 %doc %attr(0444, root, root) %{docdir}/LICENSE
 
 %changelog
+* Tue Jun 16 2015 Jonny Schulz <js@bloonix.de> - 0.31-1
+- Fixed parsing of mtr output.
+- Added key "other" to the cpu statistics for unkown fields
+  in /proc/stat.
 * Wed Apr 22 2015 Jonny Schulz <js@bloonix.de> - 0.30-1
 - Fix inconsistency (temperature_state vs temperatur_state).
 - Fix regex in line 196 which matched a wrong line, causing a false
