@@ -1,6 +1,6 @@
 Summary: Bloonix plugins for Linux.
 Name: bloonix-plugins-linux
-Version: 0.31
+Version: 0.32
 Release: 1%{dist}
 License: Commercial
 Group: Utilities/System
@@ -68,6 +68,8 @@ rm -rf %{buildroot}
 %doc %attr(0444, root, root) %{docdir}/LICENSE
 
 %changelog
+* Tue Jun 16 2015 Jonny Schulz <js@bloonix.de> - 0.32-1
+- Fixed description of cpu field "nice".
 * Tue Jun 16 2015 Jonny Schulz <js@bloonix.de> - 0.31-1
 - Fixed parsing of mtr output.
 - Added key "other" to the cpu statistics for unkown fields
