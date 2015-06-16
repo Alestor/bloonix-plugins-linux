@@ -1,6 +1,8 @@
-bloonix-plugins-linux (0.31) released at 2015-XX-XX
+bloonix-plugins-linux (0.31) released at 2015-06-16
 
     * Fixed parsing of mtr output.
+    * Added key "other" to the cpu statistics for unkown fields
+      in /proc/stat.
 
 bloonix-plugins-linux (0.30) released at 2015-04-22
 

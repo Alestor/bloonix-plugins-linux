@@ -125,6 +125,7 @@ my $stat = &load;
 # --------------------------------------------------
 
 my $time = 0;
+my $key_total = 0;
 
 foreach my $key (keys %$stat) {
     $stat->{$key} -= $init->{$key};
@@ -141,9 +142,14 @@ foreach my $key (keys %$stat) {
     } else {
         $stat->{$key} = sprintf('%.2f', $stat->{$key});
     }
+
+    $key_total += $stat->{$key};
 }
 
 $stat->{total} = sprintf('%.2f', 100 - $stat->{idle});
+$stat->{other} = $key_total < $stat->{total}
+    ? sprintf('%.2f', 100 - $key_total)
+    : sprintf('%.2f', 0);
 
 # --------------------------------------------------
 # Store statistics for the next run

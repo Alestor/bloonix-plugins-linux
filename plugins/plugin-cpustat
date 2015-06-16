@@ -88,6 +88,14 @@ statistic {
     description The total usage of the CPU in percent.
 }
 
+statistic {
+    statkey other
+    alias Other
+    datatype float
+    units percent
+    description Summary of unknown fields in /proc/stat.
+}
+
 chart {
     id 1
     title Linux - cpu usage
@@ -127,6 +135,10 @@ chart {
         series {
             name quest
             color \#666666
+        }
+        series {
+            name other
+            color \#bf00bf
         }
     }
 }
