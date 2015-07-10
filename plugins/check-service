@@ -49,7 +49,7 @@ $plugin->add_option(
     value => "service",
     value_type => "string",
     mandatory => 1,
-    regex => qr/^[\w\-.]+\z/,
+    regex => qr/^[\w\-.@]+\z/,
     description => "This is the service name you want to check."
 );
 
