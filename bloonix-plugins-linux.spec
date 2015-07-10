@@ -1,6 +1,6 @@
 Summary: Bloonix plugins for Linux.
 Name: bloonix-plugins-linux
-Version: 0.32
+Version: 0.33
 Release: 1%{dist}
 License: Commercial
 Group: Utilities/System
@@ -68,6 +68,8 @@ rm -rf %{buildroot}
 %doc %attr(0444, root, root) %{docdir}/LICENSE
 
 %changelog
+* Fri Jul 10 2015 Jonny Schulz <js@bloonix.de> - 0.33-1
+- check-service: @ signs are now allowed in the service name.
 * Tue Jun 16 2015 Jonny Schulz <js@bloonix.de> - 0.32-1
 - Fixed description of cpu field "nice".
 * Tue Jun 16 2015 Jonny Schulz <js@bloonix.de> - 0.31-1
