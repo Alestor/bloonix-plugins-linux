@@ -245,6 +245,7 @@ sub zypper {
 
 $plugin->eval(
     timeout => $opt->{timeout},
+    timeout_status => "WARNING",
     action => $packager,
     callback => sub {
         no strict "refs";

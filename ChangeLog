@@ -1,3 +1,9 @@
+bloonix-plugins-linux (0.34) released at 2015-08-07
+
+    * check-linux-updates: if the command runs on a timeout then
+      WARNING is returned instead of a CRICIAL, becuase it happens
+      very often that a repository is very slow.
+
 bloonix-plugins-linux (0.33) released at 2015-07-10
 
     * check-service: @ signs are now allowed in the service name.
