@@ -1,6 +1,6 @@
 Summary: Bloonix plugins for Linux.
 Name: bloonix-plugins-linux
-Version: 0.33
+Version: 0.34
 Release: 1%{dist}
 License: Commercial
 Group: Utilities/System
@@ -68,6 +68,10 @@ rm -rf %{buildroot}
 %doc %attr(0444, root, root) %{docdir}/LICENSE
 
 %changelog
+* Fri Aug 07 2015 Jonny Schulz <js@bloonix.de> - 0.34-1
+- check-linux-updates: if the command runs on a timeout then
+  WARNING is returned instead of a CRICIAL, becuase it happens
+  very often that a repository is very slow.
 * Fri Jul 10 2015 Jonny Schulz <js@bloonix.de> - 0.33-1
 - check-service: @ signs are now allowed in the service name.
 * Tue Jun 16 2015 Jonny Schulz <js@bloonix.de> - 0.32-1

@@ -1,3 +1,11 @@
+bloonix-plugins-linux (0.34-1) unstable; urgency=low
+
+    * check-linux-updates: if the command runs on a timeout then
+      WARNING is returned instead of a CRICIAL, becuase it happens
+      very often that a repository is very slow.
+
+ -- Jonny Schulz <js@bloonix.de>  Fri, 07 Aug 2015 12:58:43 +0200
+
 bloonix-plugins-linux (0.33-1) unstable; urgency=low
 
     * check-service: @ signs are now allowed in the service name.
