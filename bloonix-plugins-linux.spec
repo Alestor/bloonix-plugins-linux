@@ -73,6 +73,8 @@ rm -rf %{buildroot}
 
 %dir %{blxdir}/etc/sudoers.d
 %{blxdir}/etc/sudoers.d/*
+
+%dir %{blxdir}/etc/conf.d
 %{blxdir}/etc/conf.d/*
 
 %dir %attr(0755, root, root) %{docdir}
