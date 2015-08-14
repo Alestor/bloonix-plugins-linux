@@ -57,8 +57,8 @@ install:
 	; do \
 		cp -a sudoers/$$file $(PREFIX)/lib/bloonix/etc/sudoers.d/$$file; \
 		chmod 440 $(PREFIX)/lib/bloonix/etc/sudoers.d/$$file; \
-		cp -a sudoers/$$file.conf $(PREFIX)/lib/bloonix/etc/sudoers.d/$$file.conf; \
-		chmod 644 $(PREFIX)/lib/bloonix/etc/sudoers.d/$$file.conf; \
+		cp -a sudoers/$$file.conf $(PREFIX)/lib/bloonix/etc/conf.d/$$file.conf; \
+		chmod 644 $(PREFIX)/lib/bloonix/etc/conf.d/$$file.conf; \
 	done;
 
 clean:
