@@ -1,3 +1,8 @@
+bloonix-plugins-linux (0.35) released at 2015-08-14
+
+    * Added a configuration file with use_sudo for each check that
+      to executed via sudo.
+
 bloonix-plugins-linux (0.34) released at 2015-08-07
 
     * check-linux-updates: if the command runs on a timeout then

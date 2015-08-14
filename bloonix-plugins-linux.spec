@@ -13,6 +13,7 @@ BuildArch: noarch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 
 Source0: http://download.bloonix.de/sources/%{name}-%{version}.tar.gz
+Requires: bloonix-agent
 Requires: bloonix-core
 AutoReqProv: no
 
@@ -42,10 +43,20 @@ if [ ! -e "/etc/bloonix/agent/sudoers.d" ] ; then
     chown root:root /etc/bloonix/agent/sudoers.d
     chmod 755 /etc/bloonix/agent/sudoers.d
 fi
+if [ ! -e "/etc/bloonix/agent/conf.d" ] ; then
+    mkdir -p /etc/bloonix/agent/conf.d
+    chown root:bloonix /etc/bloonix/agent/conf.d
+    chmod 750 /etc/bloonix/agent/conf.d
+fi
 for f in check-linux-updates check-lsi-raid check-mdadm check-service check-smart-health ; do
     if [ ! -e "/etc/bloonix/agent/sudoers.d/$f" ] ; then
         cp -a /usr/lib/bloonix/etc/sudoers.d/$f /etc/bloonix/agent/sudoers.d/
         chmod 440 /etc/bloonix/agent/sudoers.d/$f
+    fi
+    if [ ! -e "/etc/bloonix/agent/conf.d/$f" ] ; then
+        cp -a /usr/lib/bloonix/etc/conf.d/$f.conf /etc/bloonix/agent/conf.d/
+        chmod 640 /etc/bloonix/agent/conf.d/$f.conf
+        chown root:bloonix /etc/bloonix/agent/conf.d/$f.conf
     fi
 done
 

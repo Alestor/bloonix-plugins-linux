@@ -43,6 +43,11 @@ install:
 		chmod 755 $(PREFIX)/lib/bloonix/etc/sudoers.d; \
 	fi;
 
+	if test ! -e "$(PREFIX)/lib/bloonix/etc/conf.d" ; then \
+		mkdir -p $(PREFIX)/lib/bloonix/etc/conf.d; \
+		chmod 755 $(PREFIX)/lib/bloonix/etc/conf.d; \
+	fi;
+
 	for file in \
 		check-linux-updates \
 		check-lsi-raid \
@@ -52,6 +57,8 @@ install:
 	; do \
 		cp -a sudoers/$$file $(PREFIX)/lib/bloonix/etc/sudoers.d/$$file; \
 		chmod 440 $(PREFIX)/lib/bloonix/etc/sudoers.d/$$file; \
+		cp -a sudoers/$$file.conf $(PREFIX)/lib/bloonix/etc/sudoers.d/$$file.conf; \
+		chmod 644 $(PREFIX)/lib/bloonix/etc/sudoers.d/$$file.conf; \
 	done;
 
 clean:
