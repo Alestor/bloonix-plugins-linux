@@ -73,6 +73,7 @@ rm -rf %{buildroot}
 
 %dir %{blxdir}/etc/sudoers.d
 %{blxdir}/etc/sudoers.d/*
+%{blxdir}/etc/conf.d/*
 
 %dir %attr(0755, root, root) %{docdir}
 %doc %attr(0444, root, root) %{docdir}/ChangeLog
