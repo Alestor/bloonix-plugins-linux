@@ -1,3 +1,10 @@
+bloonix-plugins-linux (0.35-1) unstable; urgency=low
+
+    * Added a configuration file with use_sudo for each check that
+      to executed via sudo.
+
+ -- Jonny Schulz <js@bloonix.de>  Fri, 14 Aug 2015 20:47:42 +0200
+
 bloonix-plugins-linux (0.34-1) unstable; urgency=low
 
     * check-linux-updates: if the command runs on a timeout then
