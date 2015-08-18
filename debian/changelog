@@ -1,3 +1,9 @@
+bloonix-plugins-linux (0.36-1) unstable; urgency=low
+
+    * Kicked the dependency of bloonix-agent.
+
+ -- Jonny Schulz <js@bloonix.de>  Tue, 18 Aug 2015 13:07:22 +0200
+
 bloonix-plugins-linux (0.35-1) unstable; urgency=low
 
     * Added a configuration file with use_sudo for each check that

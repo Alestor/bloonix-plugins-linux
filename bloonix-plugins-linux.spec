@@ -1,6 +1,6 @@
 Summary: Bloonix plugins for Linux.
 Name: bloonix-plugins-linux
-Version: 0.35
+Version: 0.36
 Release: 1%{dist}
 License: Commercial
 Group: Utilities/System
@@ -81,6 +81,8 @@ rm -rf %{buildroot}
 %doc %attr(0444, root, root) %{docdir}/LICENSE
 
 %changelog
+* Tue Aug 18 2015 Jonny Schulz <js@bloonix.de> - 0.36-1
+- Kicked the dependency of bloonix-agent.
 * Fri Aug 14 2015 Jonny Schulz <js@bloonix.de> - 0.35-1
 - Added a configuration file with use_sudo for each check that
   to executed via sudo.

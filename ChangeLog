@@ -1,3 +1,7 @@
+bloonix-plugins-linux (0.36) released at 2015-08-18
+
+    * Kicked the dependency of bloonix-agent.
+
 bloonix-plugins-linux (0.35) released at 2015-08-14
 
     * Added a configuration file with use_sudo for each check that
