@@ -1,24 +1,20 @@
 #!/bin/sh
 
-if [ ! -e "/etc/bloonix/agent/sudoers.d" ] ; then
-    mkdir -p /etc/bloonix/agent/sudoers.d
-    chown root:root /etc/bloonix/agent/sudoers.d
-    chmod 755 /etc/bloonix/agent/sudoers.d
-fi
 if [ ! -e "/etc/bloonix/agent/conf.d" ] ; then
     mkdir -p /etc/bloonix/agent/conf.d
     chown root:bloonix /etc/bloonix/agent/conf.d
     chmod 750 /etc/bloonix/agent/conf.d
 fi
+
 for f in check-linux-updates check-lsi-raid check-mdadm check-service check-smart-health ; do
-    if [ ! -e "/etc/bloonix/agent/sudoers.d/$f" ] ; then
-        cp -a /usr/lib/bloonix/etc/sudoers.d/$f /etc/bloonix/agent/sudoers.d/
-        chmod 440 /etc/bloonix/agent/sudoers.d/$f 
+    sf=$(echo $f | tr - _)
+    if [ ! -e "/etc/sudoers.d/60_bloonix_$sf" ] ; then
+        cp -a /usr/lib/bloonix/etc/sudoers.d/60_bloonix_$sf /etc/sudoers.d/60_bloonix_$sf
+        chmod 440 /etc/sudoers.d/60_bloonix_$sf
     fi
-    if [ ! -e "/etc/bloonix/agent/conf.d/$f" ] ; then
+    if [ ! -e "/etc/bloonix/agent/conf.d/$f.conf" ] ; then
         cp -a /usr/lib/bloonix/etc/conf.d/$f.conf /etc/bloonix/agent/conf.d/
         chmod 640 /etc/bloonix/agent/conf.d/$f.conf
         chown root:bloonix /etc/bloonix/agent/conf.d/$f.conf
     fi
 done
-

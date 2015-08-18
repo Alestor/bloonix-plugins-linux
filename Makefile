@@ -7,14 +7,14 @@ default: build
 build:
 
 	for file in \
-		sudoers/check-linux-updates \
-		sudoers/check-lsi-raid \
-		sudoers/check-mdadm \
-		sudoers/check-service \
-		sudoers/check-smart-health \
+		60_bloonix_check_linux_updates \
+		60_bloonix_check_lsi_raid \
+		60_bloonix_check_mdadm \
+		60_bloonix_check_service \
+		60_bloonix_check_smart_health \
 	; do \
-		cp $$file.in $$file; \
-		sed -i "s!@@PREFIX@@!$(PREFIX)!g" $$file; \
+		cp sudoers/$$file.in sudoers/$$file; \
+		sed -i "s!@@PREFIX@@!$(PREFIX)!g" sudoers/$$file; \
 	done;
 
 install:
@@ -49,16 +49,25 @@ install:
 	fi;
 
 	for file in \
-		check-linux-updates \
-		check-lsi-raid \
-		check-mdadm \
-		check-service \
-		check-smart-health \
+		check-linux-updates.conf \
+		check-lsi-raid.conf \
+		check-mdadm.conf \
+		check-service.conf \
+		check-smart-health.conf \
+	; do \
+		cp -a sudoers/$$file $(PREFIX)/lib/bloonix/etc/conf.d/$$file; \
+		chmod 644 $(PREFIX)/lib/bloonix/etc/conf.d/$$file; \
+	done;
+
+	for file in \
+		60_bloonix_check_linux_updates \
+		60_bloonix_check_lsi_raid \
+		60_bloonix_check_mdadm \
+		60_bloonix_check_service \
+		60_bloonix_check_smart_health \
 	; do \
 		cp -a sudoers/$$file $(PREFIX)/lib/bloonix/etc/sudoers.d/$$file; \
-		chmod 440 $(PREFIX)/lib/bloonix/etc/sudoers.d/$$file; \
-		cp -a sudoers/$$file.conf $(PREFIX)/lib/bloonix/etc/conf.d/$$file.conf; \
-		chmod 644 $(PREFIX)/lib/bloonix/etc/conf.d/$$file.conf; \
+		chmod 644 $(PREFIX)/lib/bloonix/etc/sudoers.d/$$file; \
 	done;
 
 clean:

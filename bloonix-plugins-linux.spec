@@ -1,6 +1,6 @@
 Summary: Bloonix plugins for Linux.
 Name: bloonix-plugins-linux
-Version: 0.36
+Version: 0.37
 Release: 1%{dist}
 License: Commercial
 Group: Utilities/System
@@ -13,6 +13,7 @@ BuildArch: noarch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 
 Source0: http://download.bloonix.de/sources/%{name}-%{version}.tar.gz
+Requires: sudo
 Requires: bloonix-core
 AutoReqProv: no
 
@@ -37,22 +38,19 @@ install -c -m 0444 LICENSE ${RPM_BUILD_ROOT}%{docdir}/
 install -c -m 0444 ChangeLog ${RPM_BUILD_ROOT}%{docdir}/
 
 %post
-if [ ! -e "/etc/bloonix/agent/sudoers.d" ] ; then
-    mkdir -p /etc/bloonix/agent/sudoers.d
-    chown root:root /etc/bloonix/agent/sudoers.d
-    chmod 755 /etc/bloonix/agent/sudoers.d
-fi
 if [ ! -e "/etc/bloonix/agent/conf.d" ] ; then
     mkdir -p /etc/bloonix/agent/conf.d
     chown root:bloonix /etc/bloonix/agent/conf.d
     chmod 750 /etc/bloonix/agent/conf.d
 fi
+
 for f in check-linux-updates check-lsi-raid check-mdadm check-service check-smart-health ; do
-    if [ ! -e "/etc/bloonix/agent/sudoers.d/$f" ] ; then
-        cp -a /usr/lib/bloonix/etc/sudoers.d/$f /etc/bloonix/agent/sudoers.d/
-        chmod 440 /etc/bloonix/agent/sudoers.d/$f
+    sf=$(echo $f | tr - _)
+    if [ ! -e "/etc/sudoers.d/60_bloonix_$sf" ] ; then
+        cp -a /usr/lib/bloonix/etc/sudoers.d/60_bloonix_$sf /etc/sudoers.d/60_bloonix_$sf
+        chmod 440 /etc/sudoers.d/60_bloonix_$sf
     fi
-    if [ ! -e "/etc/bloonix/agent/conf.d/$f" ] ; then
+    if [ ! -e "/etc/bloonix/agent/conf.d/$f.conf" ] ; then
         cp -a /usr/lib/bloonix/etc/conf.d/$f.conf /etc/bloonix/agent/conf.d/
         chmod 640 /etc/bloonix/agent/conf.d/$f.conf
         chown root:bloonix /etc/bloonix/agent/conf.d/$f.conf
@@ -81,6 +79,8 @@ rm -rf %{buildroot}
 %doc %attr(0444, root, root) %{docdir}/LICENSE
 
 %changelog
+* Tue Aug 18 2015 Jonny Schulz <js@bloonix.de> - 0.37-1
+- Moved all sudo files to /etc/sudoers.d.
 * Tue Aug 18 2015 Jonny Schulz <js@bloonix.de> - 0.36-1
 - Kicked the dependency of bloonix-agent.
 * Fri Aug 14 2015 Jonny Schulz <js@bloonix.de> - 0.35-1
