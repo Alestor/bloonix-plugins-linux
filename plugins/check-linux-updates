@@ -44,8 +44,7 @@ $plugin->flags("sudo");
 
 $plugin->info(join(" ",
     "This plugin works only with Debian/Ubuntu or RedHat/CentOS/Fedora like systems.",
-    "On RedHat/CentOS/Fedora you have to install the package 'yum-security'.",
-    "Note that this checks returns a WARNING status if the check runs on a timeout."
+    "On RedHat/CentOS/Fedora you have to install the package 'yum-security'."
 ));
 
 $plugin->example(
@@ -121,6 +120,7 @@ my $apt_cache_dir = "/var/cache/apt/archives";
 my $apt_get = "/usr/bin/apt-get";
 my $up2date = "/usr/sbin/up2date";
 my $yum = "/usr/bin/yum";
+my $dnf = "/usr/bin/dnf";
 my $zypper = "/usr/bin/zypper";
 my $packager = "";
 my $count_packages = 0;
@@ -129,6 +129,8 @@ my $security_packages = 0;
 if (!$packager) {
     if (-x $yum) {
         $packager = "yum";
+    } elsif (-x $dnf) {
+        $packager = "dnf";
     } elsif (-x $apt_get) {
         $packager = "apt";
     } elsif (-x $zypper) {
@@ -172,6 +174,31 @@ sub yum {
         $count_packages = $1;
     }
 
+    return ($count_packages, $security_packages);
+}
+
+sub dnf {
+    my ($count_packages, $security_packages);
+    my $proc = qx{/bin/ps -ef};
+
+    if ($proc =~ m!$dnf updateinfo!) {
+        $plugin->exit(
+            status => "UNKNOWN",
+            message => "command 'dnf' already running"
+        );
+    }
+    system("$dnf clean metadata 1>/dev/null 2>&1");
+    my $output = qx{$dnf updateinfo 2>/dev/null};
+    if ($output =~ /(\d+)\sSecurity notice/) {
+        $security_packages = $1;
+    } else {
+	$security_packages = 0;
+    }
+    if ($output =~ /(\d+)\sBugfix notice/ ) {
+        $count_packages = $1;
+    } else {
+	$count_packages = 0;
+    } 
     return ($count_packages, $security_packages);
 }
 
@@ -246,7 +273,6 @@ sub zypper {
 
 $plugin->eval(
     timeout => $opt->{timeout},
-    timeout_status => "WARNING",
     action => $packager,
     callback => sub {
         no strict "refs";
