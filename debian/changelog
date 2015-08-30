@@ -1,3 +1,9 @@
+bloonix-plugins-linux (0.38-1) unstable; urgency=low
+
+    * check-linux-updates: Added support for dnf.
+
+ -- Jonny Schulz <js@bloonix.de>  Tue, 25 Aug 2015 11:51:05 +0200
+
 bloonix-plugins-linux (0.37-1) unstable; urgency=low
 
     * Moved all sudo files to /etc/sudoers.d.
