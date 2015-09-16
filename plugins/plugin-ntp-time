@@ -1,0 +1,52 @@
+plugin {
+    id 71
+    plugin NTP.Time.Check
+    command check-ntp-time
+    datatype statistic
+    category System,Network,Time
+    abstract NTP time difference
+    description Check the NTP time difference
+}
+
+statistic {
+    statkey delay
+    alias Delay
+    datatype float
+    description The roundtrip time, in milliseconds, to receive a reply.
+}
+
+statistic {
+    statkey offset
+    alias Offset
+    datatype float
+    description The time difference, in milliseconds, between the client server and source.
+}
+
+statistic {
+    statkey jitter
+    alias Jitter
+    datatype float
+    description The difference, in milliseconds, between two samples.
+}
+
+chart {
+    id 1
+    title NTP statistics
+    options {
+        ylabel ms
+        units null
+        chart-type line
+        series {
+            name delay
+            color \#e9644a
+        }
+        series {
+            name offset
+            color \#005467
+        }
+        series {
+            name jitter
+            color \#9a72ad
+        }
+    }
+}

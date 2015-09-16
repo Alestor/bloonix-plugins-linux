@@ -1,0 +1,95 @@
+#!/usr/bin/perl
+
+=head1 NAME
+
+check-ntp-time - Plugin to check http requests.
+
+=head1 SYNOPSIS
+
+    check-ntp-time [ OPTIONS ]
+
+    check-ntp-time --help
+
+=head1 REPORTING BUGS
+
+Please report all bugs to <support(at)bloonix.de>.
+
+=head1 AUTHOR
+
+Jonny Schulz <support(at)bloonix.de>.
+
+=head1 POWERED BY
+
+     _    __ _____ _____ __  __ __ __   __
+    | |__|  |     |     |  \|  |__|\  \/  /
+    |  . |  |  |  |  |  |      |  | >    <
+    |____|__|_____|_____|__|\__|__|/__/\__\
+
+=head1 COPYRIGHT
+
+Copyright (C) 2015 by Jonny Schulz. All rights reserved.
+
+=cut
+
+use strict;
+use warnings;
+use Bloonix::Plugin;
+
+my $plugin = Bloonix::Plugin->new(version => "0.1");
+
+$plugin->example(
+    description => "Check the time difference between the client and server in milliseconds.",
+    arguments => [ warning => 1000, critical => 3000 ]
+);
+
+$plugin->has_warning(default => 500);
+$plugin->has_critical(default => 1000);
+$plugin->has_timeout(default => 10);
+
+my $opt = $plugin->parse_options;
+
+my $stat = $plugin->execute(
+    action => "execution of ntpq",
+    timeout => $opt->{timeout},
+    command => "ntpq -n -p",
+    callback => sub {
+        my $ipc = shift;
+        my %stat;
+        #      remote           refid      st t when poll reach   delay   offset  jitter
+        # ==============================================================================
+        # *129.70.132.36   129.70.130.71    2 u  145 1024  377   21.529    0.248   0.536
+        # -5.9.80.114      192.53.103.103   2 u  392 1024  377    0.389   -2.881   1.268
+        # +2a03:4000:5:69: 131.188.3.220    2 u  640 1024  377    8.321   -1.619   0.178
+        # +78.47.226.8     131.188.3.221    2 u  702 1024  377    0.549   -1.217   0.400
+        foreach my $line ($ipc->get_stdout) {
+            if ($line =~ /^\*/) {
+                ($stat{host}, $stat{delay}, $stat{offset}, $stat{jitter}) = (split /\s+/, $line)[0,7..9];
+                $stat{host} =~ s/^\*//;
+            }
+        }
+
+        return \%stat;
+    }
+);
+
+if (!$stat || !scalar keys %$stat) {
+    $plugin->stat(
+        status => "CRITICAL",
+        message => "no parsable data found"
+    );
+}
+
+my $status = "OK";
+my $offset = $stat->{offset} < 0 ? $stat->{offset} * -1 : $stat->{offset};
+
+if ($opt->{critical} && $offset >= $opt->{critical}) {
+    $status = "CRITICAL";
+} elsif ($opt->{warning} && $offset >= $opt->{warning}) {
+    $status = "WARNING";
+}
+
+$plugin->exit(
+    status => $status,
+    message => "offset $stat->{offset}ms",
+    stats => $stat
+);
