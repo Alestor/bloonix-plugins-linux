@@ -1,3 +1,9 @@
+bloonix-plugins-linux (0.39-1) unstable; urgency=low
+
+    * New plugin check-ntp-time.
+
+ -- Jonny Schulz <js@bloonix.de>  Wed, 16 Sep 2015 08:07:03 +0200
+
 bloonix-plugins-linux (0.38-1) unstable; urgency=low
 
     * check-linux-updates: Added support for dnf.

@@ -1,6 +1,6 @@
 Summary: Bloonix plugins for Linux.
 Name: bloonix-plugins-linux
-Version: 0.38
+Version: 0.39
 Release: 1%{dist}
 License: Commercial
 Group: Utilities/System
@@ -79,6 +79,8 @@ rm -rf %{buildroot}
 %doc %attr(0444, root, root) %{docdir}/LICENSE
 
 %changelog
+* Wed Sep 16 2015 Jonny Schulz <js@bloonix.de> - 0.39-1
+- New plugin check-ntp-time.
 * Tue Aug 25 2015 Jonny Schulz <js@bloonix.de> - 0.38-1
 - check-linux-updates: Added support for dnf.
 * Tue Aug 18 2015 Jonny Schulz <js@bloonix.de> - 0.37-1
