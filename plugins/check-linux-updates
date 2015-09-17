@@ -303,6 +303,10 @@ if (
     $status = "WARNING";
 }
 
+if ($security_packages) {
+    $plugin->set_tag("security");
+}
+
 $plugin->exit(
     status => $status,
     message => $message

@@ -8,6 +8,6 @@ Homepage: http://www.bloonix.de/
 
 Package: bloonix-plugins-linux
 Architecture: all
-Depends: ${shlibs:Depends}, ${misc:Depends}, sudo, bloonix-core
+Depends: ${shlibs:Depends}, ${misc:Depends}, sudo, bloonix-core (>= 0.26)
 Description: Bloonix Plugins for Linux
  bloonix-plugins-linux provides plugins to monitor linux.

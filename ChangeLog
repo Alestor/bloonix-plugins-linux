@@ -1,6 +1,8 @@
 bloonix-plugins-linux (0.39) released at 2015-09-16
 
     * New plugin check-ntp-time.
+    * Tag "security" is set in check-linux-updates if security
+      packages are ready to update.
 
 bloonix-plugins-linux (0.38) released at 2015-08-25
 
