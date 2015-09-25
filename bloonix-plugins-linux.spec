@@ -79,6 +79,8 @@ rm -rf %{buildroot}
 %doc %attr(0444, root, root) %{docdir}/LICENSE
 
 %changelog
+* Fri Sep 25 2015 Jonny Schulz <js@bloonix.de> - 0.39-1
+- Kicked "clean metadata" by the call of dnf in check-linux-updates.
 * Wed Sep 16 2015 Jonny Schulz <js@bloonix.de> - 0.39-1
 - New plugin check-ntp-time.
 * Tue Aug 25 2015 Jonny Schulz <js@bloonix.de> - 0.38-1
