@@ -39,7 +39,7 @@ use Bloonix::Plugin;
 # Plugin options
 # --------------------------------------------------
 
-my $plugin = Bloonix::Plugin->new(version => "0.3");
+my $plugin = Bloonix::Plugin->new(version => "0.4");
 $plugin->flags("sudo");
 
 $plugin->info(join(" ",
@@ -127,10 +127,10 @@ my $count_packages = 0;
 my $security_packages = 0;
 
 if (!$packager) {
-    if (-x $yum) {
-        $packager = "yum";
-    } elsif (-x $dnf) {
+    if (-x $dnf) {
         $packager = "dnf";
+    } elsif (-x $yum) {
+        $packager = "yum";
     } elsif (-x $apt_get) {
         $packager = "apt";
     } elsif (-x $zypper) {

@@ -1,3 +1,8 @@
+bloonix-plugins-linux (0.41) released at 2015-09-25
+
+    * Changed the order to check which package manager is available
+      and use dnf over yum.
+
 bloonix-plugins-linux (0.40) released at 2015-09-25
 
     * Kicked "clean metadata" by the call of dnf in check-linux-updates.
