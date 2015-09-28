@@ -1,6 +1,6 @@
 Summary: Bloonix plugins for Linux.
 Name: bloonix-plugins-linux
-Version: 0.40
+Version: 0.42
 Release: 1%{dist}
 License: Commercial
 Group: Utilities/System
@@ -79,6 +79,9 @@ rm -rf %{buildroot}
 %doc %attr(0444, root, root) %{docdir}/LICENSE
 
 %changelog
+* Mon Sep 28 2015 Jonny Schulz <js@bloonix.de> - 0.42-1
+- Fixed parsing of "dnf updateinfo" and added "dnf --assumeno upgrade"
+  to get a full list of all packages that are ready for installation.
 * Fri Sep 25 2015 Jonny Schulz <js@bloonix.de> - 0.40-1
 - Kicked "clean metadata" by the call of dnf in check-linux-updates.
 * Wed Sep 16 2015 Jonny Schulz <js@bloonix.de> - 0.39-1

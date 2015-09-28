@@ -1,3 +1,10 @@
+bloonix-plugins-linux (0.42-1) unstable; urgency=low
+
+    * Fixed parsing of "dnf updateinfo" and added "dnf --assumeno upgrade"
+      to get a full list of all packages that are ready for installation.
+
+ -- Jonny Schulz <js@bloonix.de>  Mon, 28 Sep 2015 15:37:34 +0200
+
 bloonix-plugins-linux (0.40-1) unstable; urgency=low
 
     * Kicked "clean metadata" by the call of dnf in check-linux-updates.
