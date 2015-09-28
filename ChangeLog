@@ -1,3 +1,8 @@
+bloonix-plugins-linux (0.42) released at 2015-09-28
+
+    * Fixed parsing of "dnf updateinfo" and added "dnf --assumeno upgrade"
+      to get a full list of all packages that are ready for installation.
+
 bloonix-plugins-linux (0.41) released at 2015-09-25
 
     * Changed the order to check which package manager is available
