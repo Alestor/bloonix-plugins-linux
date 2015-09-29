@@ -192,7 +192,7 @@ sub dnf {
         );
     }
 
-    $output = qx{dnf --refresh --assumeno upgrade};
+    $output = qx{dnf --refresh --assumeno upgrade 2>/dev/null};
 
     if ($output =~ /^Install\s+(\d+)\s+Packages/sm) {
         $count_packages += $1;
@@ -298,7 +298,7 @@ $plugin->eval(
 my $status = "OK";
 my $message = $packager eq "zypper"
     ? "$count_packages patches are ready for installation, $security_packages for security"
-    : "$count_packages packages are ready to update or installation, $security_packages for security";
+    : "$count_packages packages are ready to update/installation, $security_packages for security";
 
 if (
     (defined $opt->{critical} && $opt->{critical} > 0 && $count_packages >= $opt->{critical})
