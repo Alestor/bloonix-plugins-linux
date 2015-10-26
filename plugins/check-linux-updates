@@ -235,7 +235,7 @@ sub apt {
         my ($package, $version, $release) = ($p =~ /Inst (.*?) .*\((.*?) (.*?)\)/);
         $p = join(" ", $package, $version);
         $count_packages++;
-        if ($release =~ /security/) {
+        if ($release =~ /security/i) {
             $security_packages++;
         }
     }
