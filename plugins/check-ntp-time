@@ -73,7 +73,7 @@ my $stat = $plugin->execute(
 );
 
 if (!$stat || !scalar keys %$stat) {
-    $plugin->stat(
+    $plugin->exit(
         status => "CRITICAL",
         message => "no parsable data found"
     );
