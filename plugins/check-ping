@@ -166,10 +166,10 @@ if (!$ping_output) {
 # --- xxx.xx.xxx.xxx ping statistics ---
 # 2 packets transmitted, 2 received, 0% packet loss, time 1000ms
 # rtt min/avg/max/mdev = 9.880/9.934/9.989/0.113 ms
-my $rxping = qr/
+my $rxping = qr!
     (\d+)\s+packets\s+transmitted,\s+(\d+)\s+received,\s+([\d.]+)%\s+packet\s+loss,\s+time\s+(\d+)ms.*
-    rtt\s+min\/avg\/max\/mdev\s*=\s*([\d.]+)\/([\d.]+)\/([\d.]+)\/([\d.]+)\s*ms
-/xsi;
+    (?:rtt|round-trip)\s+min/avg/max/(?:mdev|stddev)\s*=\s*([\d.]+)/([\d.]+)/([\d.]+)/([\d.]+)\s*ms
+!xsi;
 
 # --- xxx.xx.xxx.xxx ping statistics ---
 # 3 packets transmitted, 0 received, +2 errors, 100% packet loss, time 1999ms
