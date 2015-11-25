@@ -1,3 +1,7 @@
+bloonix-plugins-linux (0.45) released at 2015-11-25
+
+    * Fixed parsing count packages of yum in check-linug-updates.
+
 bloonix-plugins-linux (0.44) released at 2015-11-20
 
     * Fixed check-ntp-time.
