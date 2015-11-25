@@ -1,6 +1,6 @@
 Summary: Bloonix plugins for Linux.
 Name: bloonix-plugins-linux
-Version: 0.44
+Version: 0.45
 Release: 1%{dist}
 License: Commercial
 Group: Utilities/System
@@ -79,6 +79,8 @@ rm -rf %{buildroot}
 %doc %attr(0444, root, root) %{docdir}/LICENSE
 
 %changelog
+* Wed Nov 25 2015 Jonny Schulz <js@bloonix.de> - 0.45-1
+- Fixed parsing count packages of yum in check-linug-updates.
 * Sun Nov 22 2015 Jonny Schulz <js@bloonix.de> - 0.44-1
 - Fixed check-ntp-time.
 * Sat Nov 21 2015 Jonny Schulz <js@bloonix.de> - 0.43-1
