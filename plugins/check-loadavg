@@ -45,6 +45,16 @@ $plugin->has_threshold(
     keys => [qw(avg1 avg5 avg15)]
 );
 
+$plugin->add_option(
+    name => "Per CPU",
+    option => "per-cpu",
+    description => join(" ",
+        "Enable this option if you want that the avg threshold is multiplicatied",
+        "with the number of CPUs (threads). As example if your server has 8 threads",
+        "and if you set avg1 to 4, then the threshold is 32 (8 * 4)."
+    )
+);
+
 $plugin->example(
     description => [
         "An example to check the load average and trigger",
@@ -67,12 +77,39 @@ $plugin->example(
 my $opt = $plugin->parse_options;
 
 # --------------------------------------------------
+# Get CPU count
+# --------------------------------------------------
+
+my $factor = 0;
+
+if ($opt->{per_cpu}) {
+    open my $fh, "<", "/proc/stat" or $plugin->exit(
+        status => "UNKNOWN",
+        message => "cannot open /proc/stat - $!"
+    );
+    while (my $line = <$fh>) {
+        if ($line =~ /^cpu\d/) {
+            $factor++;
+        }
+    }
+    if ($factor == 0) {
+        $plugin->exit(
+            status => "UNKNOWN",
+            message => "unable to determine the number of CPUs"
+        );
+    }
+}
+
+# --------------------------------------------------
 # Load loadavg
 # --------------------------------------------------
 
-my $stat = { };
+my $stat = {};
 
-open my $fh, '<', "/proc/loadavg" or die "cannot open /proc/loadavg - $!";
+open my $fh, "<", "/proc/loadavg" or $plugin->exit(
+    status => "UNKNOWN",
+    message => "cannot open /proc/loadavg - $!"
+);
 ($stat->{avg1}, $stat->{avg5}, $stat->{avg15}) = (split /\s+/, <$fh>)[0..2];
 close $fh;
 
@@ -82,7 +119,8 @@ close $fh;
 
 my $result = $plugin->check_thresholds(
     stats => $stat,
-    upshot_keys => [qw(avg1 avg5 avg15)]
+    upshot_keys => [qw(avg1 avg5 avg15)],
+    factor => $factor
 );
 
 $plugin->exit(

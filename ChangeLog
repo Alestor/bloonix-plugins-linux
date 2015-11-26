@@ -1,3 +1,7 @@
+bloonix-plugins-linux (0.46) released at 2015-11-26
+
+    * Implemented cpu factor into check-loadavg.
+
 bloonix-plugins-linux (0.45) released at 2015-11-25
 
     * Fixed parsing count packages of yum in check-linug-updates.
