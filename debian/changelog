@@ -1,3 +1,9 @@
+bloonix-plugins-linux (0.46-1) unstable; urgency=low
+
+    * Implemented cpu factor into check-loadavg.
+
+ -- Jonny Schulz <js@bloonix.de>  Thu, 26 Nov 2015 14:26:00 +0100
+
 bloonix-plugins-linux (0.45-1) unstable; urgency=low
 
     * Fixed parsing count packages of yum in check-linug-updates.
