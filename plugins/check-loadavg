@@ -51,7 +51,8 @@ $plugin->add_option(
     description => join(" ",
         "Enable this option if you want that the avg threshold is multiplicatied",
         "with the number of CPUs (threads). As example if your server has 8 threads",
-        "and if you set avg1 to 4, then the threshold is 32 (8 * 4)."
+        "and if you set avg1 to 4, then the threshold is 32 (8 * 4). The number of",
+        "available CPUs is checked in /proc/stat (cpuN)."
     )
 );
 
