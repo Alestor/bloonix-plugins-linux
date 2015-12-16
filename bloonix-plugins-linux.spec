@@ -1,6 +1,6 @@
 Summary: Bloonix plugins for Linux.
 Name: bloonix-plugins-linux
-Version: 0.46
+Version: 0.47
 Release: 1%{dist}
 License: Commercial
 Group: Utilities/System
@@ -79,6 +79,8 @@ rm -rf %{buildroot}
 %doc %attr(0444, root, root) %{docdir}/LICENSE
 
 %changelog
+* Wed Dec 16 2015 Jonny Schulz <js@bloonix.de> - 0.47-1
+- Fixed check-netstat-port: read tcp6 only if it exist.
 * Thu Nov 26 2015 Jonny Schulz <js@bloonix.de> - 0.46-1
 - Implemented cpu factor into check-loadavg.
 * Wed Nov 25 2015 Jonny Schulz <js@bloonix.de> - 0.45-1

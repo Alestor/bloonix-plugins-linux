@@ -1,3 +1,9 @@
+bloonix-plugins-linux (0.47-1) unstable; urgency=low
+
+    * Fixed check-netstat-port: read tcp6 only if it exist.
+
+ -- Jonny Schulz <js@bloonix.de>  Wed, 16 Dec 2015 20:30:17 +0100
+
 bloonix-plugins-linux (0.46-1) unstable; urgency=low
 
     * Implemented cpu factor into check-loadavg.
