@@ -39,7 +39,7 @@ use Bloonix::Plugin;
 # Plugin options
 # --------------------------------------------------
 
-my $plugin = Bloonix::Plugin->new(version => "0.4");
+my $plugin = Bloonix::Plugin->new(version => "0.5");
 
 $plugin->has_port(mandatory => 1);
 
@@ -121,7 +121,13 @@ my $regex = $opt->{remote}
     ? qr/^\s*[^\s]+\s+[^:]+:[^\s]+\s+[^\s]+\s+([^\s]{2})\s+[^:]+:([^\s]+)\s+/
     : qr/^\s*[^\s]+\s+[^:]+:([^\s]+)\s+[^\s]+\s+([^\s]{2})\s+/;
 
-foreach my $file ("/proc/net/tcp", "/proc/net/tcp6") {
+my @files = ("/proc/net/tcp");
+
+if (-e "/proc/net/tcp6") {
+    push @files, "/proc/net/tcp6";
+}
+
+foreach my $file (@files) {
     open my $fh, "<", $file or do {
         print "unable to open '$file' - $!";
         exit 3;
