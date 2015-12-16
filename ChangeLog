@@ -1,3 +1,7 @@
+bloonix-plugins-linux (0.47) released at 2015-12-16
+
+    * Fixed check-netstat-port: read tcp6 only if it exist.
+
 bloonix-plugins-linux (0.46) released at 2015-11-26
 
     * Implemented cpu factor into check-loadavg.
