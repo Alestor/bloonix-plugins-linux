@@ -1,6 +1,6 @@
 Summary: Bloonix plugins for Linux.
 Name: bloonix-plugins-linux
-Version: 0.47
+Version: 0.48
 Release: 1%{dist}
 License: Commercial
 Group: Utilities/System
@@ -79,6 +79,9 @@ rm -rf %{buildroot}
 %doc %attr(0444, root, root) %{docdir}/LICENSE
 
 %changelog
+* Tue Dec 29 2015 Jonny Schulz <js@bloonix.de> - 0.48-1
+- Fixed check-memstat: real free memory is now calcualated
+  from MemAvailable. This value is new since kernel 3.14.
 * Wed Dec 16 2015 Jonny Schulz <js@bloonix.de> - 0.47-1
 - Fixed check-netstat-port: read tcp6 only if it exist.
 * Thu Nov 26 2015 Jonny Schulz <js@bloonix.de> - 0.46-1

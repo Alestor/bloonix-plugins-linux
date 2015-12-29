@@ -1,3 +1,10 @@
+bloonix-plugins-linux (0.48-1) unstable; urgency=low
+
+    * Fixed check-memstat: real free memory is now calcualated
+      from MemAvailable. This value is new since kernel 3.14.
+
+ -- Jonny Schulz <js@bloonix.de>  Tue, 29 Dec 2015 19:15:22 +0100
+
 bloonix-plugins-linux (0.47-1) unstable; urgency=low
 
     * Fixed check-netstat-port: read tcp6 only if it exist.
