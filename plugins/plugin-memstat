@@ -204,7 +204,7 @@ chart {
 
 chart {
     id 2
-    title Linux - memory usage (< kernel 3.14)
+    title Linux - memory usage (lower kernel 3.14)
     options {
         units bytes
         ylabel bytes
