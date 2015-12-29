@@ -203,7 +203,8 @@ my $parse_keys = qr/
     swapfree     | dirty        |
     writeback    | mapped       |
     slab         | pagetables   |
-    committed_as | vmallocused
+    committed_as | vmallocused  |
+    memavailable
 /xi;
 
 my %stat = ();
@@ -243,11 +244,17 @@ foreach my $null_key (@null_keys) {
     }
 }
 
-$stat{committed}   = delete $stat{committed_as};
-$stat{memused}     = sprintf('%u', $stat{memtotal} - $stat{memfree} - $stat{cached} - $stat{buffers});
-$stat{memrealfree} = sprintf('%u', $stat{memtotal} - $stat{memused});
-$stat{memusedper}  = sprintf('%.2f', 100 * $stat{memused} / $stat{memtotal});
-$stat{swapused}    = sprintf('%u', $stat{swaptotal} - $stat{swapfree});
+$stat{committed} = delete $stat{committed_as};
+
+if ($stat{memavailable}) {
+    $stat{memused} = $stat{memtotal} - $stat{memavailable};
+} else {
+    $stat{memused} = $stat{memtotal} - $stat{memfree} - $stat{cached} - $stat{buffers};
+}
+
+$stat{memrealfree} = $stat{memtotal} - $stat{memused};
+$stat{memusedper} = sprintf('%.2f', 100 * $stat{memused} / $stat{memtotal});
+$stat{swapused} = $stat{swaptotal} - $stat{swapfree};
 
 # maybe there is no swap space on the machine
 if (!$stat{swaptotal}) {

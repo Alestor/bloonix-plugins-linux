@@ -1,3 +1,8 @@
+bloonix-plugins-linux (0.48) released at 2015-12-29
+
+    * Fixed check-memstat: real free memory is now calcualated
+      from MemAvailable. This value is new since kernel 3.14.
+
 bloonix-plugins-linux (0.47) released at 2015-12-16
 
     * Fixed check-netstat-port: read tcp6 only if it exist.

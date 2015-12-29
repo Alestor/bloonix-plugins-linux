@@ -41,6 +41,14 @@ statistic {
 }
 
 statistic {
+    statkey memavailable
+    alias Memory available
+    datatype bigint
+    units bytes
+    description Total size of real free memory in bytes (since kernel 3.14).
+}
+
+statistic {
     statkey memrealfree
     alias Memory free
     datatype bigint
@@ -196,7 +204,7 @@ chart {
 
 chart {
     id 2
-    title Linux - memory usage
+    title Linux - memory usage (< kernel 3.14)
     options {
         units bytes
         ylabel bytes
@@ -258,6 +266,24 @@ chart {
         series {
             name vmallocused
             color \#bf00bf
+        }
+    }
+}
+
+chart {
+    id 4
+    title Linux - memory usage (since kernel 3.14)
+    options {
+        units bytes
+        ylabel bytes
+        chart-type area
+        series {
+            name memused
+            color \#e9644a
+        }
+        series {
+            name memavailable
+            color \#2ba743
         }
     }
 }
