@@ -1,3 +1,9 @@
+bloonix-plugins-linux (0.49-1) unstable; urgency=low
+
+    * Added dep iputils-ping for Debian systems.
+
+ -- Jonny Schulz <js@bloonix.de>  Fri, 01 Jan 2016 22:50:36 +0100
+
 bloonix-plugins-linux (0.48-1) unstable; urgency=low
 
     * Fixed check-memstat: real free memory is now calcualated
