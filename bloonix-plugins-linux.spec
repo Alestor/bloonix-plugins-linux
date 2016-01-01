@@ -15,6 +15,7 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 Source0: http://download.bloonix.de/sources/%{name}-%{version}.tar.gz
 Requires: sudo
 Requires: bloonix-core >= 0.26
+Requires: iputils
 AutoReqProv: no
 
 %description
