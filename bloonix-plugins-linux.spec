@@ -1,6 +1,6 @@
 Summary: Bloonix plugins for Linux.
 Name: bloonix-plugins-linux
-Version: 0.49
+Version: 0.50
 Release: 1%{dist}
 License: Commercial
 Group: Utilities/System
@@ -80,6 +80,8 @@ rm -rf %{buildroot}
 %doc %attr(0444, root, root) %{docdir}/LICENSE
 
 %changelog
+* Sat Mar 19 2016 Jonny Schulz <js@bloonix.de> - 0.50-1
+- New check check-proc-status.
 * Fri Jan 01 2016 Jonny Schulz <js@bloonix.de> - 0.49-1
 - Added dep iputils-ping for Debian systems.
 * Tue Dec 29 2015 Jonny Schulz <js@bloonix.de> - 0.48-1
