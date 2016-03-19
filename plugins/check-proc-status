@@ -1,0 +1,134 @@
+#!/usr/bin/perl
+
+=head1 NAME
+
+check-proc-status - Plugin to check the status of linux processes.
+
+=head1 SYNOPSIS
+
+    check-proc-status [ OPTIONS ]
+
+    check-proc-status --help
+
+=head1 REPORTING BUGS
+
+Please report all bugs to <support(at)bloonix.de>.
+
+=head1 AUTHOR
+
+Jonny Schulz <support(at)bloonix.de>.
+
+=head1 POWERED BY
+
+     _    __ _____ _____ __  __ __ __   __
+    | |__|  |     |     |  \|  |__|\  \/  /
+    |  . |  |  |  |  |  |      |  | >    <
+    |____|__|_____|_____|__|\__|__|/__/\__\
+
+=head1 COPYRIGHT
+
+Copyright (C) 2016 by Jonny Schulz. All rights reserved.
+
+=cut
+
+use strict;
+use warnings;
+use Bloonix::Plugin;
+
+my $plugin = Bloonix::Plugin->new(version => "0.1");
+
+$plugin->has_threshold(
+    keys => [qw(
+        running sleeping disksleep zombie stopped
+        tracing dead wakekill waking parked unknown
+    )]
+);
+
+$plugin->example(
+    description => [
+        "A simple example to check if a process is in uninterruptible disk sleep:"
+    ],
+    arguments => [
+        warning => "disksleep:5",
+        critical => "disksleep:10"
+    ]
+);
+
+my $opt = $plugin->parse_options;
+
+# From "man 5 proc"
+# R  Running
+# S  Sleeping in an interruptible wait
+# D  Waiting in uninterruptible disk sleep
+# Z  Zombie
+# T  Stopped (on a signal) or (before Linux 2.6.33) trace stopped
+# t  Tracing stop (Linux 2.6.33 onward)
+# W  Paging (only before Linux 2.6.0)
+# X  Dead (from Linux 2.6.0 onward)
+# x  Dead (Linux 2.6.33 to 3.13 only)
+# K  Wakekill (Linux 2.6.33 to 3.13 only)
+# W  Waking (Linux 2.6.33 to 3.13 only)
+# P  Parked (Linux 3.9 to 3.13 only)
+
+my %map = (
+    R => "running",
+    S => "sleeping",
+    D => "disksleep",
+    Z => "zombie",
+    T => "tracing",
+    t => "tracing",
+    X => "dead",
+    x => "dead",
+    K => "wakekill",
+    W => "waking",
+    P => "parked"
+);
+
+my $stat = {};
+my @debug = ();
+my $extended_cmdline = 0;
+
+foreach my $value (values %map) {
+    $stat->{$value} = 0;
+}
+
+opendir my $dh, "/proc"
+    or die "unable to open directory /proc: $1";
+
+while (my $pid = readdir $dh) {
+    if ($pid =~ /^\d+\z/ && open my $fh, "<", "/proc/$pid/stat") {
+        my $s = <$fh>;
+        my ($pid, $cmd, $status) = (split /\s+/, $s)[0..2];
+        my $debug = "$pid $status $cmd";
+        if (open my $fhc, "<", "/proc/$pid/cmdline") {
+            my $cmdline = <$fhc>;
+            if ($cmdline) {
+                $cmdline =~ s/[\0\r\n]+/ /g;
+                if (length $cmdline) {
+                    $debug .= " $cmdline";
+                }
+            }
+        }
+        push @debug, $debug;
+        if (exists $map{$status}) {
+            $stat->{$map{$status}}++;
+        } else {
+            $stat->{unknown}++;
+        }
+        close $fh;
+    }
+}
+
+closedir $dh;
+
+my $result = $plugin->check_thresholds(
+    stats => $stat,
+    upshot_keys => [qw(sleeping running disksleep zombie)]
+);
+
+$plugin->exit(
+    status => $result->{status},
+    message => $result->{upshot},
+    stats => $stat,
+    debug => { dump => \@debug }
+);

@@ -4,7 +4,7 @@ plugin {
     command check-procstat
     datatype statistic
     category System,Linux
-    abstract Process status check
+    abstract Process statistics
     description Linux process statistics
 }
 

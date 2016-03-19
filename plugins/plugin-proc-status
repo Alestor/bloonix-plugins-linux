@@ -1,0 +1,129 @@
+plugin {
+    id 72
+    plugin Linux.Processes.Status
+    command check-proc-status
+    datatype statistic
+    category System,Linux
+    abstract Process status check
+    description Linux process status
+}
+
+statistic {
+    statkey running
+    alias Running
+    datatype bigint
+    description Number of processes in status R.
+}
+
+statistic {
+    statkey sleeping
+    alias Sleeping
+    datatype bigint
+    description Number of processes in status S.
+}
+
+statistic {
+    statkey disksleep
+    alias Disk sleep
+    datatype bigint
+    description Number of processes in status D.
+}
+
+statistic {
+    statkey zombie
+    alias Zombie
+    datatype bigint
+    description Number of processes in status Z.
+}
+
+statistic {
+    statkey tracing
+    alias Tracing
+    datatype bigint
+    description Number of processes in status T.
+}
+
+statistic {
+    statkey dead
+    alias Dead
+    datatype bigint
+    description Number of processes in status X.
+}
+
+statistic {
+    statkey wakekill
+    alias wakekill
+    datatype bigint
+    description Number of processes in status K.
+}
+
+statistic {
+    statkey waking
+    alias Waking
+    datatype bigint
+    description Number of processes in status W.
+}
+
+statistic {
+    statkey parked
+    alias Parked
+    datatype bigint
+    description Number of processes in status P.
+}
+
+statistic {
+    statkey unknown
+    alias Unknown
+    datatype bigint
+    description Number of processes where the status cannot be determined.
+}
+
+chart {
+    id 1
+    title Linux - process status
+    options {
+        ylabel count
+        units null
+        chart-type area
+        series {
+            name running
+            color \#e9644a
+        }
+        series {
+            name sleeping
+            color \#ffb244
+        }
+        series {
+            name disksleep
+            color \#9a72ad
+        }
+        series {
+            name zombie
+            color \#005467
+        }
+        series {
+            name tracing
+            color \#2ba743
+        }
+        series {
+            name dead
+            color \#7648eb
+        }
+        series {
+            name wakekill
+            color \#7f7fff
+        }
+        series {
+            name waking
+            color \#1c6d16
+        }
+        series {
+            name parked
+            color \#bf00bf
+        }
+        series {
+            name unknown
+            color \#666666
+        }
+    }
+}
