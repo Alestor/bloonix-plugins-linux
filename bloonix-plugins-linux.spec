@@ -1,6 +1,6 @@
 Summary: Bloonix plugins for Linux.
 Name: bloonix-plugins-linux
-Version: 0.50
+Version: 0.51
 Release: 1%{dist}
 License: Commercial
 Group: Utilities/System
@@ -80,6 +80,8 @@ rm -rf %{buildroot}
 %doc %attr(0444, root, root) %{docdir}/LICENSE
 
 %changelog
+* Tue Mar 29 2016 Jonny Schulz <js@bloonix.de> - 0.51-1
+- Extra release because the gpg key of bloonix is updated.
 * Sat Mar 19 2016 Jonny Schulz <js@bloonix.de> - 0.50-1
 - New check check-proc-status.
 * Fri Jan 01 2016 Jonny Schulz <js@bloonix.de> - 0.49-1
