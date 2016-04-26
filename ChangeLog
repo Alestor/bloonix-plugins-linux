@@ -1,3 +1,7 @@
+bloonix-plugins-linux (0.53) released at 2016-04-26
+
+    * Fixed test/proc-diskstats.
+
 bloonix-plugins-linux (0.52) released at 2016-04-26
 
     * Fixed check-iostat and allow devices with a number at the end.

@@ -1,6 +1,6 @@
 Summary: Bloonix plugins for Linux.
 Name: bloonix-plugins-linux
-Version: 0.52
+Version: 0.53
 Release: 1%{dist}
 License: Commercial
 Group: Utilities/System
@@ -80,6 +80,8 @@ rm -rf %{buildroot}
 %doc %attr(0444, root, root) %{docdir}/LICENSE
 
 %changelog
+* Tue Apr 26 2016 Jonny Schulz <js@bloonix.de> - 0.53-1
+- Fixed test/proc-diskstats.
 * Tue Apr 26 2016 Jonny Schulz <js@bloonix.de> - 0.52-1
 - Fixed check-iostat and allow devices with a number at the end.
 * Tue Mar 29 2016 Jonny Schulz <js@bloonix.de> - 0.51-1

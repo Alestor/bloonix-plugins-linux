@@ -1,3 +1,9 @@
+bloonix-plugins-linux (0.53-1) unstable; urgency=low
+
+    * Fixed test/proc-diskstats.
+
+ -- Jonny Schulz <js@bloonix.de>  Tue, 26 Apr 2016 13:10:23 +0200
+
 bloonix-plugins-linux (0.52-1) unstable; urgency=low
 
     * Fixed check-iostat and allow devices with a number at the end.
