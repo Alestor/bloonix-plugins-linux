@@ -126,9 +126,10 @@ sub load {
     #     IOSTAT completion time and the backlog that may be accumulating.
     # -----------------------------------------------------------------------------
 
-    if (open $fh, "<", "/proc/diskstats" || open $fh, "<", "/proc/partitions") {
+    #if (open $fh, "<", "/proc/diskstats" || open $fh, "<", "/proc/partitions") {
+    if (open $fh, "<", "test/proc-diskstats") {
         while (my $line = <$fh>) {
-            if ($line =~ /^\s+\d+\s+\d+\s+(\w+[^\d])\s+(.*)/) {
+            if ($line =~ /^\s+\d+\s+\d+\s+(\w+)\s+(.*)/) {
                 my $x = $stat{$1} = { };
                 my @f = split /\s+/, $2;
                 $x->{rdreq}  = $f[0]; # Field 1
