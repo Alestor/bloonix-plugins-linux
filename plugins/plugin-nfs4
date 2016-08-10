@@ -276,109 +276,69 @@ chart {
         chart-type area
         series {
             name read
+            color \#e9644a
         }
         series {
             name write
+            color \#ffb244
         }
         series {
             name commit
+            color \#9a72ad
         }
         series {
             name open
+            color \#005467
         }
         series {
             name close
+            color \#2ba743
         }
         series {
             name lock
+            color \#7648eb
         }
         series {
             name lockt
+            color \#7f7fff
         }
         series {
             name locku
+            color \#1c6d16
         }
         series {
             name lookup
+            color \#bf00bf
         }
         series {
             name lookupp
+            color \#275487
         }
         series {
             name access
+            color \#666666
         }
         series {
             name getattr
+            color \#66c066
         }
         series {
             name setattr
+            color \#000000
         }
         series {
             name readdir
+            color \#0000ff
         }
         series {
             name readlink
+            color \#005467
         }
     }
 }
 
 chart {
     id 2
-    title NFS - file operations
-    options {
-        ylabel requests/s
-        units null
-        chart-type area
-        series {
-            name read
-        }
-        series {
-            name write
-        }
-        series {
-            name commit
-        }
-        series {
-            name open
-        }
-        series {
-            name close
-        }
-        series {
-            name lock
-        }
-        series {
-            name lockt
-        }
-        series {
-            name locku
-        }
-        series {
-            name lookup
-        }
-        series {
-            name lookupp
-        }
-        series {
-            name access
-        }
-        series {
-            name getattr
-        }
-        series {
-            name setattr
-        }
-        series {
-            name readdir
-        }
-        series {
-            name readlink
-        }
-    }
-}
-
-chart {
-    id 3
     title NFS - other operations
     options {
         ylabel requests/s
@@ -386,57 +346,73 @@ chart {
         chart-type area
         series {
             name create
+            color \#e9644a
         }
         series {
             name remove
+            color \#ffb244
         }
         series {
             name rename
+            color \#9a72ad
         }
         series {
             name renew
+            color \#005467
         }
         series {
             name link
+            color \#2ba743
         }
         series {
             name nverify
+            color \#7648eb
         }
         series {
             name verify
+            color \#1c6d16
         }
         series {
             name delegpurge
+            color \#bf00bf
         }
         series {
             name delegreturn
+            color \#275487
         }
         series {
             name openattr
+            color \#666666
         }
         series {
             name open_confirm
+            color \#66c066
         }
         series {
             name open_downgrade
+            color \#000000
         }
         series {
             name secinfo
+            color \#0000ff
         }
         series {
             name setclientid
+            color \#005467
         }
         series {
             name setclientid_confirm
+            color \#4b9768
         }
         series {
             name rellockowner
+            color \#ea8f00
         }
     }
 }
 
 chart {
-    id 4
+    id 3
     title NFS - filehandle operations
     options {
         ylabel requests/s
@@ -444,21 +420,27 @@ chart {
         chart-type area
         series {
             name getfh
+            color \#e9644a
         }
         series {
             name putfh
+            color \#ffb244
         }
         series {
             name putpubfh
+            color \#9a72ad
         }
         series {
             name putrootfh
+            color \#005467
         }
         series {
             name restorefh
+            color \#2ba743
         }
         series {
             name savefh
+            color \#7648eb
         }
     }
 }

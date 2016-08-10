@@ -1,6 +1,6 @@
 Summary: Bloonix plugins for Linux.
 Name: bloonix-plugins-linux
-Version: 0.53
+Version: 0.54
 Release: 1%{dist}
 License: Commercial
 Group: Utilities/System
@@ -80,6 +80,8 @@ rm -rf %{buildroot}
 %doc %attr(0444, root, root) %{docdir}/LICENSE
 
 %changelog
+* Wed Aug 10 2016 Jonny Schulz <js@bloonix.de> - 0.54-1
+- Fixed colors in plugin-nfs4.
 * Tue Apr 26 2016 Jonny Schulz <js@bloonix.de> - 0.53-1
 - Fixed test/proc-diskstats.
 * Tue Apr 26 2016 Jonny Schulz <js@bloonix.de> - 0.52-1
