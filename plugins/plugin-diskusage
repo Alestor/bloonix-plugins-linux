@@ -92,3 +92,16 @@ chart {
     }
 }
 
+chart {
+    id 2
+    title Linux - diskusage inodes
+    options {
+        ylabel inodes usage in %
+        units null
+        chart-type area
+        series {
+            name iusageper
+            color \#005467
+        }
+    }
+}

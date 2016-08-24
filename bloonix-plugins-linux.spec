@@ -1,6 +1,6 @@
 Summary: Bloonix plugins for Linux.
 Name: bloonix-plugins-linux
-Version: 0.54
+Version: 0.56
 Release: 1%{dist}
 License: Commercial
 Group: Utilities/System
@@ -80,6 +80,10 @@ rm -rf %{buildroot}
 %doc %attr(0444, root, root) %{docdir}/LICENSE
 
 %changelog
+* Wed Aug 24 2016 Jonny Schulz <js@bloonix.de> - 0.56-1
+- Fixed check-bonding: option --interface didn't work.
+* Fri Aug 12 2016 Jonny Schulz <js@bloonix.de> - 0.55-1
+- Added chart for inodes usage.
 * Wed Aug 10 2016 Jonny Schulz <js@bloonix.de> - 0.54-1
 - Fixed colors in plugin-nfs4.
 * Tue Apr 26 2016 Jonny Schulz <js@bloonix.de> - 0.53-1

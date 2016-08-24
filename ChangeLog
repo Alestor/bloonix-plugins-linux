@@ -1,3 +1,11 @@
+bloonix-plugins-linux (0.56) released at 2016-08-24
+
+    * Fixed check-bonding: option --interface didn't work.
+
+bloonix-plugins-linux (0.55) released at 2016-08-12
+
+    * Added chart for inodes usage.
+
 bloonix-plugins-linux (0.54) released at 2016-08-10
 
     * Fixed colors in plugin-nfs4.

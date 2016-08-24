@@ -73,17 +73,19 @@ $plugin->one_must_have_options("all", "interface");
 my $opt = $plugin->parse_options;
 my $procbond = "/proc/net/bonding";
 my $classnet = "/sys/class/net/%s/carrier";
+my @bond_ifs = ();
 #$procbond = "../test/proc-net-bonding";
 #$classnet = "../test/sys-class-net-%s-carrier";
 
 if (!$opt->{all}) {
-    foreach my $bond (@{$opt->{bond}}) {
+    foreach my $bond (@{$opt->{interface}}) {
         if ($bond !~ /^[\w\-:]+\z/) {
             $plugin->exit(
                 status => "UNKNOWN",
                 message => "Invalid interface name '$bond'"
             );
         }
+        push @bond_ifs, $bond;
     }
 }
 
@@ -96,10 +98,10 @@ if (!-r $procbond) {
 
 if ($opt->{all}) {
     opendir(my $dh, $procbond);
-    push @{$opt->{bond}}, grep /\w/, readdir($dh);
+    push @bond_ifs, grep /\w/, readdir($dh);
     closedir $dh;
 
-    if (!@{$opt->{bond}}) {
+    if (!@bond_ifs) {
         $plugin->exit(
             status => "CRITICAL",
             message => "no bond interfaces found"
@@ -140,7 +142,7 @@ my @message = ();
 my %bonds   = ();
 
 BOND:
-foreach my $bond (@{$opt->{bond}}) {
+foreach my $bond (@bond_ifs) {
     my $bstr;
 
     if (open my $fh, "<", "$procbond/$bond") {
