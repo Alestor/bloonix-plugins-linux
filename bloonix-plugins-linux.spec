@@ -45,7 +45,7 @@ if [ ! -e "/etc/bloonix/agent/conf.d" ] ; then
     chmod 750 /etc/bloonix/agent/conf.d
 fi
 
-for f in check-linux-updates check-lsi-raid check-mdadm check-service check-smart-health ; do
+for f in check-linux-updates check-lsi-raid check-mdadm check-service check-smart-health check-gluster-status ; do
     sf=$(echo $f | tr - _)
     if [ ! -e "/etc/sudoers.d/60_bloonix_$sf" ] ; then
         cp -a /usr/lib/bloonix/etc/sudoers.d/60_bloonix_$sf /etc/sudoers.d/60_bloonix_$sf

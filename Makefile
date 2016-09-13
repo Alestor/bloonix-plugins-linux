@@ -12,6 +12,7 @@ build:
 		60_bloonix_check_mdadm \
 		60_bloonix_check_service \
 		60_bloonix_check_smart_health \
+		60_bloonix_check_gluster_status \
 	; do \
 		cp sudoers/$$file.in sudoers/$$file; \
 		sed -i "s!@@PREFIX@@!$(PREFIX)!g" sudoers/$$file; \
