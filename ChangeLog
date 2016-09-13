@@ -1,3 +1,8 @@
+bloonix-plugins-linux (0.57) released at 2016-09-13
+
+    * Added plugin: check-findmnt
+    * Added plugin: check-gluster-status
+
 bloonix-plugins-linux (0.56) released at 2016-08-24
 
     * Fixed check-bonding: option --interface didn't work.

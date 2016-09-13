@@ -1,0 +1,100 @@
+#!/usr/bin/perl
+
+=head1 NAME
+
+check-findmnt - Plugin to check a mount with findmnt.
+
+=head1 SYNOPSIS
+
+    check-findmnt [ OPTIONS ]
+
+    check-findmnt --help
+
+=head1 REPORTING BUGS
+
+Please report all bugs to <support(at)bloonix.de>.
+
+=head1 AUTHOR
+
+Jonny Schulz <support(at)bloonix.de>.
+
+=head1 POWERED BY
+
+     _    __ _____ _____ __  __ __ __   __
+    | |__|  |     |     |  \|  |__|\  \/  /
+    |  . |  |  |  |  |  |      |  | >    <
+    |____|__|_____|_____|__|\__|__|/__/\__\
+
+=head1 COPYRIGHT
+
+Copyright (C) 2009-2014 by Jonny Schulz. All rights reserved.
+
+=cut
+
+use strict;
+use warnings;
+use Bloonix::Plugin;
+
+# --------------------------------------------------
+# Plugin options
+# --------------------------------------------------
+
+my $plugin = Bloonix::Plugin->new(version => "0.1");
+
+$plugin->add_option(
+    name => "Mountpoint",
+    option => "mountpoint",
+    value => "path",
+    value_type => "string",
+    regex => qr/^[^-\s'"`\$%][^\s'"`\$%]*\z/,
+    multiple => 1,
+    mandatory => 1,
+    description => "The mountpoint to check."
+);
+
+# --------------------------------------------------
+# Parse options
+# --------------------------------------------------
+
+my $opt = $plugin->parse_options;
+my $findmnt = qx{which findmnt};
+chomp $findmnt;
+
+if (!$findmnt || !-x $findmnt) {
+    foreach my $p ("/bin/findmnt", "/usr/bin/findmnt") {
+        if (-x $p) {
+            $findmnt = $p;
+        }
+    }
+}
+
+if (!$findmnt || !-x $findmnt) {
+    $plugin->exit(
+        status => "UNKNOWN",
+        message => "command 'findmnt' not found"
+    );
+}
+
+# --------------------------------------------------
+# Run
+# --------------------------------------------------
+
+my @not_found;
+foreach my $mountpoint (@{$opt->{mountpoint}}) {
+    my $output = qx{$findmnt '$mountpoint' 2>/dev/null};
+    if ($? > 0) {
+        push @not_found, $mountpoint;
+    }
+}
+
+if (@not_found) {
+    $plugin->exit(
+        status => "CRITICAL",
+        message => "mountpoint not found: " . join(", ", @not_found)
+    );
+}
+
+$plugin->exit(
+    status => "OK",
+    message => "all mountpoints found"
+);

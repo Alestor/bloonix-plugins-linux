@@ -1,0 +1,9 @@
+plugin {
+    id 74
+    plugin Linux.Gluster.Status
+    command check-gluster-status
+    datatype none
+    category System,Linux,Filesystem
+    abstract Linux gluster status
+    description Check the number of peers in the cluster
+}

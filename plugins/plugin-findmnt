@@ -1,0 +1,9 @@
+plugin {
+    id 73
+    plugin Linux.Mount.Check
+    command check-findmnt
+    datatype none
+    category System,Linux,Filesystem
+    abstract Linux find mount
+    description Check if a filesystem is mounted
+}

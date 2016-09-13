@@ -1,6 +1,6 @@
 Summary: Bloonix plugins for Linux.
 Name: bloonix-plugins-linux
-Version: 0.56
+Version: 0.57
 Release: 1%{dist}
 License: Commercial
 Group: Utilities/System
@@ -80,6 +80,9 @@ rm -rf %{buildroot}
 %doc %attr(0444, root, root) %{docdir}/LICENSE
 
 %changelog
+* Tue Sep 13 2016 Jonny Schulz <js@bloonix.de> - 0.57-1
+- Added plugin: check-findmnt
+- Added plugin: check-gluster-status
 * Wed Aug 24 2016 Jonny Schulz <js@bloonix.de> - 0.56-1
 - Fixed check-bonding: option --interface didn't work.
 * Fri Aug 12 2016 Jonny Schulz <js@bloonix.de> - 0.55-1
