@@ -1,3 +1,35 @@
+bloonix-plugins-linux (0.62-1) unstable; urgency=low
+
+    * Improved chart for nf-conntrack count/free.
+
+ -- Jonny Schulz <js@bloonix.de>  Tue, 20 Dec 2016 20:29:15 +0100
+
+bloonix-plugins-linux (0.61-1) unstable; urgency=low
+
+    * Fixed check-nf-conntrack: missed key 'free'
+
+ -- Jonny Schulz <js@bloonix.de>  Tue, 20 Dec 2016 20:18:51 +0100
+
+bloonix-plugins-linux (0.60-1) unstable; urgency=low
+
+    * New plugin: check-nf-conntrack
+
+ -- Jonny Schulz <js@bloonix.de>  Tue, 20 Dec 2016 19:14:27 +0100
+
+bloonix-plugins-linux (0.59-1) unstable; urgency=low
+
+    * check-iostat: it's now possible to pass "dev-x" as device.
+      The check would check if /dev/sdx exist, then /dev/vdx,
+      then /dev/hdx.
+
+ -- Jonny Schulz <js@bloonix.de>  Mon, 12 Dec 2016 18:26:22 +0100
+
+bloonix-plugins-linux (0.58-1) unstable; urgency=low
+
+    * Improved options of check-gluster-status.
+
+ -- Jonny Schulz <js@bloonix.de>  Wed, 14 Sep 2016 04:42:33 +0200
+
 bloonix-plugins-linux (0.57-1) unstable; urgency=low
 
     * Added plugin: check-findmnt

@@ -1,6 +1,6 @@
 Summary: Bloonix plugins for Linux.
 Name: bloonix-plugins-linux
-Version: 0.57
+Version: 0.62
 Release: 1%{dist}
 License: Commercial
 Group: Utilities/System
@@ -80,6 +80,18 @@ rm -rf %{buildroot}
 %doc %attr(0444, root, root) %{docdir}/LICENSE
 
 %changelog
+* Tue Dec 20 2016 Jonny Schulz <js@bloonix.de> - 0.62-1
+- Improved chart for nf-conntrack count/free.
+* Tue Dec 20 2016 Jonny Schulz <js@bloonix.de> - 0.61-1
+- Fixed check-nf-conntrack: missed key 'free'
+* Tue Dec 20 2016 Jonny Schulz <js@bloonix.de> - 0.60-1
+- New plugin: check-nf-conntrack
+* Mon Dec 12 2016 Jonny Schulz <js@bloonix.de> - 0.59-1
+- check-iostat: it's now possible to pass "dev-x" as device.
+  The check would check if /dev/sdx exist, then /dev/vdx,
+  then /dev/hdx.
+* Wed Sep 14 2016 Jonny Schulz <js@bloonix.de> - 0.58-1
+- Improved options of check-gluster-status.
 * Tue Sep 13 2016 Jonny Schulz <js@bloonix.de> - 0.57-1
 - Added plugin: check-findmnt
 - Added plugin: check-gluster-status

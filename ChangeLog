@@ -1,3 +1,25 @@
+bloonix-plugins-linux (0.62) released at 2016-12-20
+
+    * Improved chart for nf-conntrack count/free.
+
+bloonix-plugins-linux (0.61) released at 2016-12-20
+
+    * Fixed check-nf-conntrack: missed key 'free'
+
+bloonix-plugins-linux (0.60) released at 2016-12-20
+
+    * New plugin: check-nf-conntrack
+
+bloonix-plugins-linux (0.59) released at 2016-12-12
+
+    * check-iostat: it's now possible to pass "dev-x" as device.
+      The check would check if /dev/sdx exist, then /dev/vdx,
+      then /dev/hdx.
+
+bloonix-plugins-linux (0.58) released at 2016-09-14
+
+    * Improved options of check-gluster-status.
+
 bloonix-plugins-linux (0.57) released at 2016-09-13
 
     * Added plugin: check-findmnt

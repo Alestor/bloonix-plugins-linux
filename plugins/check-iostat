@@ -39,7 +39,7 @@ use Bloonix::Plugin;
 # Plugin options
 # --------------------------------------------------
 
-my $plugin = Bloonix::Plugin->new(version => "0.8");
+my $plugin = Bloonix::Plugin->new(version => "0.9");
 
 $plugin->info(
     "Available devices:",
@@ -54,7 +54,11 @@ $plugin->add_option(
     value => "device",
     value_type => "string",
     mandatory => 1,
-    description => "This is the device name you want to check. As example 'sda' or 'vda'."
+    description => join(" ",
+        "This is the device name you want to check. As example 'sda', 'vda' or 'hda'.",
+        "It's also possible to pass 'dev-a', then the check would check if any device",
+        "with letter 'a' exist. At first with 'sd' is checked, then 'vd' and then 'hd'."
+    )
 );
 
 $plugin->has_threshold(
@@ -233,6 +237,16 @@ $plugin->safe_json($init);
 # --------------------------------------------------
 # Check warning and critical
 # --------------------------------------------------
+
+if ($opt->{device} =~ /^dev-([a-z])\z/) {
+    my $letter = $1;
+    foreach my $type (qw/sd vd hd/) {
+        my $device = $type . $letter;
+        if (exists $stat->{$device}) {
+            $opt->{device} = $device;
+        }
+    }
+}
 
 if (!exists $stat->{$opt->{device}}) {
     $plugin->exit(
