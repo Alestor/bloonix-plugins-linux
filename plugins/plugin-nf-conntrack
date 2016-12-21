@@ -1,0 +1,70 @@
+plugin {
+    id 75
+    plugin Linux.NF.Conntrack.Check
+    command check-nf-conntrack
+    datatype statistic
+    category System,Linux,iptables,nftables
+    abstract Netfilter conntrack table check
+    description Linux netfilter conntrack table check
+}
+
+statistic {
+    statkey max
+    alias Max
+    datatype bigint
+    description Number of currently allocated flow entries.
+}
+
+statistic {
+    statkey count
+    alias Count
+    datatype bigint
+    description Number of currently allocated flow entries.
+}
+
+statistic {
+    statkey free
+    alias Free
+    datatype bigint
+    description Free for entries (max - count).
+}
+
+statistic {
+    statkey usedper
+    alias Used %
+    datatype float
+    units percent
+    description Currently allocated flow entries in percent (100 * count / max).
+}
+
+chart {
+    id 1
+    title NF conntrack count
+    options {
+        ylabel count
+        units null
+        chart-type area
+        series {
+            name free
+            color \#dfdfdf
+        }
+        series {
+            name count
+            color \#ff7a0d
+        }
+    }
+}
+
+chart {
+    id 2
+    title NF conntrack used %
+    options {
+        ylabel percent
+        units null
+        chart-type area
+        series {
+            name usedper
+            color \#ff7a0d
+        }
+    }
+}
