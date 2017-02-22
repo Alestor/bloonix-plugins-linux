@@ -1,3 +1,10 @@
+bloonix-plugins-linux (0.63-1) unstable; urgency=low
+
+    * check-linux-updates now returns a list of security updates
+      on Debian/Ubuntu.
+
+ -- Jonny Schulz <js@bloonix.de>  Wed, 22 Feb 2017 21:17:57 +0100
+
 bloonix-plugins-linux (0.62-1) unstable; urgency=low
 
     * Improved chart for nf-conntrack count/free.

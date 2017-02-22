@@ -127,6 +127,7 @@ my $zypper = "/usr/bin/zypper";
 my $packager = "";
 my $count_packages = 0;
 my $security_packages = 0;
+my $sec_package_list;
 
 if (!$packager) {
     if (-x $dnf) {
@@ -214,6 +215,7 @@ sub dnf {
 sub apt {
     my ($count_packages, $security_packages);
     my $proc = qx{/bin/ps -ef};
+    my @sp;
 
     if ($proc =~ m!$apt_get --force-yes .+!) {
         $plugin->exit(
@@ -236,11 +238,12 @@ sub apt {
         $p = join(" ", $package, $version);
         $count_packages++;
         if ($release =~ /security/i) {
+            push @sp, "$package $version $release";
             $security_packages++;
         }
     }
 
-    return ($count_packages, $security_packages);
+    return ($count_packages, $security_packages, \@sp);
 }
 
 sub zypper {
@@ -285,9 +288,10 @@ $plugin->eval(
     action => $packager,
     callback => sub {
         no strict "refs";
-        my ($c, $s) = &{$packager}();
+        my ($c, $s, $n) = &{$packager}();
         $count_packages = $c || 0;
         $security_packages = $s || 0;
+        $sec_package_list = $n;
     }
 );
 
@@ -316,7 +320,14 @@ if ($security_packages) {
     $plugin->set_tag("security");
 }
 
-$plugin->exit(
-    status => $status,
-    message => $message
-);
+if ($sec_package_list) {
+    $plugin->exit(
+        status => $status,
+        message => $message,
+        debug => {
+            "security-packages" => $sec_package_list
+        }
+    );
+}
+
+$plugin->exit(status => $status, message => $message);

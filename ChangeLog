@@ -1,3 +1,8 @@
+bloonix-plugins-linux (0.63) released at 2017-02-22
+
+    * check-linux-updates now returns a list of security updates
+      on Debian/Ubuntu.
+
 bloonix-plugins-linux (0.62) released at 2016-12-20
 
     * Improved chart for nf-conntrack count/free.

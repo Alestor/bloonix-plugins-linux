@@ -1,6 +1,6 @@
 Summary: Bloonix plugins for Linux.
 Name: bloonix-plugins-linux
-Version: 0.62
+Version: 0.63
 Release: 1%{dist}
 License: Commercial
 Group: Utilities/System
@@ -80,6 +80,9 @@ rm -rf %{buildroot}
 %doc %attr(0444, root, root) %{docdir}/LICENSE
 
 %changelog
+* Wed Feb 22 2017 Jonny Schulz <js@bloonix.de> - 0.63-1
+- check-linux-updates now returns a list of security updates
+  on Debian/Ubuntu.
 * Tue Dec 20 2016 Jonny Schulz <js@bloonix.de> - 0.62-1
 - Improved chart for nf-conntrack count/free.
 * Tue Dec 20 2016 Jonny Schulz <js@bloonix.de> - 0.61-1
