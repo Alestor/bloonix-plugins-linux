@@ -1,3 +1,10 @@
+bloonix-plugins-linux (0.64-1) unstable; urgency=low
+
+    * check-mdadm now ignores resync=delayed if the state is clean
+      for an array.
+
+ -- Jonny Schulz <js@bloonix.de>  Thu, 16 Mar 2017 02:07:23 +0100
+
 bloonix-plugins-linux (0.63-1) unstable; urgency=low
 
     * check-linux-updates now returns a list of security updates

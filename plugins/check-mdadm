@@ -39,7 +39,7 @@ use Bloonix::Plugin;
 # Plugin options
 # --------------------------------------------------
 
-my $plugin = Bloonix::Plugin->new(version => "0.4");
+my $plugin = Bloonix::Plugin->new(version => "0.5");
 $plugin->flags("sudo");
 
 $plugin->add_option(
@@ -108,7 +108,7 @@ eval {
             }
         }
 
-        if ($status{state} =~ /^(?:active|clean)\s*\z/ || ($opt->{ignore_status_checking} && $status{state} =~ /checking/)) {
+        if ($status{state} =~ /^(?:active|clean)/ || ($opt->{ignore_status_checking} && $status{state} =~ /checking/)) {
             push @message, "[$array state:$status{state}]";
             next;
         }

@@ -1,6 +1,6 @@
 Summary: Bloonix plugins for Linux.
 Name: bloonix-plugins-linux
-Version: 0.63
+Version: 0.64
 Release: 1%{dist}
 License: Commercial
 Group: Utilities/System
@@ -80,6 +80,9 @@ rm -rf %{buildroot}
 %doc %attr(0444, root, root) %{docdir}/LICENSE
 
 %changelog
+* Thu Mar 16 2017 Jonny Schulz <js@bloonix.de> - 0.64-1
+- check-mdadm now ignores resync=delayed if the state is clean
+  for an array.
 * Wed Feb 22 2017 Jonny Schulz <js@bloonix.de> - 0.63-1
 - check-linux-updates now returns a list of security updates
   on Debian/Ubuntu.
