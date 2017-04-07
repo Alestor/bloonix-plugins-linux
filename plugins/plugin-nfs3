@@ -7,3 +7,566 @@ plugin {
     abstract NFS3 check
     description This plugin can check the nfs3 server or nfs3 client.
 }
+
+statistic {
+    statkey null
+    alias null
+    datatype float
+    units default
+    description Does not do any work. It is made available to allow server response testing and timing.
+}
+
+statistic {
+    statkey getattr
+    alias getattr
+    datatype float
+    units default
+    description Retrieves the attributes for a specified file system object.
+}
+
+statistic {
+    statkey setattr
+    alias setattr
+    datatype float
+    units default
+    description Changes one or more of the attributes of a file system object on the server.
+}
+
+statistic {
+    statkey lookup
+    alias lookup
+    datatype float
+    units default
+    description Searches a directory for a specific name and returns the file handle for the corresponding file system object.
+}
+
+statistic {
+    statkey access
+    alias access
+    datatype float
+    units default
+    description Determines the access rights that a user, as identified by the credentials in the request, has with respect to a file system object.
+}
+
+statistic {
+    statkey readlink
+    alias readlink
+    datatype float
+    units default
+    description Reads the data associated with a symbolic link.
+}
+
+statistic {
+    statkey read
+    alias read
+    datatype float
+    units default
+    description READ reads data from a file.
+}
+
+statistic {
+    statkey write
+    alias write
+    datatype float
+    units default
+    description WRITE writes data to a file.
+}
+
+statistic {
+    statkey create
+    alias create
+    datatype float
+    units default
+    description CREATE creates a regular file.
+}
+
+statistic {
+    statkey mkdir
+    alias mkdir
+    datatype float
+    units default
+    description MKDIR creates a new subdirectory.
+}
+
+statistic {
+    statkey symlink
+    alias symlink
+    datatype float
+    units default
+    description SYMLINK creates a new symbolic link.
+}
+
+statistic {
+    statkey mknod
+    alias mknod
+    datatype float
+    units default
+    description MKNOD creates a new special file of the type, what.type.
+}
+
+statistic {
+    statkey remove
+    alias remove
+    datatype float
+    units default
+    description REMOVE removes (deletes) an entry from a directory.
+}
+
+statistic {
+    statkey rmdir
+    alias rmdir
+    datatype float
+    units default
+    description RMDIR removes (deletes) a subdirectory from a directory.
+}
+
+statistic {
+    statkey rename
+    alias rename
+    datatype float
+    units default
+    description RENAME renames the file identified by from.name in the directory, from.dir, to to.name in the di- rectory, to.dir.
+}
+
+statistic {
+    statkey link
+    alias link
+    datatype float
+    units default
+    description LINK creates a hard link from file to link.name, in the directory, link.dir. file and link.dir must reside on the same file system and server.
+}
+
+statistic {
+    statkey readdir
+    alias readdir
+    datatype float
+    units default
+    description READDIR retrieves a variable number of entries, in sequence, from a directory and returns the name and file identifier for each, with information to allow the client to request additional directory entries in a subsequent READDIR request.
+}
+
+statistic {
+    statkey readdirplus
+    alias readdirplus
+    datatype float
+    units default
+    description READDIRPLUS differs from READDIR only in the amount of information returned for each entry.
+}
+
+statistic {
+    statkey fsstat
+    alias fsstat
+    datatype float
+    units default
+    description FSSTAT retrieves volatile file system state information.
+}
+
+statistic {
+    statkey fsinfo
+    alias fsinfo
+    datatype float
+    units default
+    description FSINFO retrieves nonvolatile file system state information and general information about the NFSv3 protocol server implementation.
+}
+
+statistic {
+    statkey pathconf
+    alias pathconf
+    datatype float
+    units default
+    description PATHCONF retrieves the pathconf information for a file or directory.
+}
+
+statistic {
+    statkey commit
+    alias commit
+    datatype float
+    units default
+    description COMMIT forces or flushes data to stable storage that was previously written with a WRITE procedure call with the stable field set to UNSTABLE.
+}
+
+statistic {
+    statkey percent_of_write
+    alias write %
+    datatype float
+    units percent
+    description Percentage of write operations
+}
+
+statistic {
+    statkey percent_of_getattr
+    alias getattr %
+    datatype float
+    units percent
+    description Percentage of getattr operations
+}
+
+statistic {
+    statkey percent_of_commit
+    alias commit %
+    datatype float
+    units percent
+    description Percentage of commit operations
+}
+
+statistic {
+    statkey percent_of_readdir
+    alias readdir %
+    datatype float
+    units percent
+    description Percentage of readdir operations
+}
+
+statistic {
+    statkey percent_of_fsstat
+    alias fsstat %
+    datatype float
+    units percent
+    description Percentage of fsstat operations
+}
+
+statistic {
+    statkey percent_of_rmdir
+    alias rmdir %
+    datatype float
+    units percent
+    description Percentage of rmdir operations
+}
+
+statistic {
+    statkey percent_of_pathconf
+    alias pathconf %
+    datatype float
+    units percent
+    description Percentage of pathconf operations
+}
+
+statistic {
+    statkey percent_of_link
+    alias link %
+    datatype float
+    units percent
+    description Percentage of link operations
+}
+
+statistic {
+    statkey percent_of_mknod
+    alias mknod %
+    datatype float
+    units percent
+    description Percentage of mknod operations
+}
+
+statistic {
+    statkey percent_of_readlink
+    alias readlink %
+    datatype float
+    units percent
+    description Percentage of readlink operations
+}
+
+statistic {
+    statkey percent_of_null
+    alias null %
+    datatype float
+    units percent
+    description Percentage of null operations
+}
+
+statistic {
+    statkey percent_of_remove
+    alias remove %
+    datatype float
+    units percent
+    description Percentage of remove operations
+}
+
+statistic {
+    statkey percent_of_create
+    alias create %
+    datatype float
+    units percent
+    description Percentage of create operations
+}
+
+statistic {
+    statkey percent_of_read
+    alias read %
+    datatype float
+    units percent
+    description Percentage of read operations
+}
+
+statistic {
+    statkey percent_of_readdirplus
+    alias readdirplus %
+    datatype float
+    units percent
+    description Percentage of readdirplus operations
+}
+
+statistic {
+    statkey percent_of_rename
+    alias rename %
+    datatype float
+    units percent
+    description Percentage of rename operations
+}
+
+statistic {
+    statkey percent_of_fsinfo
+    alias fsinfo %
+    datatype float
+    units percent
+    description Percentage of fsinfo operations
+}
+
+statistic {
+    statkey percent_of_access
+    alias access %
+    datatype float
+    units percent
+    description Percentage of access operations
+}
+
+statistic {
+    statkey percent_of_setattr
+    alias setattr %
+    datatype float
+    units percent
+    description Percentage of setattr operations
+}
+
+statistic {
+    statkey percent_of_lookup
+    alias lookup %
+    datatype float
+    units percent
+    description Percentage of lookup operations
+}
+
+statistic {
+    statkey percent_of_mkdir
+    alias mkdir %
+    datatype float
+    units percent
+    description Percentage of mkdir operations
+}
+
+statistic {
+    statkey percent_of_symlink
+    alias symlink %
+    datatype float
+    units percent
+    description Percentage of symlink operations
+}
+
+
+
+chart {
+    id 1
+    title NFSv3 Operation Distribution
+    options {
+        ylabel Percent
+        units percent
+        chart-type area
+        stack true
+        series {
+            name percent_of_read
+            color \#339900
+        }
+        series {
+            name percent_of_write
+            color \#666666
+        }
+        series {
+            name percent_of_getattr
+            color \#FF0000
+        }
+        series {
+            name percent_of_commit
+            color \#990000
+        }
+        series {
+            name percent_of_readdir
+            color \#cc3399
+        }
+        series {
+            name percent_of_fsstat
+            color \#005467
+        }
+        series {
+            name percent_of_rmdir
+            color \#ffb244
+        }
+        series {
+            name percent_of_pathconf
+            color \#9933cc
+        }
+        series {
+            name percent_of_link
+            color \#2ba743
+        }
+        series {
+            name percent_of_mknod
+            color \#9a72ad
+        }
+        series {
+            name percent_of_readlink
+            color \#7648eb
+        }
+        series {
+            name percent_of_symlink
+            color \#e9644a
+        }
+        series {
+            name percent_of_null
+            color \#bf00bf
+        }
+        series {
+            name percent_of_remove
+            color \#ff7a0d
+        }
+        series {
+            name percent_of_create
+            color \#50eee2
+        }
+        series {
+            name percent_of_mkdir
+            color \#6662a1
+        }
+        series {
+            name percent_of_readdirplus
+            color \#3f4958
+        }
+        series {
+            name percent_of_rename
+            color \#07726a
+        }
+        series {
+            name percent_of_fsinfo
+            color \#536a60
+        }
+        series {
+            name percent_of_access
+            color \#4ca101
+        }
+        series {
+            name percent_of_setattr
+            color \#bbc81f
+        }
+        series {
+            name percent_of_lookup
+            color \#6a2887
+        }
+    }
+}
+
+chart {
+    id 2
+    title NFSv3 Operations
+    options {
+        ylabel Operations/s
+        units default
+        chart-type area
+        stack true
+        series {
+            name read
+            color \#339900
+        }
+        series {
+            name write
+            color \#666666
+            opposite true
+        }
+        series {
+            name getattr
+            color \#FF0000
+        }
+        series {
+            name commit
+            color \#990000
+            opposite true
+        }
+        series {
+            name readdir
+            color \#cc3399
+        }
+        series {
+            name fsstat
+            color \#005467
+        }
+        series {
+            name rmdir
+            color \#ffb244
+            opposite true
+        }
+        series {
+            name pathconf
+            color \#9933cc
+            opposite true
+        }
+        series {
+            name link
+            color \#2ba743
+        }
+        series {
+            name mknod
+            color \#9a72ad
+            opposite true
+        }
+        series {
+            name readlink
+            color \#7648eb
+        }
+        series {
+            name symlink
+            color \#e9644a
+            opposite true
+        }
+        series {
+            name null
+            color \#bf00bf
+        }
+        series {
+            name remove
+            color \#ff7a0d
+            opposite true
+        }
+        series {
+            name create
+            color \#50eee2
+            opposite true
+        }
+        series {
+            name mkdir
+            color \#6662a1
+            opposite true
+        }
+        series {
+            name readdirplus
+            color \#3f4958
+        }
+        series {
+            name rename
+            color \#07726a
+            opposite true
+        }
+        series {
+            name fsinfo
+            color \#536a60
+        }
+        series {
+            name access
+            color \#4ca101
+        }
+        series {
+            name setattr
+            color \#bbc81f
+            opposite true
+        }
+        series {
+            name lookup
+            color \#6a2887
+        }
+    }
+}
