@@ -215,7 +215,6 @@ if (!exists $stat->{$opt->{interface}}) {
 
 $stat = $stat->{$opt->{interface}};
 
-my $status = "OK";
 my $result = $plugin->check_thresholds(
     stats => $stat,
     upshot_keys => [qw(ttbyt rxbyt txbyt)]
