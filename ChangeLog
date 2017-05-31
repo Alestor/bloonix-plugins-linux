@@ -1,3 +1,7 @@
+bloonix-plugins-linux (0.65) released at 2017-05-30
+
+    * check-ifstat: "-" characters are now allowd in interface names.
+
 bloonix-plugins-linux (0.64) released at 2017-03-16
 
     * check-mdadm now ignores resync=delayed if the state is clean

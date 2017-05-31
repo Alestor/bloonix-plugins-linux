@@ -1,6 +1,6 @@
 Summary: Bloonix plugins for Linux.
 Name: bloonix-plugins-linux
-Version: 0.64
+Version: 0.65
 Release: 1%{dist}
 License: Commercial
 Group: Utilities/System
@@ -80,6 +80,8 @@ rm -rf %{buildroot}
 %doc %attr(0444, root, root) %{docdir}/LICENSE
 
 %changelog
+* Wed May 31 2017 Jonny Schulz <js@bloonix.de> - 0.65-1
+- check-ifstat: "-" characters are now allowd in interface names.
 * Thu Mar 16 2017 Jonny Schulz <js@bloonix.de> - 0.64-1
 - check-mdadm now ignores resync=delayed if the state is clean
   for an array.
