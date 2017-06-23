@@ -1,6 +1,6 @@
 Summary: Bloonix plugins for Linux.
 Name: bloonix-plugins-linux
-Version: 0.65
+Version: 0.66
 Release: 1%{dist}
 License: Commercial
 Group: Utilities/System
@@ -80,6 +80,9 @@ rm -rf %{buildroot}
 %doc %attr(0444, root, root) %{docdir}/LICENSE
 
 %changelog
+* Fri Jun 23 2017 Jonny Schulz <js@bloonix.de> - 0.66-1
+- check-nfs3: added multiple new keys (percent_of_*).
+  Added charts and meta informaition to all stat keys.
 * Wed May 31 2017 Jonny Schulz <js@bloonix.de> - 0.65-1
 - check-ifstat: "-" characters are now allowd in interface names.
 * Thu Mar 16 2017 Jonny Schulz <js@bloonix.de> - 0.64-1

@@ -1,3 +1,10 @@
+bloonix-plugins-linux (0.66-1) unstable; urgency=low
+
+    * check-nfs3: added multiple new keys (percent_of_*).
+      Added charts and meta informaition to all stat keys.
+
+ -- Jonny Schulz <js@bloonix.de>  Fri, 23 Jun 2017 13:59:11 +0200
+
 bloonix-plugins-linux (0.65-1) unstable; urgency=low
 
     * check-ifstat: "-" characters are now allowd in interface names.

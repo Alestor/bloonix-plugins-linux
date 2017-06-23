@@ -39,13 +39,21 @@ use Bloonix::Plugin;
 # Plugin options
 # --------------------------------------------------
 
-my $plugin = Bloonix::Plugin->new(version => "0.4");
+my $plugin = Bloonix::Plugin->new(version => "0.5");
 
 $plugin->has_threshold(
     keys => [qw(
-        getattr setattr lookup access readlink read write
+        null getattr setattr lookup access readlink read write
         create mkdir symlink mknod remove rmdir rename link
         readdir readdirplus fsstat fsinfo pathconf commit
+        percent_of_write percent_of_getattr percent_of_commit 
+        percent_of_readdir percent_of_fsstat percent_of_rmdir 
+        percent_of_pathconf  percent_of_link percent_of_mknod 
+        percent_of_readlink percent_of_symlink percent_of_null
+        percent_of_remove percent_of_create percent_of_read 
+        percent_of_mkdir percent_of_readdirplus percent_of_rename
+        percent_of_fsinfo percent_of_access percent_of_setattr
+        percent_of_lookup
     )]
 );
 
@@ -81,9 +89,9 @@ sub load {
     };
 
     while (my $line = <$fh>) {
-        if ($line =~ /^proc3\s+(.*)/) {
+        if ($line =~ /^proc3\s+22\s+(.*)/) {
             @stat{qw(
-                getattr setattr lookup access readlink read write
+                null getattr setattr lookup access readlink read write
                 create mkdir symlink mknod remove rmdir rename link
                 readdir readdirplus fsstat fsinfo pathconf commit
             )} = split /\s+/, $1;
@@ -132,6 +140,22 @@ foreach my $key (keys %$stat) {
     }
 
     $init->{$key} = $value;
+}
+
+my $total_ops = 0;
+
+foreach my $key (keys %$stat) {
+    $total_ops += $stat->{$key};
+}
+
+foreach my $key (keys %$stat) {
+    my $per_key = "percent_of_" . $key;
+
+    if ($total_ops != 0) {
+        $stat->{$per_key} = sprintf("%.2f", $stat->{$key} / $total_ops * 100);
+    } else {
+        $stat->{$per_key} = sprintf("%.2f", 0);
+    }
 }
 
 # --------------------------------------------------

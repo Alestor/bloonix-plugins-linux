@@ -1,3 +1,8 @@
+bloonix-plugins-linux (0.66) released at 2017-06-22
+
+    * check-nfs3: added multiple new keys (percent_of_*).
+      Added charts and meta informaition to all stat keys.
+
 bloonix-plugins-linux (0.65) released at 2017-05-30
 
     * check-ifstat: "-" characters are now allowd in interface names.
