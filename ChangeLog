@@ -1,3 +1,8 @@
+bloonix-plugins-linux (0.67) released at 2017-08-10
+
+    * check-ping: if --host is set to a ipv6 address then --use-ipv6
+      is automatically used.
+
 bloonix-plugins-linux (0.66) released at 2017-06-22
 
     * check-nfs3: added multiple new keys (percent_of_*).

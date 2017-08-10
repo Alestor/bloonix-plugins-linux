@@ -39,7 +39,7 @@ use Bloonix::Plugin;
 # Plugin options
 # --------------------------------------------------
 
-my $plugin = Bloonix::Plugin->new(version => "0.9");
+my $plugin = Bloonix::Plugin->new(version => "0.10");
 
 if ($^O !~ /linux/) {
     $plugin->exit(
@@ -48,7 +48,14 @@ if ($^O !~ /linux/) {
     );
 }
 
-$plugin->has_host(mandatory => 1);
+$plugin->has_host(
+    mandatory => 1,
+    description => join(" ",
+        "A hostname or IP address to connect to.",
+        "If a IPv6 address is passed then ping6",
+        "is automatically used."
+    )
+);
 $plugin->has_timeout(default => 10);
 $plugin->has_use_ipv6;
 
@@ -102,6 +109,10 @@ $plugin->example(
 
 my $opt = $plugin->parse_options;
 my ($ping, $pingv, $ipaddr);
+
+if ($opt->{host} =~ /:/) {
+    $opt->{use_ipv6} = 1;
+}
 
 if ($opt->{use_ipv6}) {
     $ping = "/bin/ping6";

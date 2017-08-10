@@ -1,6 +1,6 @@
 Summary: Bloonix plugins for Linux.
 Name: bloonix-plugins-linux
-Version: 0.66
+Version: 0.67
 Release: 1%{dist}
 License: Commercial
 Group: Utilities/System
@@ -80,6 +80,9 @@ rm -rf %{buildroot}
 %doc %attr(0444, root, root) %{docdir}/LICENSE
 
 %changelog
+* Thu Aug 10 2017 Jonny Schulz <js@bloonix.de> - 0.67-1
+- check-ping: if --host is set to a ipv6 address then --use-ipv6
+  is automatically used.
 * Fri Jun 23 2017 Jonny Schulz <js@bloonix.de> - 0.66-1
 - check-nfs3: added multiple new keys (percent_of_*).
   Added charts and meta informaition to all stat keys.

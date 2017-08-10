@@ -1,3 +1,10 @@
+bloonix-plugins-linux (0.67-1) unstable; urgency=low
+
+    * check-ping: if --host is set to a ipv6 address then --use-ipv6
+      is automatically used.
+
+ -- Jonny Schulz <js@bloonix.de>  Thu, 10 Aug 2017 22:38:36 +0200
+
 bloonix-plugins-linux (0.66-1) unstable; urgency=low
 
     * check-nfs3: added multiple new keys (percent_of_*).
