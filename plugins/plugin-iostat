@@ -57,6 +57,39 @@ statistic {
     description Total number of blocks transmitted from/to physical disk per second.
 }
 
+
+statistic {
+    statkey rrate
+    alias Read rate
+    datatype float
+    units bytes
+    description Bytes per second red from disk.
+}
+
+statistic {
+    statkey wrate
+    alias Write rate
+    datatype float
+    units bytes
+    description Bytes per second written to disk.
+}
+
+statistic {
+    statkey rlat
+    alias Read latency
+    datatype float
+    units ms
+    description Average time spent per read request in ms
+}
+
+statistic {
+    statkey wlat
+    alias Write latency
+    datatype float
+    units ms
+    description Average time spent per write request in ms
+}
+
 chart {
     id 1
     title Linux - disk load in blocks
@@ -89,6 +122,44 @@ chart {
         }
         series {
             name wrtreq
+            color \#005467
+            opposite true
+        }
+    }
+}
+
+chart {
+    id 3
+    title Linux - disk rates in bytes
+    options {
+        units default
+        ylabel bytes/s
+        chart-type area
+        series {
+            name rrate
+            color \#ff7a0d
+        }
+        series {
+            name wrate
+            color \#005467
+            opposite true
+        }
+    }
+}
+
+chart {
+    id 4
+    title Linux - disk latency in ms
+    options {
+        units default
+        ylabel ms
+        chart-type line
+        series {
+            name rlat
+            color \#ff7a0d
+        }
+        series {
+            name wlat
             color \#005467
             opposite true
         }
