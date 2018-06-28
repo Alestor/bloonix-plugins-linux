@@ -27,7 +27,7 @@ Jonny Schulz <support(at)bloonix.de>.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2009-2014 by Jonny Schulz. All rights reserved.
+Copyright (C) 2009-2018 by Jonny Schulz. All rights reserved.
 
 =cut
 
@@ -63,7 +63,7 @@ $plugin->add_option(
 
 $plugin->has_threshold(
     keys => [qw(
-        rdreq rdblk wrtreq wrtblk ttreq ttblk
+        rdreq rdblk wrtreq wrtblk ttreq ttblk rlat wlat rrate wrate
     )]
 );
 
@@ -141,6 +141,8 @@ sub load {
                 $x->{wrtblk} = $f[6]; # Field 7
                 $x->{ttreq}  = $f[0] + $f[4];
                 $x->{ttblk}  = $f[2] + $f[6];
+                $x->{rlat}   = $f[3]; # Field  4
+                $x->{wlat}   = $f[7]; # Field  8
             }
         }
 
@@ -154,6 +156,7 @@ sub load {
     }
 
     return \%stat;
+
 }
 
 # --------------------------------------------------
@@ -184,6 +187,7 @@ if (defined $init) {
     sleep 1;
 }
 
+
 # --------------------------------------------------
 # Load current statistics
 # --------------------------------------------------
@@ -191,6 +195,7 @@ if (defined $init) {
 my $stat  = &load;
 my $ntime = time;
 my $delta = $ntime - $time;
+
 
 # --------------------------------------------------
 # Calculate deltas
@@ -206,7 +211,7 @@ foreach my $dev (keys %$init) {
 foreach my $dev (keys %$stat) {
     if (!exists $init->{$dev}) {
         # A new device
-        @{$init->{$dev}}{qw(rdreq rdblk wrtreq wrtblk ttreq ttblk)} = (0,0,0,0,0,0);
+        @{$init->{$dev}}{qw(rdreq rdblk wrtreq wrtblk ttreq ttblk rlat wlat)} = (0,0,0,0,0,0,0,0);
     }
 
     my $idev = $init->{$dev};
@@ -227,13 +232,13 @@ foreach my $dev (keys %$stat) {
     }
 }
 
+
 # --------------------------------------------------
 # Store statistics for the next run
 # --------------------------------------------------
 
 $init->{time} = $ntime;
 $plugin->safe_json($init);
-
 # --------------------------------------------------
 # Check warning and critical
 # --------------------------------------------------
@@ -256,6 +261,21 @@ if (!exists $stat->{$opt->{device}}) {
 }
 
 $stat = $stat->{$opt->{device}};
+
+if ($stat->{rlat} != 0.00) {
+    $stat->{rlat} = sprintf("%.2f", $stat->{rlat} / $stat->{rdreq});
+    }
+    
+if ($stat->{wlat} != 0.00) {
+    $stat->{wlat} = sprintf("%.2f", $stat->{wlat} / $stat->{wrtreq});
+    }
+    
+open my $hw_sector_size, "<", "/sys/block/$opt->{device}/queue/hw_sector_size" or $plugin->exit(status => "UNKNOWN", message => "device '$opt->{device}' unknown blocksize");
+my $blocksize = <$hw_sector_size>;
+chomp $blocksize;
+
+$stat->{rrate} = sprintf("%.2f", $stat->{rdblk} * $blocksize);
+$stat->{wrate} = sprintf("%.2f", $stat->{wrtblk} * $blocksize);
 
 my $result = $plugin->check_thresholds(
     stats => $stat,
